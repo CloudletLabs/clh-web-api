@@ -21,8 +21,10 @@ To start Mongo:
 
 ```
 mongod --dbpath <path to DB directory>
-# For example:
+# For Windows:
 mongod.exe --dbpath C:\MongoDB-data
+# For Linux:
+mongod --dbpath /home/user/MongoDB-data
 ```
 
 Note this directory should be already exists.
