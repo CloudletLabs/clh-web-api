@@ -15,7 +15,7 @@ For other platforms, install NVM and let it manage your NodeJS versions via ```.
 
 ### Download and Installing MongoDB
 
-Go to https://www.mongodb.org/ and get a latest version for Windows, or use your package manager for other platforms.
+Go to https://www.mongodb.org/ and get a latest version for Windows, or [use your package manager](https://docs.mongodb.com/manual/tutorial/install-mongodb-on-ubuntu/) for other platforms.
 
 To start Mongo:
 
