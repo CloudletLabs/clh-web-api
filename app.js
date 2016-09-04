@@ -36,10 +36,11 @@ if (app.get('env') === 'development') {
  */
 app.use(function (req, res, next) {
     res.setHeader("Access-Control-Allow-Origin", "*");
-    if (req.Method == "OPTIONS") {
-        res.statusCode = 200;
-        res.setHeader("Access-Control-Allow-Headers", "X-Requested-With, Authorization, Content-Type");
+    console.info(req.method);
+    if (req.method == "OPTIONS") {
+        res.setHeader("Access-Control-Allow-Headers", "X-Requested-With, Authorization, Content-Type, Content-Length");
         res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE");
+        res.status(200).send();
         return;
     }
     next();
