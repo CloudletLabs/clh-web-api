@@ -1,0 +1,301 @@
+#%RAML 0.8
+---
+title: bdn-web
+baseUri: http://bdn-web-dev.herokuapp.com/api/v{version}
+version: 1
+mediaType: application/json
+
+schemas:
+  - userForAuth: |
+      {
+        "type": "object",
+        "required": true,
+        "properties": {
+          "username": {
+            "type": "string",
+            "required": true
+          },
+          "password": {
+            "type": "string",
+            "required": true
+          }
+        }
+      }
+  - userForPost: |
+      {
+        "type": "object",
+        "required": true,
+        "properties": {
+          "username": {
+            "type": "string",
+            "required": true
+          },
+          "password": {
+            "type": "string",
+            "required": true
+          },
+          "email": {
+            "type": "string",
+            "required": true
+          },
+          "name": {
+            "type": "string",
+            "required": true
+          }
+        }
+      }
+  - userForPut: |
+      {
+        "type": "object",
+        "required": true,
+        "properties": {
+          "username": {
+            "type": "string",
+            "required": false
+          },
+          "password": {
+            "type": "string",
+            "required": false
+          },
+          "email": {
+            "type": "string",
+            "required": false
+          },
+          "name": {
+            "type": "string",
+            "required": false
+          },
+          "avatar": {
+            "type": "string",
+            "required": false
+          },
+          "roles": {
+            "type": "object",
+            "required": false
+          }
+        }
+      }
+  - newsForPostOrPut: |
+      {
+        "type": "object",
+        "required": true,
+        "properties": {
+          "slug": {
+            "type": "string",
+            "required": false
+          },
+          "subject": {
+            "type": "string",
+            "required": false
+          },
+          "text": {
+            "type": "string",
+            "required": false
+          }
+        }
+      }
+
+traits:
+  - secured:
+      headers:
+        Authorization:
+          displayName: Auth token using Bearer (OAuth 2.0)
+          description: Value should be "Bearer `token`"
+          pattern: ^Bearer\s\w{8}-\w{4}-\w{4}-\w{4}-\w{12}$
+
+/status:
+  get:
+    description: Get service status
+    responses:
+      200:
+        body:
+          text/html:
+            example: |
+              ok
+/info:
+  get:
+    description: Get service info
+    responses:
+      200:
+        body:
+          application/json:
+            example: |
+              {
+                "name": "bdn-web",
+                "version":"0.0.1",
+                "apiVersion":"1"
+              }
+/auth_token:
+  post:
+    description: Get auth token for username+password pair
+    body:
+      application/json:
+        schema: userForAuth
+        example: |
+          {
+            "username": "admin",
+            "password": "28564878b1cbe4544ccfafaaa33b5326d8290e320e31c868f66de0128e73079b"
+          }
+    responses:
+      200:
+        body:
+          application/json:
+            example: |
+              {
+                "auth_token": "c291ce60-365e-11e6-a854-8f791ffe8066"
+              }
+      401:
+        description: Unauthorized
+/user:
+  get:
+    description: Get user for this token
+    is: [ secured ]
+    responses:
+      200:
+        body:
+          application/json:
+            example: !include user.json
+      401:
+        description: Unauthorized
+/users:
+  description: Users
+  get:
+    description: Get users
+    is: [ secured ]
+    responses:
+      200:
+        body:
+          application/json:
+            example: !include users.json
+      401:
+        description: Unauthorized
+  post:
+    description: Create new user
+    body:
+      application/json:
+        schema: userForPost
+        example: |
+          {
+            "username": "user",
+            "password": "720bb2073cb1961d26404ba1f5fe3f4d83b183bf72b8f7328c51f132b3c362db",
+            "email": "user@example.com",
+            "name": "User"
+          }
+    responses:
+      200:
+        body:
+          application/json:
+            example: !include user.json
+      400:
+        description: User with this username already exists
+  /{username}:
+    get:
+      description: Get user
+      is: [ secured ]
+      responses:
+        200:
+          body:
+            application/json:
+              example: !include user.json
+        401:
+          description: Unauthorized
+        404:
+          description: User not found
+    put:
+      description: Update user
+      is: [ secured ]
+      body:
+        application/json:
+          schema: userForPut
+          example: |
+            {
+              "email": "user@example.com"
+            }
+      responses:
+        200:
+          body:
+            application/json:
+              example: !include user.json
+        401:
+          description: Unauthorized
+        404:
+          description: User not found
+    delete:
+      description: Delete user
+      is: [ secured ]
+      responses:
+        200:
+          body:
+            application/json:
+              example: |
+                { }
+        401:
+          description: Unauthorized
+/news:
+  description: News
+  get:
+    description: Get news
+    responses:
+      200:
+        body:
+          application/json:
+            example: !include news.json
+  post:
+    description: Create new news
+    is: [ secured ]
+    body:
+      application/json:
+        schema: newsForPost
+        example: |
+          {
+            "slug": "hello-world",
+            "subject": "Hello World!",
+            "text": "**This** is a **first** test news! `Welcome!`"
+          }
+    responses:
+      200:
+        body:
+          application/json:
+            example: !include newsSlug.json
+      400:
+        description: News with this slug already exists
+      401:
+        description: Unauthorized
+  /{slug}:
+    get:
+      description: Get news by slug
+      responses:
+        200:
+          body:
+            application/json:
+              example: !include newsSlug.json
+    put:
+      description: Update news
+      is: [ secured ]
+      body:
+        application/json:
+          schema: newsForPostOrPut
+          example: |
+            {
+              "text": "**This** is a **first** test news! `Welcome!`"
+            }
+      responses:
+        200:
+          body:
+            application/json:
+              example: !include newsSlug.json
+        400:
+          description: News with this slug already exists
+        401:
+          description: Unauthorized
+    delete:
+      description: Delete news
+      is: [ secured ]
+      responses:
+        200:
+          body:
+            application/json:
+              example: |
+                { }
+        401:
+          description: Unauthorized
