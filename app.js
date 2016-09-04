@@ -32,6 +32,20 @@ if (app.get('env') === 'development') {
 }
 
 /**
+ * Add Access-Control-Allow-Origin header
+ */
+app.use(function (req, res, next) {
+    res.setHeader("Access-Control-Allow-Origin", "*");
+    if (req.Method == "OPTIONS") {
+        res.statusCode = 200;
+        res.setHeader("Access-Control-Allow-Headers", "X-Requested-With, Authorization, Content-Type");
+        res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE");
+        return;
+    }
+    next();
+});
+
+/**
  * Auth with passport
  */
 var passport = require('passport');
@@ -51,16 +65,6 @@ app.use(bodyParser.urlencoded({extended: false}));
  */
 var cookieParser = require('cookie-parser');
 app.use(cookieParser());
-
-/**
- * Add Access-Control-Allow-Origin header
- */
-app.use(function (req, res, next) {
-    res.setHeader("Access-Control-Allow-Origin", "*");
-    res.setHeader("Access-Control-Allow-Headers", "X-Requested-With, Authorization, Content-Type");
-    res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE");
-    next();
-});
 
 /**
  * Publish our public folder
