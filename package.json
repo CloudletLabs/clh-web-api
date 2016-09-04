@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "private": true,
   "scripts": {
-    "postinstall": "raml2html -i ./raml/clh-web-api.raml -o ./public/clh-web-api.html",
+    "postinstall": "mkdir -p ./public && raml2html -i ./raml/clh-web-api.raml -o ./public/clh-web-api.html",
     "start": "node ./bin/clh-web-api"
   },
   "dependencies": {
