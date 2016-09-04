@@ -1,7 +1,7 @@
 #%RAML 0.8
 ---
-title: bdn-web
-baseUri: http://bdn-web-dev.herokuapp.com/api/v{version}
+title: clh-web-api
+baseUri: http://clh-web-api-dev.herokuapp.com/api/v{version}
 version: 1
 mediaType: application/json
 
@@ -121,7 +121,7 @@ traits:
           application/json:
             example: |
               {
-                "name": "bdn-web",
+                "name": "clh-web-api",
                 "version":"0.0.1",
                 "apiVersion":"1"
               }
@@ -245,7 +245,7 @@ traits:
     is: [ secured ]
     body:
       application/json:
-        schema: newsForPost
+        schema: newsForPostOrPut
         example: |
           {
             "slug": "hello-world",

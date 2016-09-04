@@ -43,3 +43,4 @@ Note at the first run on a clean DB it will create some test data. Particularly,
 # Resources
 
 * https://clh-web-api-dev.herokuapp.com/ - Dev env
+* https://clh-web-api-dev.herokuapp.com/clh-web-api.html - API Spec
