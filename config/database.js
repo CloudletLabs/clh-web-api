@@ -1,4 +1,4 @@
-module.exports = function (mongoose) {
+module.exports = function(mongoose) {
 
     /**
      * Open mongodb connection
@@ -37,4 +37,4 @@ module.exports = function (mongoose) {
     });
 
     return connection;
-}
+};
