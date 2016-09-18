@@ -6,7 +6,7 @@
 var debug = require('debug')('clh-web-api:server');
 
 /**
- * Load express example
+ * Load express app
  */
 var app = require('../app');
 

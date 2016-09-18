@@ -31,7 +31,7 @@ module.exports = function(mongoose) {
      */
     process.on('SIGINT', function () {
         connection.close(function () {
-            console.info('Mongoose connection disconnected through example termination');
+            console.info('Mongoose connection disconnected through app termination');
             process.exit(0);
         });
     });
