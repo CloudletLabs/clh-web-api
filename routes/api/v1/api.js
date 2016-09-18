@@ -76,9 +76,9 @@ module.exports = function (app, passport, models) {
             session: false
         }), function (req, res, next) {
             console.info("[%s] GET users", req.user.username);
-            User.find(function (err, user) {
+            User.find(function (err, users) {
                 if (err) return next(err);
-                res.json(user);
+                res.json(users);
             });
         });
 
