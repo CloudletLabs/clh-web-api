@@ -1,4 +1,4 @@
-module.exports = function (mongoose) {
+module.exports = function(mongoose) {
 
     /**
      * Open mongodb connection
@@ -31,10 +31,10 @@ module.exports = function (mongoose) {
      */
     process.on('SIGINT', function () {
         connection.close(function () {
-            console.info('Mongoose connection disconnected through app termination');
+            console.info('Mongoose connection disconnected through example termination');
             process.exit(0);
         });
     });
 
     return connection;
-}
+};

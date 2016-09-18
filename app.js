@@ -94,6 +94,6 @@ app.use(function (err, req, res, next) {
 });
 
 /**
- * Export app
+ * Export example
  */
 module.exports = app;

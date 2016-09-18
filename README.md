@@ -17,7 +17,7 @@ For other platforms, install NVM and let it manage your NodeJS versions via ```.
 
 Go to https://www.mongodb.org/ and get a latest version for Windows, or [use your package manager](https://docs.mongodb.com/manual/tutorial/install-mongodb-on-ubuntu/) for other platforms.
 
-To start Mongo:
+To start MongoDB manually (usually you want to use ```npm``` for this):
 
 ```
 mongod --dbpath <path to DB directory>
@@ -35,12 +35,24 @@ This one is really simple.
 
 ```
 npm install # install dependencies
+npm run-script db-start # this will start MongoDB for you
 npm start # start application
+# Use Ctrl+C to stop application
+npm run-script db-stop # this will stop MongoDB for you
+npm run-script db-clean # this will cleanup DB for you
 ```
 
 Once done, you should be able to open in your browser [http://localhost:8087/](http://localhost:8087/) and see the app.
 
 Note at the first run on a clean DB it will create some test data. Particularly, default admin access would be ```admin/admin```.
+
+## Running tests
+
+This is important before each commit perform an automated testing, so you are confident the code quality is good enough.
+
+```
+npm run-script test-unit # to run Mocha unit tests
+```
 
 # Resources
 

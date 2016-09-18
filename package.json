@@ -4,7 +4,11 @@
   "private": true,
   "scripts": {
     "postinstall": "mkdir -p ./public && raml2html -i ./raml/clh-web-api.raml -o ./public/clh-web-api.html",
-    "start": "node ./bin/clh-web-api"
+    "start": "node ./bin/clh-web-api",
+    "db-start": "mkdir ./.db && mongod --dbpath ./.db --fork --logpath /dev/null",
+    "db-stop": "mongo admin --eval 'db.shutdownServer()' >/dev/null 2>&1 || true",
+    "db-clean": "npm run-script db-stop && rm -rf ./.db",
+    "test-unit": "NODE_ENV=test mocha './tests/**/*.spec.js'"
   },
   "dependencies": {
     "express": "=4.13.1",
@@ -21,6 +25,9 @@
     "morgan": "=1.6.1"
   },
   "devDependencies": {
-    "raml2html": "=3.0.0"
+    "raml2html": "=3.0.0",
+    "mocha": "=3.0.2",
+    "chai": "=3.5.0",
+    "sinon": "=1.17.5"
   }
 }
