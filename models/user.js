@@ -29,7 +29,6 @@ module.exports = function (connection) {
         this.token.createDate = moment().utc();
     };
 
-
     var User = connection.model('User', userSchema);
 
     return User;
