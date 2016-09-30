@@ -53,8 +53,7 @@ module.exports = function (passport, models) {
                 }
 
                 if (!user.token.auth_token || user.hasExpired()) {
-                    user.token.auth_token = uuid.v1();
-                    user.token.createDate = moment().utc();
+                    user.tokenRegenerate();
 
                     user.save(function (err, user) {
                         if (err) {
@@ -70,11 +69,22 @@ module.exports = function (passport, models) {
     ));
 
     /**
+     * Strategy for local local-renew-authorization
+     */
+    passport.use('local-renew-authorization', new BearerStrategy(
+        function (token, done) {
+            authUserByToken(token, false, done, function (user) {
+                return done(null, user, {scope: 'all'});
+            });
+        }
+    ));
+
+    /**
      * Strategy for token auth
      */
     passport.use('local-authorization', new BearerStrategy(
         function (token, done) {
-            authUserByToken(token, done, function (user) {
+            authUserByToken(token, true, done, function (user) {
                 return done(null, user, {scope: 'all'});
             });
         }
@@ -85,7 +95,7 @@ module.exports = function (passport, models) {
      */
     passport.use('admin-authorization', new BearerStrategy(
         function (token, done) {
-            authUserByToken(token, done, function (user) {
+            authUserByToken(token, true, done, function (user) {
                 if (user.roles.some(function (role) {
                         return role.roleId == 'ADMIN';
                     })) {
@@ -102,7 +112,7 @@ module.exports = function (passport, models) {
      * @param done - passport done function (used in case of errors)
      * @param callback - callback when success (for additional checks)
      */
-    function authUserByToken(token, done, callback) {
+    function authUserByToken(token, checkExpire, done, callback) {
         User.findOne({'token.auth_token': token})
             .populate('roles')
             .exec(function (err, user) {
@@ -112,7 +122,7 @@ module.exports = function (passport, models) {
                 if (!user) {
                     return done(null, false);
                 }
-                if (user.hasExpired()) {
+                if (checkExpire && user.hasExpired()) {
                     return done(null, false);
                 }
                 return callback(user);

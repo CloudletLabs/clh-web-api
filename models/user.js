@@ -1,5 +1,6 @@
 var mongoose = require('mongoose');
 var moment = require('moment');
+var uuid = require('node-uuid');
 var expired_time = 30;
 
 module.exports = function (connection) {
@@ -21,6 +22,11 @@ module.exports = function (connection) {
 
     userSchema.methods.hasExpired = function () {
         return (moment().utc().diff(this.token.createDate, 'days')) > expired_time;
+    };
+
+    userSchema.methods.tokenRegenerate = function () {
+        this.token.auth_token = uuid.v1();
+        this.token.createDate = moment().utc();
     };
 
     var User = connection.model('User', userSchema);

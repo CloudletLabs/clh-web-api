@@ -57,6 +57,21 @@ module.exports = function (app, passport, models) {
             res.json({auth_token: req.user.token.auth_token});
         });
 
+    /* PUT auth token. */
+    router.put('/auth_token',
+        passport.authenticate('local-renew-authorization', {
+            session: false
+        }), function (req, res, next) {
+            console.info("[%s] PUT auth_token", req.user.username);
+            var user = req.user;
+            user.tokenRegenerate();
+
+            user.save(function (err, user) {
+                if (err) return next(err);
+                res.json({auth_token: user.token.auth_token});
+            });
+        });
+
     /**
      * User CRUD
      */
