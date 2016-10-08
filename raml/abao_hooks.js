@@ -1,11 +1,17 @@
 var hooks = require('hooks');
 
 var auth_token;
-hooks.after('POST /auth_token -> 200', function(test, done) {
-    auth_token = test.response.body.auth_token;
-    done();
+[
+    'POST /auth_token -> 200',
+    'PUT /auth_token -> 200'
+].forEach(function(name) {
+    hooks.after(name, function(test, done) {
+        auth_token = test.response.body.auth_token;
+        done();
+    });
 });
 [
+    'PUT /auth_token -> 200',
     'GET /user -> 200',
     'GET /users -> 200',
     'GET /users/{username} -> 200',

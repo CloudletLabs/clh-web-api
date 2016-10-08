@@ -103,6 +103,15 @@ securitySchemes:
           application/json:
             schema: authToken
             example: !include bodies/responses/auth_token.json
+  put:
+    description: Create new token instead of expired one
+    securedBy: [ Bearer ]
+    responses:
+      200:
+        body:
+          application/json:
+            schema: authToken
+            example: !include bodies/responses/auth_token.json
 /user:
   displayName: Current User
   get:
