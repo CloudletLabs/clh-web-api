@@ -3,10 +3,10 @@ var chai = require('chai');
 var should = chai.should();
 
 describe('The example module', function() {
-    it('should handle errors', function() {
+    it('true should be a boolean', function() {
         true.should.be.a('boolean');
     })
-    it('should handle errors 2', function() {
+    it('1+1 should = 2', function() {
         (1+1).should.equal(2);
     })
 });

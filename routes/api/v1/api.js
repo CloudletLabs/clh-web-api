@@ -106,7 +106,7 @@ module.exports = function (app, passport, models) {
             User.findOne({username: req.params.username}, function (err, user) {
                 if (err) return next(err);
                 if (!user) {
-                    res.json(404, {message: "User not found"});
+                    res.status(404).json({message: "User not found"});
                     return;
                 }
 
@@ -120,7 +120,7 @@ module.exports = function (app, passport, models) {
         User.count({username: req.body.username}, function (err, count) {
             if (err) return next(err);
             if (count > 0) {
-                res.json(400, {message: "User already exist"});
+                res.status(400).json({message: "User already exist"});
                 return;
             }
 
@@ -149,7 +149,7 @@ module.exports = function (app, passport, models) {
             User.findOne({username: req.params.username}, function (err, user) {
                 if (err) return next(err);
                 if (!user) {
-                    res.json(404, {message: "User not found"});
+                    res.status(404).json({message: "User not found"});
                     return;
                 }
 
@@ -238,7 +238,7 @@ module.exports = function (app, passport, models) {
             News.findOne({slug: req.params.slug}, function (err, news) {
                 if (err) return next(err);
                 if (!news) {
-                    res.json(404, {message: "News with this slug not found"});
+                    res.status(404).json({message: "News with this slug not found"});
                     return;
                 }
 

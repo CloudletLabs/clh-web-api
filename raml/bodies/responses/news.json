@@ -1,12 +1,9 @@
 {
-  "_id": "5766c15dfa6c831a5d3aca47",
   "slug": "hello-world",
   "creator": {
-    "_id": "5766c15dfa6c831a5d3aca45",
     "name": "Admin"
   },
   "subject": "Hello World!",
   "text": "**This** is a **first** test news! `Welcome!`",
-  "__v": 0,
   "createDate": "2016-06-18T15:59:25.390Z"
 }

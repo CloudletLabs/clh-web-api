@@ -1,0 +1,15 @@
+{
+  "username": "admin",
+  "password": "28564878b1cbe4544ccfafaaa33b5326d8290e320e31c868f66de0128e73079b",
+  "email": "admin@example.com",
+  "name": "Admin",
+  "avatar": "img\/mockUser.jpg",
+  "roles": [
+    "5766c15dfa6c831a5d3aca43",
+    "5766c15dfa6c831a5d3aca44"
+  ],
+  "token": {
+    "auth_token": "c291ce60-365e-11e6-a854-8f791ffe8066",
+    "createDate": "2016-06-19T20:45:30.056Z"
+  }
+}
