@@ -40,7 +40,8 @@ schemas:
   - userForPut: !include schemas/userForPut.json
   - news: !include schemas/news.json
   - newss: !include schemas/newss.json
-  - newsForPostOrPut: !include schemas/newsForPostOrPut.json
+  - newsForPost: !include schemas/newsForPost.json
+  - newsForPut: !include schemas/newsForPut.json
 
 securitySchemes:
   - User-Password:
@@ -204,7 +205,7 @@ securitySchemes:
     securedBy: [ Bearer ]
     body:
       application/json:
-        schema: newsForPostOrPut
+        schema: newsForPost
         example: !include bodies/requests/newsForPostOrPut.json
     responses:
       200:
@@ -233,7 +234,7 @@ securitySchemes:
       securedBy: [ Bearer ]
       body:
         application/json:
-          schema: newsForPostOrPut
+          schema: newsForPut
           example: !include bodies/requests/newsForPostOrPut.json
       responses:
         200:

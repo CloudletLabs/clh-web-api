@@ -11,7 +11,7 @@
     "db-clean": "npm run-script db-stop && rm -rf ./.db",
     "test-unit": "NODE_ENV=test mocha './tests/**/*.spec.js'",
     "abao-names": "abao raml/clh-web-api.raml --names",
-    "test-integration": "NODE_ENV=test abao raml/clh-web-api.raml http://localhost:8087/api/current --hookfiles=raml/*_hooks.js --schemas=raml/schemas/*.json",
+    "test-integration": "NODE_ENV=test abao raml/clh-web-api.raml --server=http://localhost:8087/api/current --hookfiles=raml/*_hooks.js --schemas=raml/schemas/*.json",
     "raml": "mkdir -p ./public && raml2html -i ./raml/clh-web-api.raml -o ./public/clh-web-api.html"
   },
   "dependencies": {
@@ -33,6 +33,6 @@
     "mocha": "=3.0.2",
     "chai": "=3.5.0",
     "sinon": "=1.17.5",
-    "abao": "=0.3.1"
+    "abao": "=0.4.1"
   }
 }
