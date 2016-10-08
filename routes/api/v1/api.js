@@ -106,7 +106,7 @@ module.exports = function (app, passport, models) {
             User.findOne({username: req.params.username}, function (err, user) {
                 if (err) return next(err);
                 if (!user) {
-                    res.json(404, {message: "User not found"});
+                    res.status(404).json({message: "User not found"});
                     return;
                 }
 
@@ -120,7 +120,7 @@ module.exports = function (app, passport, models) {
         User.count({username: req.body.username}, function (err, count) {
             if (err) return next(err);
             if (count > 0) {
-                res.json(400, {message: "User already exist"});
+                res.status(400).json({message: "User already exist"});
                 return;
             }
 
@@ -149,7 +149,7 @@ module.exports = function (app, passport, models) {
             User.findOne({username: req.params.username}, function (err, user) {
                 if (err) return next(err);
                 if (!user) {
-                    res.json(404, {message: "User not found"});
+                    res.status(404).json({message: "User not found"});
                     return;
                 }
 
@@ -197,6 +197,7 @@ module.exports = function (app, passport, models) {
     router.get('/news/:slug', function (req, res, next) {
         News.findOne({slug: req.params.slug}).populate("creator", "name").exec(function (err, news) {
             if (err) return next(err);
+            if (!news) return res.status(404).json({message: "News with thus slug not found"});
             res.json(news);
         });
     });
@@ -210,7 +211,7 @@ module.exports = function (app, passport, models) {
             News.count({slug: req.body.slug}, function (err, count) {
                 if (err) return next(err);
                 if (count > 0) {
-                    res.json(400, {message: "News with thus slug already exist"});
+                    res.status(400).json({message: "News with thus slug already exist"});
                     return;
                 }
 
@@ -238,25 +239,40 @@ module.exports = function (app, passport, models) {
             News.findOne({slug: req.params.slug}, function (err, news) {
                 if (err) return next(err);
                 if (!news) {
-                    res.json(404, {message: "News with this slug not found"});
+                    res.status(404).json({message: "News with this slug not found"});
                     return;
                 }
 
-                for (var attrname in req.body) {
-                    if (attrname != "_id" && attrname != "__v")
-                        news[attrname] = req.body[attrname];
+                if (req.body.slug) {
+                    News.count({slug: req.body.slug}, function (err, count) {
+                        if (err) return next(err);
+                        if (count > 0) {
+                            res.status(400).json({message: "News with thus slug already exist"});
+                            return;
+                        }
+                        updateNews();
+                    });
+                } else {
+                    updateNews();
                 }
+                
+                function updateNews() {
+                    for (var attrname in req.body) {
+                        if (attrname != "_id" && attrname != "__v")
+                            news[attrname] = req.body[attrname];
+                    }
 
-                news.save(function (err, news) {
-                    if (err) return next(err);
-
-                    news.populate("creator", "name", function (err, news) {
+                    news.save(function (err, news) {
                         if (err) return next(err);
 
-                        console.info('News %s updated', news.slug);
-                        res.json(news);
+                        news.populate("creator", "name", function (err, news) {
+                            if (err) return next(err);
+
+                            console.info('News %s updated', news.slug);
+                            res.json(news);
+                        });
                     });
-                });
+                }
             });
         });
 
