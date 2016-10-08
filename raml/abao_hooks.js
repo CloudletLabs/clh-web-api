@@ -23,10 +23,11 @@ var auth_token;
     'POST /news -> 400',
     'PUT /news/{slug} -> 200',
     'PUT /news/{slug} -> 400',
+    'PUT /news/{slug} -> 404',
     'DELETE /news/{slug} -> 200'
 ].forEach(function(name) {
     hooks.before(name, function(test, done) {
-        test.request.headers = { Authorization: 'Bearer ' + auth_token };
+        test.request.headers.Authorization = 'Bearer ' + auth_token;
         done();
     });
 });
@@ -37,7 +38,17 @@ var auth_token;
     'DELETE /users/{username} -> 200'
 ].forEach(function(name) {
     hooks.before(name, function(test, done) {
-        test.request.params = { username: 'user1' };
+        test.request.params.username = 'user1';
+        done();
+    });
+});
+
+[
+    'GET /users/{username} -> 404',
+    'PUT /users/{username} -> 404'
+].forEach(function(name) {
+    hooks.before(name, function(test, done) {
+        test.request.params.username = null;
         done();
     });
 });
@@ -45,15 +56,26 @@ var auth_token;
 [
     'GET /news/{slug} -> 200',
     'PUT /news/{slug} -> 200',
+    'PUT /news/{slug} -> 400',
     'DELETE /news/{slug} -> 200'
 ].forEach(function(name) {
     hooks.before(name, function(test, done) {
-        test.request.params = { slug: 'test-news' };
+        test.request.params.slug = 'test-news';
         done();
     });
 });
 
-hooks.before('POST /news -> 200', function(test, done) {
-    console.log(test.request);
+hooks.before('PUT /news/{slug} -> 400', function(test, done) {
+    test.request.body.slug = 'test-news';
     done();
+});
+
+[
+    'GET /news/{slug} -> 404',
+    'PUT /news/{slug} -> 404'
+].forEach(function(name) {
+    hooks.before(name, function(test, done) {
+        test.request.params.slug = null;
+        done();
+    });
 });

@@ -206,7 +206,7 @@ securitySchemes:
     body:
       application/json:
         schema: newsForPost
-        example: !include bodies/requests/newsForPostOrPut.json
+        example: !include bodies/requests/newsForPost.json
     responses:
       200:
         body:
@@ -229,13 +229,15 @@ securitySchemes:
             application/json:
               schema: news
               example: !include bodies/responses/news.json
+        404:
+          description: News with this slug not found
     put:
       description: Update news
       securedBy: [ Bearer ]
       body:
         application/json:
           schema: newsForPut
-          example: !include bodies/requests/newsForPostOrPut.json
+          example: !include bodies/requests/newsForPut.json
       responses:
         200:
           body:
@@ -244,6 +246,8 @@ securitySchemes:
               example: !include bodies/responses/news.json
         400:
           description: News with this slug already exists
+        404:
+          description: News with this slug not found
     delete:
       description: Delete news
       securedBy: [ Bearer ]
