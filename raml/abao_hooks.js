@@ -48,7 +48,7 @@ var auth_token;
     'PUT /users/{username} -> 404'
 ].forEach(function(name) {
     hooks.before(name, function(test, done) {
-        test.request.params.username = null;
+        test.request.params.username = '404-object';
         done();
     });
 });
@@ -66,7 +66,7 @@ var auth_token;
 });
 
 hooks.before('PUT /news/{slug} -> 400', function(test, done) {
-    test.request.body.slug = 'test-news';
+    test.request.body.slug = 'hello-world';
     done();
 });
 
@@ -75,7 +75,7 @@ hooks.before('PUT /news/{slug} -> 400', function(test, done) {
     'PUT /news/{slug} -> 404'
 ].forEach(function(name) {
     hooks.before(name, function(test, done) {
-        test.request.params.slug = null;
+        test.request.params.slug = '404-object';
         done();
     });
 });
