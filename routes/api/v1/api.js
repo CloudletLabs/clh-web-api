@@ -81,8 +81,12 @@ module.exports = function (app, passport, models) {
         passport.authenticate('local-authorization', {
             session: false
         }), function (req, res, next) {
-            console.info("[%s] GET user by it's token", req.user.username);
-            res.json(req.user);
+            var user = req.user;
+            console.info("[%s] GET user by it's token", user.username);
+            user.populate("roles", "roleId", function (err, user) {
+                if (err) return next(err);
+                res.json(user.toObject());
+            });
         });
 
     /* GET users. */
@@ -91,9 +95,9 @@ module.exports = function (app, passport, models) {
             session: false
         }), function (req, res, next) {
             console.info("[%s] GET users", req.user.username);
-            User.find(function (err, users) {
+            User.find().populate("roles", "roleId").exec(function (err, users) {
                 if (err) return next(err);
-                res.json(users);
+                res.json(users.map(function (user) { return user.toObject(); }));
             });
         });
 
@@ -103,14 +107,14 @@ module.exports = function (app, passport, models) {
             session: false
         }), function (req, res, next) {
             console.info("[%s] GET user %s", req.user.username, req.params.username);
-            User.findOne({username: req.params.username}, function (err, user) {
+            User.findOne({username: req.params.username}).populate("roles", "roleId").exec(function (err, user) {
                 if (err) return next(err);
                 if (!user) {
                     res.status(404).json({message: "User not found"});
                     return;
                 }
 
-                res.json(user);
+                res.json(user.toObject());
             });
         });
 
@@ -133,8 +137,12 @@ module.exports = function (app, passport, models) {
                 newUser.save(function (err, user) {
                     if (err) return next(err);
 
-                    console.info('New user %s created', user.username);
-                    res.json(user);
+                    user.populate("roles", "roleId", function (err, user) {
+                        if (err) return next(err);
+
+                        console.info('New user %s created', user.username);
+                        res.json(user.toObject());
+                    });
                 });
             });
         });
@@ -146,7 +154,7 @@ module.exports = function (app, passport, models) {
             session: false
         }), function (req, res, next) {
             console.info("[%s] PUT user %s", req.user.username, req.params.username);
-            User.findOne({username: req.params.username}, function (err, user) {
+            User.findOne({username: req.params.username}).populate("roles", "roleId").exec(function (err, user) {
                 if (err) return next(err);
                 if (!user) {
                     res.status(404).json({message: "User not found"});
@@ -162,7 +170,7 @@ module.exports = function (app, passport, models) {
                     if (err) return next(err);
 
                     console.info('User %s updated', user.username);
-                    res.json(user);
+                    res.json(user.toObject());
                 });
             });
         });
@@ -189,7 +197,7 @@ module.exports = function (app, passport, models) {
     router.get('/news', function (req, res, next) {
         News.find().populate("creator", "name").sort({createDate: 'desc'}).exec(function (err, news) {
             if (err) return next(err);
-            res.json(news);
+            res.json(news.map(function (news) { return news.toObject(); }));
         });
     });
 
@@ -198,7 +206,7 @@ module.exports = function (app, passport, models) {
         News.findOne({slug: req.params.slug}).populate("creator", "name").exec(function (err, news) {
             if (err) return next(err);
             if (!news) return res.status(404).json({message: "News with thus slug not found"});
-            res.json(news);
+            res.json(news.toObject());
         });
     });
 
@@ -224,7 +232,7 @@ module.exports = function (app, passport, models) {
                         if (err) return next(err);
 
                         console.info('New news %s created', news.slug);
-                        res.json(news);
+                        res.json(news.toObject());
                     });
                 });
             });
@@ -269,7 +277,7 @@ module.exports = function (app, passport, models) {
                             if (err) return next(err);
 
                             console.info('News %s updated', news.slug);
-                            res.json(news);
+                            res.json(news.toObject());
                         });
                     });
                 }
@@ -299,4 +307,4 @@ module.exports = function (app, passport, models) {
     });
 
     return router;
-}
+};

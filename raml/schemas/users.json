@@ -31,7 +31,13 @@
         "type": "array",
         "required": true,
         "items": {
-          "type": "string"
+          "type": "object",
+          "properties": {
+            "roleId": {
+              "type": "string",
+              "required": true
+            }
+          }
         }
       },
       "token": {

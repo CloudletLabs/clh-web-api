@@ -1,6 +1,6 @@
 var mongoose = require('mongoose');
 
-module.exports = function (connection) {
+module.exports = function (connection, deleteMongoFields) {
 
     var Schema = mongoose.Schema;
 
@@ -8,6 +8,8 @@ module.exports = function (connection) {
         roleId: {type: String, index: true, unique: true, required: true, dropDups: true},
         displayName: {type: String, required: true}
     });
+
+    deleteMongoFields(userRoleSchema);
 
     var UserRole = connection.model('UserRole', userRoleSchema);
 
