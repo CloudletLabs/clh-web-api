@@ -251,7 +251,7 @@ module.exports = function (app, passport, models) {
                     return;
                 }
 
-                if (req.body.slug) {
+                if (req.body.slug && req.params.slug != req.body.slug) {
                     News.count({slug: req.body.slug}, function (err, count) {
                         if (err) return next(err);
                         if (count > 0) {
