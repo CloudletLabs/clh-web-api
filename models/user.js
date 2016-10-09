@@ -3,7 +3,7 @@ var moment = require('moment');
 var uuid = require('node-uuid');
 var expired_time = 30;
 
-module.exports = function (connection) {
+module.exports = function (connection, deleteMongoFields) {
 
     var Schema = mongoose.Schema;
 
@@ -19,6 +19,8 @@ module.exports = function (connection) {
         avatar: String,
         roles: [{type: mongoose.Schema.Types.ObjectId, ref: 'UserRole'}]
     });
+
+    deleteMongoFields(userSchema);
 
     userSchema.methods.hasExpired = function () {
         return (moment().utc().diff(this.token.createDate, 'days')) > expired_time;

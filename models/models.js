@@ -2,9 +2,19 @@ var moment = require('moment');
 
 module.exports = function (connection) {
 
-    var User = require('./user')(connection);
-    var UserRole = require('./userRole')(connection);
-    var News = require('./news')(connection);
+    function deleteMongoFields(schema) {
+        if (!schema.options.toObject) schema.options.toObject = {};
+        schema.options.toObject.transform = function (doc, ret, options) {
+            // remove the _id of every document before returning the result
+            delete ret._id;
+            delete ret.__v;
+            return ret;
+        }
+    }
+
+    var User = require('./user')(connection, deleteMongoFields);
+    var UserRole = require('./userRole')(connection, deleteMongoFields);
+    var News = require('./news')(connection, deleteMongoFields);
 
     /**
      * Create some default test data
@@ -49,7 +59,7 @@ module.exports = function (connection) {
                 })
             }
         });
-    };
+    }
 
     function createDefaultUsers(roles) {
         User.count(function (err, count) {

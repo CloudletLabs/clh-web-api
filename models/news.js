@@ -1,7 +1,7 @@
 var mongoose = require('mongoose');
 var moment = require('moment');
 
-module.exports = function (connection) {
+module.exports = function (connection, deleteMongoFields) {
 
     var Schema = mongoose.Schema;
 
@@ -12,6 +12,8 @@ module.exports = function (connection) {
         subject: {type: String, required: true},
         text: {type: String, required: true}
     });
+
+    deleteMongoFields(newsSchema);
 
     var News = connection.model('News', newsSchema);
 

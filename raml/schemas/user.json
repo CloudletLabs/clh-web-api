@@ -32,10 +32,6 @@
           "roleId": {
             "type": "string",
             "required": true
-          },
-          "displayName": {
-            "type": "string",
-            "required": true
           }
         }
       }
