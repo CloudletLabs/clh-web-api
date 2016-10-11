@@ -51,19 +51,7 @@ module.exports = function (passport, models) {
                 if (!user) {
                     return done(null, false);
                 }
-
-                if (!user.token.auth_token || user.hasExpired()) {
-                    user.tokenRegenerate();
-
-                    user.save(function (err, user) {
-                        if (err) {
-                            return done(err);
-                        }
-                        return done(null, user);
-                    });
-                } else {
-                    return done(null, user);
-                }
+                return done(null, user);
             });
         }
     ));
