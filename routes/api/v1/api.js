@@ -53,8 +53,21 @@ module.exports = function (app, passport, models) {
         passport.authenticate('local-login', {
             session: false
         }), function (req, res, next) {
-            console.info("[%s] POST auth_token", req.user.username);
-            res.json({auth_token: req.user.token.auth_token});
+            function sendToken() {
+                console.info("[%s] POST auth_token: [%s] %s", req.user.username, req.connection.remoteAddress, req.userAgent);
+                res.json({auth_token: req.user.token.auth_token});
+            }
+
+            var user = req.user;
+            if (!user.token.auth_token || user.hasExpired()) {
+                user.tokenRegenerate();
+                user.save(function (err, user) {
+                    if (err) return next(err);
+                    sendToken();
+                });
+            } else {
+                sendToken();
+            }
         });
 
     /* PUT auth token. */
