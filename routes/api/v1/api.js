@@ -53,21 +53,14 @@ module.exports = function (app, passport, models) {
         passport.authenticate('local-login', {
             session: false
         }), function (req, res, next) {
-            function sendToken() {
+            var user = req.user;
+
+            user.tokenGenerate(req.connection.remoteAddress, req.userAgent);
+            user.save(function (err, user) {
+                if (err) return next(err);
                 console.info("[%s] POST auth_token: [%s] %s", req.user.username, req.connection.remoteAddress, req.userAgent);
                 res.json({auth_token: req.user.token.auth_token});
-            }
-
-            var user = req.user;
-            if (!user.token.auth_token || user.hasExpired()) {
-                user.tokenRegenerate();
-                user.save(function (err, user) {
-                    if (err) return next(err);
-                    sendToken();
-                });
-            } else {
-                sendToken();
-            }
+            });
         });
 
     /* PUT auth token. */
@@ -77,7 +70,7 @@ module.exports = function (app, passport, models) {
         }), function (req, res, next) {
             console.info("[%s] PUT auth_token", req.user.username);
             var user = req.user;
-            user.tokenRegenerate();
+            user.tokenGenerate();
 
             user.save(function (err, user) {
                 if (err) return next(err);
