@@ -11,13 +11,7 @@ module.exports = function (connection, deleteMongoFields) {
         username: {type: String, index: true, unique: true, required: true, dropDups: true},
         password: {type: String, required: true},
         email: {type: String, required: true},
-        tokens: [{
-            auth_token: String,
-            createDate: {type: Date, required: true, default: moment().utc()},
-            userAgent: String,
-            ip: String,
-            lastUsed: {type: Date, required: true, default: moment().utc()}
-        }],
+        tokens: [{type: mongoose.Schema.Types.ObjectId, ref: 'UserAuthToken'}],
         name: {type: String, required: true},
         avatar: String,
         roles: [{type: mongoose.Schema.Types.ObjectId, ref: 'UserRole'}]
