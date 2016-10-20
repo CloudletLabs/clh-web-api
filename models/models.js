@@ -13,6 +13,7 @@ module.exports = function (connection) {
     }
 
     var User = require('./user')(connection, deleteMongoFields);
+    var UserAuthToken = require('./userAuthToken')(connection, deleteMongoFields);
     var UserRole = require('./userRole')(connection, deleteMongoFields);
     var News = require('./news')(connection, deleteMongoFields);
 
@@ -156,6 +157,7 @@ module.exports = function (connection) {
      */
     return {
         user: User,
+        userAuthToken: UserAuthToken,
         userRole: UserRole,
         news: News
     }
