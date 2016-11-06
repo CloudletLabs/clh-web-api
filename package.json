@@ -3,16 +3,23 @@
   "version": "0.0.1",
   "private": true,
   "scripts": {
-    "postinstall": "npm run-script raml",
+    "prestart": "npm run raml",
     "start": "node ./bin/clh-web-api",
-    "reset": "npm run-script db-clean && npm run-script db-start && npm start",
+    "reset": "npm run db-clean && npm run db-start && npm start",
     "db-start": "mkdir ./.db && mongod --dbpath ./.db --fork --logpath /dev/null",
     "db-stop": "mongo admin --eval 'db.shutdownServer()' >/dev/null 2>&1 || true",
-    "db-clean": "npm run-script db-stop && rm -rf ./.db",
+    "db-clean": "npm run db-stop && rm -rf ./.db",
     "test-unit": "NODE_ENV=test mocha './tests/**/*.spec.js'",
     "abao-names": "abao raml/clh-web-api.raml --names",
-    "test-integration": "NODE_ENV=test abao raml/clh-web-api.raml --server=http://localhost:8087/api/current --hookfiles=raml/*_hooks.js --schemas=raml/schemas/*.json",
-    "raml": "mkdir -p ./public && raml2html -i ./raml/clh-web-api.raml -o ./public/clh-web-api.html"
+    "test-integration-runner": "NODE_ENV=test abao raml/clh-web-api.raml --hookfiles=raml/*_hooks.js --schemas=raml/schemas/*.json",
+    "test-integration": "npm run test-integration-runner -- --server=http://localhost:8087/api/current",
+    "raml": "mkdir -p ./public && raml2html -i ./raml/clh-web-api.raml -o ./public/clh-web-api.html",
+    "docker-compose-up": "docker-compose up --build",
+    "docker-compose-restart": "docker-compose restart",
+    "docker-compose-down": "docker-compose down",
+    "docker-compose-logs": "docker-compose logs",
+    "docker-compose-test-unit": "docker-compose run clh-web-api npm run test-unit",
+    "docker-compose-test-integration": "docker-compose run clh-web-api npm run test-integration-runner -- --server=http://clh-web-api:8087/api/current"
   },
   "dependencies": {
     "express": "=4.13.1",
