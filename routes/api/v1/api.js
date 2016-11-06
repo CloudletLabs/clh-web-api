@@ -78,6 +78,24 @@ module.exports = function (app, passport, models) {
             });
         });
 
+    /* DELETE auth token. */
+    router.delete('/auth_token',
+        passport.authenticate('local-authorization', {
+            session: false
+        }), function (req, res, next) {
+            console.info("[%s] DELETE user.auth_token %s", req.userAuthToken);
+            var user = req.user;
+            user.tokenGenerate();
+            /* if (user.userAuthToken = user.tokenGenerate.token){ */
+            if (user.userAuthToken = token){
+                User.findOneAndRemove({userAuthToken: req.userAuthToken}, function (err) {
+                    if (err) return next(err);
+
+                    console.info('userAuthToken %s deleted', req.userAuthToken);
+                    res.json({});
+                });
+            }});
+
     /**
      * User CRUD
      */
