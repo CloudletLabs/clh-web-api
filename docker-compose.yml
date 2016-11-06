@@ -1,0 +1,14 @@
+version: '2'
+services:
+  clh-web-api-db:
+    ports:
+      - "27017:27017"
+    image: mongo
+  clh-web-api:
+    build: .
+    ports:
+      - "8087:8087"
+    environment:
+      - MONGODB_URI=mongodb://clh-web-api-db:27017/clhApp
+    links:
+      - clh-web-api-db

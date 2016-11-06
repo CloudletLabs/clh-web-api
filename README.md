@@ -2,44 +2,21 @@
 
 ## Preparing to work
 
-### Download and Installing NodeJS
+### Installing Docker
 
-For Windows users:
-
-Go to https://nodejs.org/ and get 4.4.3 version.
-
-* [Windows x32](https://nodejs.org/dist/v4.4.3/node-v4.4.3-x86.msi)
-* [Windows x64](https://nodejs.org/dist/v4.4.3/node-v4.4.3-x64.msi)
-
-For other platforms, install NVM and let it manage your NodeJS versions via ```.nvmrc``` file.
-
-### Download and Installing MongoDB
-
-Go to https://www.mongodb.org/ and get a latest version for Windows, or [use your package manager](https://docs.mongodb.com/manual/tutorial/install-mongodb-on-ubuntu/) for other platforms.
-
-To start MongoDB manually (usually you want to use ```npm``` for this):
-
-```
-mongod --dbpath <path to DB directory>
-# For Windows:
-mongod.exe --dbpath C:\MongoDB-data
-# For Linux:
-mongod --dbpath /home/user/MongoDB-data
-```
-
-Note this directory should be already exists.
+- Ubuntu: https://docs.docker.com/engine/installation/linux/ubuntulinux/
+- MacOS: https://docs.docker.com/engine/installation/mac/ (do not use Toolbox)
+- Windows: https://docs.docker.com/engine/installation/windows/ (Use Toolbox only if you have older than Windows 10)
 
 ## Running app
 
 This one is really simple.
 
 ```
-npm install # install dependencies
-npm run-script db-start # this will start MongoDB for you
-npm start # start application
-# Use Ctrl+C to stop application
-npm run-script db-stop # this will stop MongoDB for you
-npm run-script db-clean # this will cleanup DB for you
+docker-compose up --build # this will build and run your app
+docker-compose restart # this will restart your app
+docker-compose down # this will destroy your app and DB
+docker-compose logs # this will print logs from the app and DB
 ```
 
 Once done, you should be able to open in your browser [http://localhost:8087/](http://localhost:8087/) and see the app.
@@ -51,7 +28,8 @@ Note at the first run on a clean DB it will create some test data. Particularly,
 This is important before each commit perform an automated testing, so you are confident the code quality is good enough.
 
 ```
-npm run-script test-unit # to run Mocha unit tests
+docker-compose run clh-web-api npm run test-unit # to run Mocha unit tests
+docker-compose run clh-web-api npm run test-integration # to run Abao integration tests
 ```
 
 # Resources
