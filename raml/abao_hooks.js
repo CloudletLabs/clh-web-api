@@ -10,6 +10,13 @@ var auth_token;
         done();
     });
 });
+
+hooks.before('POST /auth_token -> 401', function(test, done) {
+    test.request.body.username = 'foo';
+    test.request.body.password = 'bar';
+    done();
+});
+
 [
     'PUT /auth_token -> 200',
     'GET /user -> 200',

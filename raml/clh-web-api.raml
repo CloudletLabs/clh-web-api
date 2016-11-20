@@ -104,6 +104,7 @@ securitySchemes:
           application/json:
             schema: authToken
             example: !include bodies/responses/auth_token.json
+      401:
   put:
     description: Create new token instead of expired one
     securedBy: [ Bearer ]
@@ -113,6 +114,7 @@ securitySchemes:
           application/json:
             schema: authToken
             example: !include bodies/responses/auth_token.json
+      401:
 /user:
   displayName: Current User
   get:
@@ -124,6 +126,7 @@ securitySchemes:
           application/json:
             schema: user
             example: !include bodies/responses/admin.json
+      401:
 /users:
   displayName: Users
   get:
@@ -135,6 +138,7 @@ securitySchemes:
           application/json:
             schema: users
             example: !include bodies/responses/users.json
+      401:
   post:
     description: Create new user
     body:
@@ -166,6 +170,7 @@ securitySchemes:
               example: !include bodies/responses/user.json
         404:
           description: User not found
+        401:
     put:
       description: Update user
       securedBy: [ Bearer ]
@@ -181,6 +186,7 @@ securitySchemes:
               example: !include bodies/responses/user.json
         404:
           description: User not found
+        401:
     delete:
       description: Delete user
       securedBy: [ Bearer ]
@@ -190,6 +196,7 @@ securitySchemes:
             application/json:
               example: |
                 { }
+        401:
 /news:
   displayName: News
   get:
@@ -215,6 +222,7 @@ securitySchemes:
             example: !include bodies/responses/news.json
       400:
         description: News with this slug already exists
+      401:
   /{slug}:
     uriParameters:
       slug:
@@ -248,6 +256,7 @@ securitySchemes:
           description: News with this slug already exists
         404:
           description: News with this slug not found
+        401:
     delete:
       description: Delete news
       securedBy: [ Bearer ]
@@ -257,3 +266,4 @@ securitySchemes:
             application/json:
               example: |
                 { }
+        401:
