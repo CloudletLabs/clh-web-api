@@ -1,12 +1,12 @@
 var sinon = require('sinon');
 var chai = require('chai');
-var should = chai.should();
+var expect = chai.expect;
 
 describe('The example module', function() {
     it('true should be a boolean', function() {
-        true.should.be.a('boolean');
-    })
+        expect(true).to.be.a('boolean');
+    });
     it('1+1 should = 2', function() {
-        (1+1).should.equal(2);
-    })
+        expect(1+1).to.equal(2);
+    });
 });

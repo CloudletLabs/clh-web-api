@@ -9,7 +9,7 @@
     "db-start": "mkdir ./.db && mongod --dbpath ./.db --fork --logpath /dev/null",
     "db-stop": "mongo admin --eval 'db.shutdownServer()' >/dev/null 2>&1 || true",
     "db-clean": "npm run db-stop && rm -rf ./.db",
-    "test-unit": "NODE_ENV=test mocha './tests/**/*.spec.js'",
+    "test-unit": "NODE_ENV=test istanbul cover --print both _mocha './tests/**/*.spec.js'",
     "abao-names": "abao raml/clh-web-api.raml --names",
     "test-integration-runner": "NODE_ENV=test abao raml/clh-web-api.raml --hookfiles=raml/*_hooks.js --schemas=raml/schemas/*.json",
     "test-integration": "npm run test-integration-runner -- --server=http://localhost:8087/api/current",
@@ -40,6 +40,7 @@
     "mocha": "=3.0.2",
     "chai": "=3.5.0",
     "sinon": "=1.17.5",
-    "abao": "=0.4.1"
+    "abao": "=0.4.1",
+    "istanbul": "=0.4.5"
   }
 }
