@@ -120,7 +120,7 @@ module.exports = function (connection) {
                 var newNews = new News({
                     slug: 'hello-world',
                     creator: user,
-                    createDate: moment().utc().subtract(1, 'days'),
+                    createDate: moment().utc().subtract(2, 'days'),
                     subject: 'Hello World!',
                     text: '**This** is a **first** test news! `Welcome!`'
                 });
@@ -135,6 +135,7 @@ module.exports = function (connection) {
                 var anotherNews = new News({
                     slug: 'second-news',
                     creator: user,
+                    createDate: moment().utc().subtract(1, 'days'),
                     subject: 'Second News',
                     text: 'This is a second test news!'
                 });
