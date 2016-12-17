@@ -48,7 +48,7 @@ module.exports = function (passport, models) {
     ));
 
     /**
-     * Strategy for local local-renew-authorization
+     * Strategy for token auth renew
      */
     passport.use('bearer-renew-authentication', new BearerStrategy({ passReqToCallback: true },
         function (req, token, done) {
@@ -57,23 +57,36 @@ module.exports = function (passport, models) {
     ));
 
     /**
-     * ADMIN role checking
+     * Strategy for token auth and ADMIN role checking
      */
-    passport.use('admin-authorization', new BearerStrategy({ passReqToCallback: true },
+    passport.use('user-authorization', new BearerStrategy({ passReqToCallback: true },
         function (req, token, done) {
-            if (req.user) {
-                authByRole(req, 'ADMIN', done);
-            } else {
-                authByToken(req, token, false, function (err, userAuthToken) {
-                    if (err) return done(err);
-                    req.user = userAuthToken;
-                    authByRole(req, 'ADMIN', done);
-                });
-            }
+            authByRole(req, token, 'USER', done);
         }
     ));
 
-    function authByRole(req, roleId, done) {
+    /**
+     * Strategy for token auth and ADMIN role checking
+     */
+    passport.use('admin-authorization', new BearerStrategy({ passReqToCallback: true },
+        function (req, token, done) {
+            authByRole(req, token, 'ADMIN', done);
+        }
+    ));
+
+    function authByRole(req, token, roleId, done) {
+        if (req.user) {
+            authByRole(req, roleId, done);
+        } else {
+            authByToken(req, token, true, function (err, userAuthToken) {
+                if (err) return done(err);
+                req.user = userAuthToken;
+                checkRole(req, roleId, done);
+            });
+        }
+    }
+
+    function checkRole(req, roleId, done) {
         if (req.user.user.roles.some(function (role) {
                 return role.roleId == roleId;
             })) {
