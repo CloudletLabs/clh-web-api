@@ -21,7 +21,7 @@ module.exports = function (passport, models) {
     /**
      * Strategy for username+password auth
      */
-    passport.use('local-login', new LocalStrategy({ passReqToCallback: true },
+    passport.use('password-authentication', new LocalStrategy({ passReqToCallback: true },
         function (req, username, password, done) {
             User.findOne({
                 username: username,
@@ -41,7 +41,7 @@ module.exports = function (passport, models) {
     /**
      * Strategy for token auth
      */
-    passport.use('local-authorization', new BearerStrategy({ passReqToCallback: true },
+    passport.use('bearer-authentication', new BearerStrategy({ passReqToCallback: true },
         function (req, token, done) {
             authByToken(req, token, true, done);
         }
@@ -50,7 +50,7 @@ module.exports = function (passport, models) {
     /**
      * Strategy for local local-renew-authorization
      */
-    passport.use('local-renew-authorization', new BearerStrategy({ passReqToCallback: true },
+    passport.use('bearer-renew-authentication', new BearerStrategy({ passReqToCallback: true },
         function (req, token, done) {
             authByToken(req, token, false, done);
         }
@@ -96,6 +96,9 @@ module.exports = function (passport, models) {
                     return done(null, false);
                 }
                 if (checkExpire && userAuthToken.hasExpired()) {
+                    return done(null, false);
+                }
+                if (userAuthToken.userAgent != req.userAgent) {
                     return done(null, false);
                 }
                 userAuthToken.ip = req.connection.remoteAddress;

@@ -36,11 +36,13 @@ module.exports = function (app, passport, models) {
 
     /* GET status. */
     router.get('/status', function (req, res, next) {
+        console.info("[%s][%s] /status", req.type, req.connection.remoteAddress);
         res.send('ok');
     });
 
     /* GET info. */
     router.get('/info', function (req, res, next) {
+        console.info("[%s][%s] /info", req.type, req.connection.remoteAddress);
         res.json({name: pjson.name, version: pjson.version, apiVersion: apiVersion});
     });
 
@@ -50,7 +52,7 @@ module.exports = function (app, passport, models) {
 
     /* POST auth token. */
     router.post('/auth_token',
-        passport.authenticate('local-login', { session: false }),
+        passport.authenticate('password-authentication', { session: false }),
         function (req, res, next) {
             var user = req.user;
             console.info("[%s][%s][%s] /auth_token", req.type, req.connection.remoteAddress, user.username);
@@ -64,7 +66,7 @@ module.exports = function (app, passport, models) {
 
     /* PUT auth token. */
     router.put('/auth_token',
-        passport.authenticate('local-renew-authorization', { session: false }),
+        passport.authenticate('bearer-renew-authentication', { session: false }),
         function (req, res, next) {
             var token = req.user;
             var user = token.user;
@@ -82,7 +84,7 @@ module.exports = function (app, passport, models) {
 
     /* DELETE auth token. */
     router.delete('/auth_token',
-        passport.authenticate('local-authorization', {
+        passport.authenticate('bearer-authentication', {
             session: false
         }), function (req, res, next) {
             console.info("[%s] DELETE user.auth_token %s", req.userAuthToken);
@@ -104,7 +106,7 @@ module.exports = function (app, passport, models) {
 
     /* GET current user for this token. */
     router.get('/user',
-        passport.authenticate('local-authorization', { session: false }),
+        passport.authenticate('bearer-authentication', { session: false }),
         function (req, res, next) {
             var token = req.user;
             var user = token.user;
