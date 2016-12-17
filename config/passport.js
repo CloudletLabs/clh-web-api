@@ -11,7 +11,8 @@ var moment = require('moment');
 
 module.exports = function (passport, models) {
 
-    var UserAuthToken = models.userAuthtoken;
+    var UserAuthToken = models.userAuthToken;
+    var User = models.user;
 
     /**
      * Strategy for username+password auth
@@ -100,6 +101,8 @@ module.exports = function (passport, models) {
      */
     function authByToken(req, token, checkExpire, done) {
         UserAuthToken.findOne({'auth_token': token})
+            .populate('user', 'username')
+            .populate('user', 'roles')
             .exec(function (err, userAuthToken) {
                 if (err) return done(err);
                 if (!userAuthToken) {
@@ -108,7 +111,7 @@ module.exports = function (passport, models) {
                 if (checkExpire && userAuthToken.hasExpired()) {
                     return done(null, false);
                 }
-                if (userAuthToken.userAgent != req.userAgent) {
+                if (userAuthToken.userAgent != req.header('user-agent')) {
                     return done(null, false);
                 }
                 userAuthToken.ip = req.connection.remoteAddress;
