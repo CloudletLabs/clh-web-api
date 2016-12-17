@@ -101,24 +101,30 @@ module.exports = function (passport, models) {
      */
     function authByToken(req, token, checkExpire, done) {
         UserAuthToken.findOne({'auth_token': token})
-            .populate('user', 'username')
-            .populate('user', 'roles')
+            .populate('user', 'username roles')
             .exec(function (err, userAuthToken) {
                 if (err) return done(err);
+
                 if (!userAuthToken) {
                     return done(null, false);
                 }
-                if (checkExpire && userAuthToken.hasExpired()) {
-                    return done(null, false);
-                }
-                if (userAuthToken.userAgent != req.header('user-agent')) {
-                    return done(null, false);
-                }
-                userAuthToken.ip = req.connection.remoteAddress;
-                userAuthToken.lastUsed = moment.utc();
-                userAuthToken.save(function (err, userAuthToken) {
+
+                userAuthToken.user.populate('roles', 'roleId', function (err, user) {
                     if (err) return done(err);
-                    return done(null, userAuthToken);
+
+                    if (checkExpire && userAuthToken.hasExpired()) {
+                        return done(null, false);
+                    }
+                    if (userAuthToken.userAgent != req.header('user-agent')) {
+                        return done(null, false);
+                    }
+                    userAuthToken.ip = req.connection.remoteAddress;
+                    userAuthToken.lastUsed = moment.utc();
+                    userAuthToken.save(function (err, userAuthToken) {
+                        if (err) return done(err);
+                        return done(null, userAuthToken);
+                    });
+                    
                 });
             });
     }
