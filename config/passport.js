@@ -5,11 +5,6 @@ var LocalStrategy = require('passport-local').Strategy;
 var BearerStrategy = require('passport-http-bearer').Strategy;
 
 /**
- * RFC4122 Universally Unique IDentifier (UUID) generator
- */
-var uuid = require('node-uuid');
-
-/**
  * Some additional modules
  */
 var moment = require('moment');
@@ -98,7 +93,9 @@ module.exports = function (passport, models) {
 
     /**
      * Auth by token
+     * @param req
      * @param token
+     * @param checkExpire - check if token is expired
      * @param done - passport done function (used in case of errors)
      */
     function authByToken(req, token, checkExpire, done) {
