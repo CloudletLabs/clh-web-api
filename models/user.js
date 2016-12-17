@@ -1,7 +1,6 @@
 var mongoose = require('mongoose');
 var moment = require('moment');
 var uuid = require('node-uuid');
-var expired_time = 30;
 
 module.exports = function (connection, deleteMongoFields) {
 
@@ -19,10 +18,6 @@ module.exports = function (connection, deleteMongoFields) {
 
     deleteMongoFields(userSchema);
 
-    userSchema.methods.hasExpired = function () {
-        return (moment().utc().diff(this.token.createDate, 'days')) > expired_time;
-    };
-
     userSchema.methods.tokenGenerate = function (ip, userAgent) {
         var token = {
             auth_token: uuid.v1(),
@@ -32,6 +27,7 @@ module.exports = function (connection, deleteMongoFields) {
             lastUsed: this.createDate
         };
         this.tokens.push(token);
+        return token;
     };
 
     var User = connection.model('User', userSchema);

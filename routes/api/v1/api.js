@@ -50,31 +50,33 @@ module.exports = function (app, passport, models) {
 
     /* POST auth token. */
     router.post('/auth_token',
-        passport.authenticate('local-login', {
-            session: false
-        }), function (req, res, next) {
+        passport.authenticate('local-login', { session: false }),
+        function (req, res, next) {
             var user = req.user;
+            console.info("[%s][%s][%s] /auth_token", req.type, req.connection.remoteAddress, user.username);
 
-            user.tokenGenerate(req.connection.remoteAddress, req.userAgent);
+            var token = user.tokenGenerate(req.connection.remoteAddress, req.userAgent);
             user.save(function (err, user) {
                 if (err) return next(err);
-                console.info("[%s] POST auth_token: [%s] %s", req.user.username, req.connection.remoteAddress, req.userAgent);
-                res.json({auth_token: req.user.token.auth_token});
+                res.json(token);
             });
         });
 
     /* PUT auth token. */
     router.put('/auth_token',
-        passport.authenticate('local-renew-authorization', {
-            session: false
-        }), function (req, res, next) {
-            console.info("[%s] PUT auth_token", req.user.username);
-            var user = req.user;
-            user.tokenGenerate();
+        passport.authenticate('local-renew-authorization', { session: false }),
+        function (req, res, next) {
+            var token = req.user;
+            var user = token.user;
+            console.info("[%s][%s][%s] /auth_token", req.type, req.connection.remoteAddress, user.username);
+
+            var newToken = user.tokenGenerate(req.connection.remoteAddress, req.userAgent);
+            oldTokenIndex = user.tokens.indexOf(token);
+            user.tokens.slice(oldTokenIndex, 1);
 
             user.save(function (err, user) {
                 if (err) return next(err);
-                res.json({auth_token: user.token.auth_token});
+                res.json(newToken);
             });
         });
 
@@ -102,11 +104,12 @@ module.exports = function (app, passport, models) {
 
     /* GET current user for this token. */
     router.get('/user',
-        passport.authenticate('local-authorization', {
-            session: false
-        }), function (req, res, next) {
-            var user = req.user;
-            console.info("[%s] GET user by it's token", user.username);
+        passport.authenticate('local-authorization', { session: false }),
+        function (req, res, next) {
+            var token = req.user;
+            var user = token.user;
+            console.info("[%s][%s][%s] /user", req.type, req.connection.remoteAddress, user.username);
+
             user.populate("roles", "roleId", function (err, user) {
                 if (err) return next(err);
                 res.json(user.toObject());
@@ -115,22 +118,26 @@ module.exports = function (app, passport, models) {
 
     /* GET users. */
     router.get('/users',
-        passport.authenticate('admin-authorization', {
-            session: false
-        }), function (req, res, next) {
-            console.info("[%s] GET users", req.user.username);
+        passport.authorize('admin-authorization', { session: false }),
+        function (req, res, next) {
+            var token = req.user;
+            var user = token.user;
+            console.info("[%s][%s][%s] /users", req.type, req.connection.remoteAddress, user.username);
+
             User.find().populate("roles", "roleId").exec(function (err, users) {
                 if (err) return next(err);
-                res.json(users.map(function (user) { return user.toObject(); }));
+                res.json(users.map(function (user) { return user.toObject() }));
             });
         });
 
     /* GET user by username. */
     router.get('/users/:username',
-        passport.authenticate('admin-authorization', {
-            session: false
-        }), function (req, res, next) {
-            console.info("[%s] GET user %s", req.user.username, req.params.username);
+        passport.authorize('admin-authorization', { session: false }),
+        function (req, res, next) {
+            var token = req.user;
+            var user = token.user;
+            console.info("[%s][%s][%s] /users/%s", req.type, req.connection.remoteAddress, user.username, req.params.username);
+
             User.findOne({username: req.params.username}).populate("roles", "roleId").exec(function (err, user) {
                 if (err) return next(err);
                 if (!user) {
@@ -144,7 +151,8 @@ module.exports = function (app, passport, models) {
 
     /* POST user */
     router.post('/users', function (req, res, next) {
-        console.info("POST user %s", req.body.username);
+        console.info("[%s][%s][%s] /users", req.type, req.connection.remoteAddress, req.body.username);
+
         User.count({username: req.body.username}, function (err, count) {
             if (err) return next(err);
             if (count > 0) {
@@ -174,10 +182,12 @@ module.exports = function (app, passport, models) {
 
     /* PUT user */
     router.put('/users/:username',
-        passport.authenticate('admin-authorization', {
-            session: false
-        }), function (req, res, next) {
-            console.info("[%s] PUT user %s", req.user.username, req.params.username);
+        passport.authorize('admin-authorization', { session: false }),
+        function (req, res, next) {
+            var token = req.user;
+            var user = token.user;
+            console.info("[%s][%s][%s] /users/%s", req.type, req.connection.remoteAddress, user.username, req.params.username);
+
             User.findOne({username: req.params.username}).populate("roles", "roleId").exec(function (err, user) {
                 if (err) return next(err);
                 if (!user) {
@@ -201,10 +211,12 @@ module.exports = function (app, passport, models) {
 
     /* DELETE user */
     router.delete('/users/:username',
-        passport.authenticate('admin-authorization', {
-            session: false
-        }), function (req, res, next) {
-            console.info("[%s] DELETE user %s", req.user.username, req.params.username);
+        passport.authorize('admin-authorization', { session: false }),
+        function (req, res, next) {
+            var token = req.user;
+            var user = token.user;
+            console.info("[%s][%s][%s] /users/%s", req.type, req.connection.remoteAddress, user.username, req.params.username);
+
             User.findOneAndRemove({username: req.params.username}, function (err) {
                 if (err) return next(err);
 
@@ -219,6 +231,8 @@ module.exports = function (app, passport, models) {
 
     /* GET news. */
     router.get('/news', function (req, res, next) {
+        console.info("[%s][%s] /news", req.type, req.connection.remoteAddress);
+
         News.find().populate("creator", "name").sort({createDate: 'desc'}).exec(function (err, news) {
             if (err) return next(err);
             res.json(news.map(function (news) { return news.toObject(); }));
@@ -227,6 +241,8 @@ module.exports = function (app, passport, models) {
 
     /* GET news by friendly url. */
     router.get('/news/:slug', function (req, res, next) {
+        console.info("[%s][%s] /news/%s", req.type, req.connection.remoteAddress, req.params.slug);
+
         News.findOne({slug: req.params.slug}).populate("creator", "name").exec(function (err, news) {
             if (err) return next(err);
             if (!news) return res.status(404).json({message: "News with thus slug not found"});
@@ -236,10 +252,12 @@ module.exports = function (app, passport, models) {
 
     /* POST news */
     router.post('/news',
-        passport.authenticate('admin-authorization', {
-            session: false
-        }), function (req, res, next) {
-            console.info("[%s] POST news %s", req.user.username, req.body.slug);
+        passport.authorize('admin-authorization', { session: false }),
+        function (req, res, next) {
+            var token = req.user;
+            var user = token.user;
+            console.info("[%s][%s][%s] /news", req.type, req.connection.remoteAddress, user.username);
+
             News.count({slug: req.body.slug}, function (err, count) {
                 if (err) return next(err);
                 if (count > 0) {
@@ -248,7 +266,7 @@ module.exports = function (app, passport, models) {
                 }
 
                 var newNews = new News(req.body);
-                newNews.creator = req.user;
+                newNews.creator = user;
                 newNews.save(function (err, news) {
                     if (err) return next(err);
 
@@ -264,10 +282,12 @@ module.exports = function (app, passport, models) {
 
     /* PUT news */
     router.put('/news/:slug',
-        passport.authenticate('admin-authorization', {
-            session: false
-        }), function (req, res, next) {
-            console.info("[%s] PUT news %s", req.user.username, req.params.slug);
+        passport.authorize('admin-authorization', { session: false }),
+        function (req, res, next) {
+            var token = req.user;
+            var user = token.user;
+            console.info("[%s][%s][%s] /news/%s", req.type, req.connection.remoteAddress, user.username, req.params.slug);
+
             News.findOne({slug: req.params.slug}, function (err, news) {
                 if (err) return next(err);
                 if (!news) {
@@ -310,10 +330,12 @@ module.exports = function (app, passport, models) {
 
     /* DELETE news */
     router.delete('/news/:slug',
-        passport.authenticate('admin-authorization', {
-            session: false
-        }), function (req, res, next) {
-            console.info("[%s] DELETE news by slug %s", req.user.username, req.params.slug);
+        passport.authorize('admin-authorization', { session: false }),
+        function (req, res, next) {
+            var token = req.user;
+            var user = token.user;
+            console.info("[%s][%s][%s] /news/%s", req.type, req.connection.remoteAddress, user.username, req.params.slug);
+
             News.findOneAndRemove({slug: req.params.slug}, function (err) {
                 if (err) return next(err);
 

@@ -16,31 +16,13 @@ var moment = require('moment');
 
 module.exports = function (passport, models) {
 
-    var User = models.user;
-
-    /**
-     * Serialize user for the session
-     */
-    passport.serializeUser(function (user, done) {
-        done(null, user.username);
-    });
-
-    /**
-     * Deserialize user from the session
-     */
-    passport.deserializeUser(function (username, done) {
-        User.findOne({username: username})
-            .populate('roles')
-            .exec(function (err, user) {
-                done(err, user);
-            });
-    });
+    var UserAuthToken = models.userAuthtoken;
 
     /**
      * Strategy for username+password auth
      */
-    passport.use('local-login', new LocalStrategy(
-        function (username, password, done) {
+    passport.use('local-login', new LocalStrategy({ passReqToCallback: true },
+        function (req, username, password, done) {
             User.findOne({
                 username: username,
                 password: password
@@ -57,63 +39,71 @@ module.exports = function (passport, models) {
     ));
 
     /**
-     * Strategy for local local-renew-authorization
-     */
-    passport.use('local-renew-authorization', new BearerStrategy(
-        function (token, done) {
-            authUserByToken(token, false, done, function (user) {
-                return done(null, user, {scope: 'all'});
-            });
-        }
-    ));
-
-    /**
      * Strategy for token auth
      */
-    passport.use('local-authorization', new BearerStrategy(
-        function (token, done) {
-            authUserByToken(token, true, done, function (user) {
-                return done(null, user, {scope: 'all'});
-            });
+    passport.use('local-authorization', new BearerStrategy({ passReqToCallback: true },
+        function (req, token, done) {
+            authByToken(req, token, true, done);
         }
     ));
 
     /**
-     * Strategy for token auth + ADMIN role checking
+     * Strategy for local local-renew-authorization
      */
-    passport.use('admin-authorization', new BearerStrategy(
-        function (token, done) {
-            authUserByToken(token, true, done, function (user) {
-                if (user.roles.some(function (role) {
-                        return role.roleId == 'ADMIN';
-                    })) {
-                    return done(null, user, {scope: 'all'});
-                }
-                return done(null, false);
-            });
+    passport.use('local-renew-authorization', new BearerStrategy({ passReqToCallback: true },
+        function (req, token, done) {
+            authByToken(req, token, false, done);
         }
     ));
 
     /**
-     * Get user by token
+     * ADMIN role checking
+     */
+    passport.use('admin-authorization', new BearerStrategy({ passReqToCallback: true },
+        function (req, token, done) {
+            if (req.user) {
+                authByRole(req, 'ADMIN', done);
+            } else {
+                authByToken(req, token, false, function (err, userAuthToken) {
+                    if (err) return done(err);
+                    req.user = userAuthToken;
+                    authByRole(req, 'ADMIN', done);
+                });
+            }
+        }
+    ));
+
+    function authByRole(req, roleId, done) {
+        if (req.user.user.roles.some(function (role) {
+                return role.roleId == roleId;
+            })) {
+            return done(null, req.user.user);
+        } else {
+            done(null, false);
+        }
+    }
+
+    /**
+     * Auth by token
      * @param token
      * @param done - passport done function (used in case of errors)
-     * @param callback - callback when success (for additional checks)
      */
-    function authUserByToken(token, checkExpire, done, callback) {
-        User.findOne({'token.auth_token': token})
-            .populate('roles')
-            .exec(function (err, user) {
-                if (err) {
-                    return done(err);
-                }
-                if (!user) {
+    function authByToken(req, token, checkExpire, done) {
+        UserAuthToken.findOne({'auth_token': token})
+            .exec(function (err, userAuthToken) {
+                if (err) return done(err);
+                if (!userAuthToken) {
                     return done(null, false);
                 }
-                if (checkExpire && user.hasExpired()) {
+                if (checkExpire && userAuthToken.hasExpired()) {
                     return done(null, false);
                 }
-                return callback(user);
+                userAuthToken.ip = req.connection.remoteAddress;
+                userAuthToken.lastUsed = moment.utc();
+                userAuthToken.save(function (err, userAuthToken) {
+                    if (err) return done(err);
+                    return done(null, userAuthToken);
+                });
             });
     }
 
