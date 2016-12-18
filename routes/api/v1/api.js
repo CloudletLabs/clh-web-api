@@ -22,11 +22,37 @@ module.exports = function (app, passport, models) {
     app.use('/api/v' + apiVersion, apiErrorHandler);
     app.use('/api/current', apiErrorHandler);
     function apiErrorHandler(err, req, res, next) {
+        console.error("[%s][%s] API ERROR: %s", req.method, req.connection.remoteAddress, err);
         res.status(err.status || 500);
-        res.json(err);
+        delete err.status;
+        if (err.length === 0) {
+            res.send();
+        } else {
+            res.json(err);
+        }
+    }
+
+    function log(req, msg, args) {
+        var user;
+        if (req.user) {
+            user = req.user.user || req.user;
+        }
+        var arr = [req.method, req.connection.remoteAddress, req.path];
+        var template;
+        if (!user) {
+            template = "[%s][%s][%s]";
+        } else {
+            template = "[%s][%s][%s][%s]";
+            arr.push(user.username);
+        }
+        if (msg) template += " " + msg;
+        arr.unshift(template);
+        if (args) arr = arr.concat(args);
+        console.info.apply(console, arr);
     }
 
     var User = models.user;
+    var UserAuthToken = models.userAuthToken;
     var UserRole = models.userRole;
     var News = models.news;
 
@@ -36,11 +62,13 @@ module.exports = function (app, passport, models) {
 
     /* GET status. */
     router.get('/status', function (req, res, next) {
+        log(req);
         res.send('ok');
     });
 
     /* GET info. */
     router.get('/info', function (req, res, next) {
+        log(req);
         res.json({name: pjson.name, version: pjson.version, apiVersion: apiVersion});
     });
 
@@ -50,38 +78,62 @@ module.exports = function (app, passport, models) {
 
     /* POST auth token. */
     router.post('/auth_token',
-        passport.authenticate('local-login', {
-            session: false
-        }), function (req, res, next) {
-            function sendToken() {
-                console.info("[%s] POST auth_token: [%s] %s", req.user.username, req.connection.remoteAddress, req.userAgent);
-                res.json({auth_token: req.user.token.auth_token});
-            }
+        passport.authenticate('password-authentication', { session: false }),
+        function (req, res, next) {
+            log(req);
 
             var user = req.user;
-            if (!user.token.auth_token || user.hasExpired()) {
-                user.tokenRegenerate();
-                user.save(function (err, user) {
-                    if (err) return next(err);
-                    sendToken();
-                });
-            } else {
-                sendToken();
-            }
+            UserAuthToken.tokenGenerate(user, req.connection.remoteAddress, req.header('user-agent'), function (err, token) {
+                if (err) return next(err);
+                // Should be better way to 'depopulate' user object
+                var responseObject = token.toObject();
+                responseObject.user = { username: user.username };
+                res.json(responseObject);
+            });
         });
 
     /* PUT auth token. */
     router.put('/auth_token',
-        passport.authenticate('local-renew-authorization', {
+        passport.authenticate('bearer-renew-authentication', {session: false}),
+        function (req, res, next) {
+            log(req);
+
+            var token = req.user;
+            var user = token.user;
+            UserAuthToken.tokenGenerate(user, req.connection.remoteAddress, req.header('user-agent'), function (err, newToken) {
+                token.remove(function (err) {
+                    if (err) return next(err);
+                    res.json(newToken.toObject());
+                });
+            });
+        });
+
+    /* DELETE auth token. */
+    router.delete('/auth_token/:token',
+        passport.authenticate('bearer-authentication', {
             session: false
         }), function (req, res, next) {
-            console.info("[%s] PUT auth_token", req.user.username);
-            var user = req.user;
-            user.tokenRegenerate();
+            log(req);
 
-            user.save(function (err, user) {
+            var token = req.user;
+            var user = token.user;
+            UserAuthToken.findOne({auth_token: req.params.token}).populate('user', 'username').exec(function (err, tokenToDelete) {
                 if (err) return next(err);
-                res.json({auth_token: user.token.auth_token});
+
+                if (!tokenToDelete) {
+                    log(req, "token not found");
+                    return next({status: 404});
+                }
+
+                if (user.username != tokenToDelete.user.username) {
+                    log(req, "cheating on %s", [tokenToDelete.user.username]);
+                    return next({status: 401});
+                }
+
+                tokenToDelete.remove(function (err) {
+                    if (err) return next(err);
+                    res.json({});
+                });
             });
         });
 
@@ -91,40 +143,45 @@ module.exports = function (app, passport, models) {
 
     /* GET current user for this token. */
     router.get('/user',
-        passport.authenticate('local-authorization', {
-            session: false
-        }), function (req, res, next) {
-            var user = req.user;
-            console.info("[%s] GET user by it's token", user.username);
-            user.populate("roles", "roleId", function (err, user) {
+        passport.authenticate('bearer-authentication', { session: false }),
+        function (req, res, next) {
+            var token = req.user;
+            var user = token.user;
+            log(req);
+
+            token.populate("user", function (err, token) {
                 if (err) return next(err);
-                res.json(user.toObject());
+                token.user.populate("roles", "roleId", function (err, user) {
+                    if (err) return next(err);
+                    res.json(user.toObject());
+                });
             });
         });
 
     /* GET users. */
     router.get('/users',
-        passport.authenticate('admin-authorization', {
-            session: false
-        }), function (req, res, next) {
-            console.info("[%s] GET users", req.user.username);
+        passport.authorize('admin-authorization', { session: false }),
+        function (req, res, next) {
+            log(req);
+
             User.find().populate("roles", "roleId").exec(function (err, users) {
                 if (err) return next(err);
-                res.json(users.map(function (user) { return user.toObject(); }));
+                res.json(users.map(function (user) { return user.toObject() }));
             });
         });
 
     /* GET user by username. */
     router.get('/users/:username',
-        passport.authenticate('admin-authorization', {
-            session: false
-        }), function (req, res, next) {
-            console.info("[%s] GET user %s", req.user.username, req.params.username);
+        passport.authorize('admin-authorization', { session: false }),
+        function (req, res, next) {
+            log(req);
+
             User.findOne({username: req.params.username}).populate("roles", "roleId").exec(function (err, user) {
                 if (err) return next(err);
+
                 if (!user) {
-                    res.status(404).json({message: "User not found"});
-                    return;
+                    log(req, "user not found");
+                    return next({status: 404, message: "User not found"});
                 }
 
                 res.json(user.toObject());
@@ -133,12 +190,14 @@ module.exports = function (app, passport, models) {
 
     /* POST user */
     router.post('/users', function (req, res, next) {
-        console.info("POST user %s", req.body.username);
+        log(req, "%s", [req.body.username]);
+
         User.count({username: req.body.username}, function (err, count) {
             if (err) return next(err);
+
             if (count > 0) {
-                res.status(400).json({message: "User already exist"});
-                return;
+                log(req, "user %s already exists", [req.body.username]);
+                return next({status: 400, message: "User already exist"});
             }
 
             UserRole.findOne({roleId: 'USER'}, function (err, role) {
@@ -152,8 +211,6 @@ module.exports = function (app, passport, models) {
 
                     user.populate("roles", "roleId", function (err, user) {
                         if (err) return next(err);
-
-                        console.info('New user %s created', user.username);
                         res.json(user.toObject());
                     });
                 });
@@ -163,15 +220,16 @@ module.exports = function (app, passport, models) {
 
     /* PUT user */
     router.put('/users/:username',
-        passport.authenticate('admin-authorization', {
-            session: false
-        }), function (req, res, next) {
-            console.info("[%s] PUT user %s", req.user.username, req.params.username);
+        passport.authorize('admin-authorization', { session: false }),
+        function (req, res, next) {
+            log(req);
+
             User.findOne({username: req.params.username}).populate("roles", "roleId").exec(function (err, user) {
                 if (err) return next(err);
+
                 if (!user) {
-                    res.status(404).json({message: "User not found"});
-                    return;
+                    log(req, "user not found");
+                    return next({status: 404, message: "User not found"});
                 }
 
                 for (var attrname in req.body) {
@@ -181,8 +239,6 @@ module.exports = function (app, passport, models) {
 
                 user.save(function (err, user) {
                     if (err) return next(err);
-
-                    console.info('User %s updated', user.username);
                     res.json(user.toObject());
                 });
             });
@@ -190,14 +246,12 @@ module.exports = function (app, passport, models) {
 
     /* DELETE user */
     router.delete('/users/:username',
-        passport.authenticate('admin-authorization', {
-            session: false
-        }), function (req, res, next) {
-            console.info("[%s] DELETE user %s", req.user.username, req.params.username);
+        passport.authorize('admin-authorization', { session: false }),
+        function (req, res, next) {
+            log(req);
+
             User.findOneAndRemove({username: req.params.username}, function (err) {
                 if (err) return next(err);
-
-                console.info('User %s deleted', req.params.username);
                 res.json({});
             });
         });
@@ -208,6 +262,8 @@ module.exports = function (app, passport, models) {
 
     /* GET news. */
     router.get('/news', function (req, res, next) {
+        log(req);
+
         News.find().populate("creator", "name").sort({createDate: 'desc'}).exec(function (err, news) {
             if (err) return next(err);
             res.json(news.map(function (news) { return news.toObject(); }));
@@ -216,35 +272,43 @@ module.exports = function (app, passport, models) {
 
     /* GET news by friendly url. */
     router.get('/news/:slug', function (req, res, next) {
+        log(req);
+
         News.findOne({slug: req.params.slug}).populate("creator", "name").exec(function (err, news) {
             if (err) return next(err);
-            if (!news) return res.status(404).json({message: "News with thus slug not found"});
+
+            if (!news) {
+                log(req, "slug not found");
+                return next({status: 404, message: "News with thus slug not found"});
+            }
+
             res.json(news.toObject());
         });
     });
 
     /* POST news */
     router.post('/news',
-        passport.authenticate('admin-authorization', {
-            session: false
-        }), function (req, res, next) {
-            console.info("[%s] POST news %s", req.user.username, req.body.slug);
+        passport.authorize('admin-authorization', { session: false }),
+        function (req, res, next) {
+            log(req);
+
+            var token = req.user;
+            var user = token.user;
             News.count({slug: req.body.slug}, function (err, count) {
                 if (err) return next(err);
+
                 if (count > 0) {
-                    res.status(400).json({message: "News with thus slug already exist"});
-                    return;
+                    log(req, "slug %s already exists", [req.body.slug]);
+                    return next({status: 400, message: "News with thus slug already exist"});
                 }
 
                 var newNews = new News(req.body);
-                newNews.creator = req.user;
+                newNews.creator = user;
                 newNews.save(function (err, news) {
                     if (err) return next(err);
 
                     news.populate("creator", "name", function (err, news) {
                         if (err) return next(err);
-
-                        console.info('New news %s created', news.slug);
                         res.json(news.toObject());
                     });
                 });
@@ -253,23 +317,24 @@ module.exports = function (app, passport, models) {
 
     /* PUT news */
     router.put('/news/:slug',
-        passport.authenticate('admin-authorization', {
-            session: false
-        }), function (req, res, next) {
-            console.info("[%s] PUT news %s", req.user.username, req.params.slug);
+        passport.authorize('admin-authorization', { session: false }),
+        function (req, res, next) {
+            log(req);
+
             News.findOne({slug: req.params.slug}, function (err, news) {
                 if (err) return next(err);
+
                 if (!news) {
-                    res.status(404).json({message: "News with this slug not found"});
-                    return;
+                    log(req, "slug not found");
+                    return next({status: 404, message: "News with this slug not found"});
                 }
 
                 if (req.body.slug && req.params.slug != req.body.slug) {
                     News.count({slug: req.body.slug}, function (err, count) {
                         if (err) return next(err);
                         if (count > 0) {
-                            res.status(400).json({message: "News with thus slug already exist"});
-                            return;
+                            log(req, "slug %s already exists", [req.body.slug]);
+                            return next({status: 400, message: "News with thus slug already exist"});
                         }
                         updateNews();
                     });
@@ -288,8 +353,6 @@ module.exports = function (app, passport, models) {
 
                         news.populate("creator", "name", function (err, news) {
                             if (err) return next(err);
-
-                            console.info('News %s updated', news.slug);
                             res.json(news.toObject());
                         });
                     });
@@ -299,14 +362,12 @@ module.exports = function (app, passport, models) {
 
     /* DELETE news */
     router.delete('/news/:slug',
-        passport.authenticate('admin-authorization', {
-            session: false
-        }), function (req, res, next) {
-            console.info("[%s] DELETE news by slug %s", req.user.username, req.params.slug);
+        passport.authorize('admin-authorization', { session: false }),
+        function (req, res, next) {
+            log(req);
+
             News.findOneAndRemove({slug: req.params.slug}, function (err) {
                 if (err) return next(err);
-
-                console.info('News %s deleted', req.params.slug);
                 res.json({});
             });
         });
@@ -315,6 +376,7 @@ module.exports = function (app, passport, models) {
      * 404
      */
     router.use(function (req, res, next) {
+        console.warn("[%s][%s] 404: %s", req.method, req.connection.remoteAddress, req.path);
         res.status(404);
         res.json({message: 'Not found'});
     });

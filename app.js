@@ -80,15 +80,15 @@ require('./routes/api/v1/api')(app, passport, models);
  * Catch 404 and forward to error handler
  */
 app.use(function (req, res, next) {
-    var err = new Error('Not Found');
-    err.status = 404;
-    next(err);
+    console.warn("[%s][%s] 404: %s", req.method, req.connection.remoteAddress, req.path);
+    res.status(404).send();
 });
 
 /**
  * Error handler
  */
 app.use(function (err, req, res, next) {
+    console.error("[%s][%s] ERROR: %s", req.method, req.connection.remoteAddress, err);
     res.status(err.status || 500).send();
 });
 

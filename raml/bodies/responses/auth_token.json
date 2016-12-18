@@ -1,3 +1,10 @@
 {
-  "auth_token": "c291ce60-365e-11e6-a854-8f791ffe8066"
+  "auth_token": "c0297eb0-c4ad-11e6-a581-cfb6b668fd4a",
+  "userAgent": "test user agent",
+  "ip": "::1",
+  "user": {
+    "username": "admin"
+  },
+  "lastUsed": "2016-12-17T23:08:41.370Z",
+  "createDate": "2016-12-17T23:08:41.370Z"
 }
