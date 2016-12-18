@@ -1,9 +1,4 @@
-var mongoose = require('mongoose');
-var moment = require('moment');
-var uuid = require('node-uuid');
-var expired_time = 30;
-
-module.exports = function (connection, deleteMongoFields) {
+module.exports = function (connection, mongoose, moment, uuid, expired_time, deleteMongoFields) {
 
     var Schema = mongoose.Schema;
 

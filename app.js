@@ -1,98 +1,71 @@
-/**
- * DB configuration and model
- * mongoose used as ORM for mongodb
- */
-var mongoose = require('mongoose');
-var db = require('./config/database')(mongoose);
-var models = require('./models/models')(db);
+module.exports = function (require) {
+    /**
+     * App configurator
+     */
+    var pJson = require('../package.json');
+    var appConfig = require('../app/config');
 
-/**
- * Express
- */
-var express = require('express');
-var app = express();
+    /**
+     * Some additional modules
+     */
+    var path = require('path');
+    var moment = require('moment');
+    var uuid = require('node-uuid');
 
-/**
- * Some additional modules
- */
-var path = require('path');
+    /**
+     * DB configuration and model
+     * mongoose used as ORM for mongodb
+     */
+    var mongoose = require('mongoose');
+    var connection = require('../app/config/database')(mongoose);
+    var models = require('../app/models/models')(require, connection, mongoose, moment, uuid);
 
-/**
- * Middleware for logging in Express
- */
-var morgan = require('morgan');
-if (app.get('env') === 'development') {
-    app.use(morgan('dev', {
-        skip: function (req, res) {
-            return res.statusCode < 400
-        }
-    }));
-} else {
-    app.use(morgan('combined'));
-}
+    /**
+     * Express
+     */
+    var express = require('express');
+    var app = appConfig.createApp(express);
 
-/**
- * Add Access-Control-Allow-Origin header
- */
-app.use(function (req, res, next) {
-    res.setHeader("Access-Control-Allow-Origin", "*");
-    if (req.method == "OPTIONS") {
-        res.setHeader("Access-Control-Allow-Headers", "X-Requested-With, Authorization, Content-Type, Content-Length");
-        res.setHeader("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE");
-        res.status(200).send();
-        return;
-    }
-    next();
-});
+    /**
+     * Middleware for logging in Express
+     */
+    var morgan = require('morgan');
+    appConfig.morgan(app, morgan);
 
-/**
- * Auth with passport
- */
-var passport = require('passport');
-require('./config/passport')(passport, models);
+    /**
+     * Add Access-Control-Allow-Origin header
+     */
+    appConfig.originHeader(app);
 
-/**
- * Middleware for parsing requests
- */
-var bodyParser = require('body-parser');
-// parse json when application/json
-app.use(bodyParser.json());
-// parse params in URL
-app.use(bodyParser.urlencoded({extended: false}));
+    /**
+     * Auth with passport
+     */
+    var passport = require('passport');
+    var BasicStrategy = require('passport-http').BasicStrategy;
+    var BearerStrategy = require('passport-http-bearer').Strategy;
+    require('../app/config/passport')(passport, models, moment, BasicStrategy, BearerStrategy);
 
-/**
- * Parse and populate cookies
- */
-var cookieParser = require('cookie-parser');
-app.use(cookieParser());
+    /**
+     * Middleware for parsing requests
+     */
+    var cookieParser = require('cookie-parser');
+    var bodyParser = require('body-parser');
+    appConfig.parsingMiddleware(app, bodyParser, cookieParser);
 
-/**
- * Publish our public folder
- */
-app.use(express.static(path.join(__dirname, 'public')));
+    /**
+     * Routes
+     */
+    var apiHandlers = require('../app/routes/api/apiHandlers');
+    var v1Api = require('../app/routes/api/v1/api');
+    appConfig.routes(app, pJson, express, path, apiHandlers, v1Api, passport, models);
 
-/**
- * API v1 router
- */
-require('./routes/api/v1/api')(app, passport, models);
+    /**
+     * Catch errors
+     */
+    appConfig.errors(app);
 
-/**
- * Catch 404 and forward to error handler
- */
-app.use(function (req, res, next) {
-    console.warn("[%s][%s] 404: %s", req.method, req.connection.remoteAddress, req.path);
-    res.status(404).send();
-});
-
-/**
- * Error handler
- */
-app.use(function (err, req, res, next) {
-    console.error("[%s][%s] ERROR: %s", req.method, req.connection.remoteAddress, err);
-    res.status(err.status || 500).send();
-});
-
-/**
- * Export app
- */
-module.exports = app;
+    /**
+     * Export app
+     */
+    return app;
+};

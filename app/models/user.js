@@ -1,6 +1,4 @@
-var mongoose = require('mongoose');
-
-module.exports = function (connection, deleteMongoFields) {
+module.exports = function (connection, mongoose, deleteMongoFields) {
 
     var Schema = mongoose.Schema;
 

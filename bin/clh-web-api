@@ -8,7 +8,7 @@ var debug = require('debug')('clh-web-api:server');
 /**
  * Load express app
  */
-var app = require('../app');
+var app = require('../app')(require);
 
 /**
  * Create HTTP server.

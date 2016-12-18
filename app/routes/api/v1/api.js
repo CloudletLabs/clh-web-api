@@ -1,55 +1,13 @@
-var express = require('express');
-var pjson = require('../../../package.json');
 var apiVersion = '1';
 
-module.exports = function (app, passport, models) {
+module.exports = function (express, app, pJson, apiHandlers, passport, models) {
 
     /**
      * Create new router for api
      */
     var router = express.Router();
 
-    /**
-     * Map this router for relative path
-     */
-    app.use('/api/v' + apiVersion, router);
-    app.use('/api/current', router);
-
-    /**
-     * Error handlers
-     * TODO: is it secure always return err object?
-     */
-    app.use('/api/v' + apiVersion, apiErrorHandler);
-    app.use('/api/current', apiErrorHandler);
-    function apiErrorHandler(err, req, res, next) {
-        console.error("[%s][%s] API ERROR: %s", req.method, req.connection.remoteAddress, err);
-        res.status(err.status || 500);
-        delete err.status;
-        if (err.length === 0) {
-            res.send();
-        } else {
-            res.json(err);
-        }
-    }
-
-    function log(req, msg, args) {
-        var user;
-        if (req.user) {
-            user = req.user.user || req.user;
-        }
-        var arr = [req.method, req.connection.remoteAddress, req.path];
-        var template;
-        if (!user) {
-            template = "[%s][%s][%s]";
-        } else {
-            template = "[%s][%s][%s][%s]";
-            arr.push(user.username);
-        }
-        if (msg) template += " " + msg;
-        arr.unshift(template);
-        if (args) arr = arr.concat(args);
-        console.info.apply(console, arr);
-    }
+    var log = apiHandlers.log;
 
     var User = models.user;
     var UserAuthToken = models.userAuthToken;
@@ -61,16 +19,10 @@ module.exports = function (app, passport, models) {
      */
 
     /* GET status. */
-    router.get('/status', function (req, res, next) {
-        log(req);
-        res.send('ok');
-    });
+    router.get('/status', apiHandlers.status(log));
 
     /* GET info. */
-    router.get('/info', function (req, res, next) {
-        log(req);
-        res.json({name: pjson.name, version: pjson.version, apiVersion: apiVersion});
-    });
+    router.get('/info', apiHandlers.info(pJson, apiVersion, log));
 
     /**
      * Auth
@@ -381,5 +333,8 @@ module.exports = function (app, passport, models) {
         res.json({message: 'Not found'});
     });
 
-    return router;
+    return {
+        apiVersion: apiVersion,
+        router: router
+    };
 };

@@ -1,7 +1,4 @@
-var mongoose = require('mongoose');
-var moment = require('moment');
-
-module.exports = function (connection, deleteMongoFields) {
+module.exports = function (connection, mongoose, moment, deleteMongoFields) {
 
     var Schema = mongoose.Schema;
 

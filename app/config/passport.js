@@ -1,15 +1,4 @@
-/**
- * Load strategies
- */
-var BasicStrategy = require('passport-http').BasicStrategy;
-var BearerStrategy = require('passport-http-bearer').Strategy;
-
-/**
- * Some additional modules
- */
-var moment = require('moment');
-
-module.exports = function (passport, models) {
+module.exports = function (passport, models, moment, BasicStrategy, BearerStrategy) {
 
     var UserAuthToken = models.userAuthToken;
     var User = models.user;

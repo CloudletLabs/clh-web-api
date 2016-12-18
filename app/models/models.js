@@ -1,6 +1,4 @@
-var moment = require('moment');
-
-module.exports = function (connection) {
+module.exports = function (require, connection, mongoose, moment, uuid) {
 
     function deleteMongoFields(schema, modelSpecificFields) {
         if (!schema.options.toObject) schema.options.toObject = {};
@@ -17,10 +15,10 @@ module.exports = function (connection) {
         }
     }
 
-    var User = require('./user')(connection, deleteMongoFields);
-    var UserAuthToken = require('./userAuthToken')(connection, deleteMongoFields);
-    var UserRole = require('./userRole')(connection, deleteMongoFields);
-    var News = require('./news')(connection, deleteMongoFields);
+    var User = require('../app/models/user')(connection, mongoose, deleteMongoFields);
+    var UserAuthToken = require('../app/models/userAuthToken')(connection, mongoose, moment, uuid, 30, deleteMongoFields);
+    var UserRole = require('../app/models/userRole')(connection, mongoose, deleteMongoFields);
+    var News = require('../app/models/news')(connection, mongoose, moment, deleteMongoFields);
 
     /**
      * Create some default test data
