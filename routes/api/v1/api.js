@@ -120,6 +120,11 @@ module.exports = function (app, passport, models) {
             UserAuthToken.findOne({auth_token: req.params.token}).populate('user', 'username').exec(function (err, tokenToDelete) {
                 if (err) return next(err);
 
+                if (!tokenToDelete) {
+                    log(req, "token not found");
+                    return next({status: 404});
+                }
+
                 if (user.username != tokenToDelete.user.username) {
                     log(req, "cheating on %s", [tokenToDelete.user.username]);
                     return next({status: 401});

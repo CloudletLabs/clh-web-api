@@ -44,8 +44,8 @@ schemas:
   - newsForPut: !include schemas/newsForPut.json
 
 securitySchemes:
-  - User-Password:
-      type: x-json-user-password
+  - Password:
+      type: x-json-password
       description: |
         Auth by sending username and password in json
   - Bearer:
@@ -93,7 +93,7 @@ securitySchemes:
   displayName: Auth
   post:
     description: Get auth token for username+password pair
-    securedBy: [ User-Password ]
+    securedBy: [ Password ]
     body:
       application/json:
         schema: usernameAndPass
@@ -105,6 +105,7 @@ securitySchemes:
             schema: authToken
             example: !include bodies/responses/auth_token.json
       401:
+        description: Unauthorized
   put:
     description: Create new token instead of expired one
     securedBy: [ Bearer ]
@@ -115,6 +116,24 @@ securitySchemes:
             schema: authToken
             example: !include bodies/responses/auth_token.json
       401:
+        description: Unauthorized
+  /{token}:
+    uriParameters:
+      token:
+        displayName: Token
+        description: Token
+        type: string
+    delete:
+      description: Delete token
+      securedBy: [ Bearer ]
+      responses:
+        200:
+          body:
+            application/json:
+              example: |
+                { }
+        401:
+          description: Unauthorized
 /user:
   displayName: Current User
   get:
@@ -127,6 +146,7 @@ securitySchemes:
             schema: user
             example: !include bodies/responses/admin.json
       401:
+        description: Unauthorized
 /users:
   displayName: Users
   get:
@@ -139,6 +159,7 @@ securitySchemes:
             schema: users
             example: !include bodies/responses/users.json
       401:
+        description: Unauthorized
   post:
     description: Create new user
     body:
@@ -171,6 +192,7 @@ securitySchemes:
         404:
           description: User not found
         401:
+          description: Unauthorized
     put:
       description: Update user
       securedBy: [ Bearer ]
@@ -187,6 +209,7 @@ securitySchemes:
         404:
           description: User not found
         401:
+          description: Unauthorized
     delete:
       description: Delete user
       securedBy: [ Bearer ]
@@ -197,6 +220,7 @@ securitySchemes:
               example: |
                 { }
         401:
+          description: Unauthorized
 /news:
   displayName: News
   get:
@@ -223,6 +247,7 @@ securitySchemes:
       400:
         description: News with this slug already exists
       401:
+        description: Unauthorized
   /{slug}:
     uriParameters:
       slug:
@@ -254,9 +279,10 @@ securitySchemes:
               example: !include bodies/responses/news.json
         400:
           description: News with this slug already exists
+        401:
+          description: Unauthorized
         404:
           description: News with this slug not found
-        401:
     delete:
       description: Delete news
       securedBy: [ Bearer ]
@@ -267,3 +293,4 @@ securitySchemes:
               example: |
                 { }
         401:
+          description: Unauthorized

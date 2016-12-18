@@ -5,6 +5,10 @@ var auth_token;
     'POST /auth_token -> 200',
     'PUT /auth_token -> 200'
 ].forEach(function(name) {
+    hooks.before(name, function(test, done) {
+        test.request.headers['user-agent'] = 'abao';
+        done();
+    });
     hooks.after(name, function(test, done) {
         auth_token = test.response.body.auth_token;
         done();
@@ -17,8 +21,12 @@ hooks.before('POST /auth_token -> 401', function(test, done) {
     done();
 });
 
+// TODO: this should be tested somehow...
+hooks.skip('DELETE /auth_token/{token} -> 200');
+
 [
     'PUT /auth_token -> 200',
+    'DELETE /auth_token/{token} -> 200',
     'GET /user -> 200',
     'GET /users -> 200',
     'GET /users/{username} -> 200',
@@ -34,7 +42,8 @@ hooks.before('POST /auth_token -> 401', function(test, done) {
     'DELETE /news/{slug} -> 200'
 ].forEach(function(name) {
     hooks.before(name, function(test, done) {
-        test.request.headers.Authorization = 'Bearer ' + auth_token;
+        test.request.headers['authorization'] = 'Bearer ' + auth_token;
+        test.request.headers['user-agent'] = 'abao';
         done();
     });
 });
