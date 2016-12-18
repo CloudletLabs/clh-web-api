@@ -19,7 +19,7 @@ docker-compose down # this will destroy your app and DB
 docker-compose logs # this will print logs from the app and DB
 ```
 
-Once done, you should be able to open in your browser [http://localhost:8087/](http://localhost:8087/) and see the app.
+Once done, you should be able to open in your browser [http://localhost:8087/?url=clh-web-api.yml](http://localhost:8087/?url=clh-web-api.yml) and see the app.
 
 Note at the first run on a clean DB it will create some test data. Particularly, default admin access would be ```admin/admin```.
 
@@ -34,5 +34,5 @@ docker-compose run clh-web-api npm run test-integration # to run Abao integratio
 
 # Resources
 
-* https://clh-web-api-dev.herokuapp.com/ - Dev env
-* https://clh-web-api-dev.herokuapp.com/clh-web-api.html - API Spec
+* https://clh-web-api-dev.herokuapp.com/?url=clh-web-api.yml - Dev env docs
+* https://clh-web-api-dev.herokuapp.com/clh-web-api.yml - API Spec
