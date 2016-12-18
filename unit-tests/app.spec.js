@@ -77,7 +77,7 @@ describe('The app module', function() {
         appConfigMock.createApp = sinon.stub().returns(appMock);
         appConfigMock.createApp.withArgs(expressMock).returns(appMock);
         appConfigMock.morgan = sinon.stub();
-        appConfigMock.originHeader = sinon.stub();
+        appConfigMock.originHeaders = sinon.stub();
         appConfigMock.parsingMiddleware = sinon.stub();
         appConfigMock.routes = sinon.stub();
         appConfigMock.errors = sinon.stub();
@@ -103,7 +103,7 @@ describe('The app module', function() {
         expect(requireMock).to.have.been.calledWith('morgan');
         expect(appConfigMock.morgan).to.have.been.calledWith(appMock, morganMock);
 
-        expect(appConfigMock.originHeader).to.have.been.calledWith(appMock);
+        expect(appConfigMock.originHeaders).to.have.been.calledWith(appMock);
 
         expect(requireMock).to.have.been.calledWith('passport');
         expect(requireMock).to.have.been.calledWith('../app/config/passport');

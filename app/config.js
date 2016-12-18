@@ -15,7 +15,7 @@ module.exports = {
             app.use(morgan('combined'));
         }
     },
-    originHeader: function (app) {
+    originHeaders: function (app) {
         app.use(function (req, res, next) {
             res.setHeader("Access-Control-Allow-Origin", "*");
             if (req.method == "OPTIONS") {
@@ -28,8 +28,6 @@ module.exports = {
         });
     },
     parsingMiddleware: function (app, cookieParser, bodyParser) {
-        // parse json when application/json
-        app.use(bodyParser.json());
         // parse params in URL
         app.use(bodyParser.urlencoded({extended: false}));
         // Parse and populate cookies
@@ -41,7 +39,7 @@ module.exports = {
         // API v1 router
         var v1 = v1Api(express, app, pJson, apiHandlers, passport, models);
         app.use('/api/v' + v1.apiVersion, v1.router);
-        app.use('/api/v1' + v1.apiVersion, apiHandlers.errorHandler);
+        app.use('/api/v' + v1.apiVersion, apiHandlers.errorHandler);
         app.use('/api/current', v1.router);
         app.use('/api/current', apiHandlers.errorHandler);
     },

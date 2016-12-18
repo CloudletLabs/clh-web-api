@@ -35,7 +35,7 @@ module.exports = function (require) {
     /**
      * Add Access-Control-Allow-Origin header
      */
-    appConfig.originHeader(app);
+    appConfig.originHeaders(app);
 
     /**
      * Auth with passport
