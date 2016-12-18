@@ -78,7 +78,7 @@ module.exports = function (app, passport, models) {
 
     /* POST auth token. */
     router.post('/auth_token',
-        passport.authenticate('password-authentication', { session: false }),
+        passport.authenticate('basic-authentication', { session: false }),
         function (req, res, next) {
             log(req);
 
@@ -132,7 +132,7 @@ module.exports = function (app, passport, models) {
 
                 tokenToDelete.remove(function (err) {
                     if (err) return next(err);
-                    res.json({});
+                    res.send();
                 });
             });
         });
@@ -252,7 +252,7 @@ module.exports = function (app, passport, models) {
 
             User.findOneAndRemove({username: req.params.username}, function (err) {
                 if (err) return next(err);
-                res.json({});
+                res.send();
             });
         });
 
@@ -368,7 +368,7 @@ module.exports = function (app, passport, models) {
 
             News.findOneAndRemove({slug: req.params.slug}, function (err) {
                 if (err) return next(err);
-                res.json({});
+                res.send();
             });
         });
 

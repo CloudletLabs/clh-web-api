@@ -1,7 +1,7 @@
 /**
  * Load strategies
  */
-var LocalStrategy = require('passport-local').Strategy;
+var BasicStrategy = require('passport-http').BasicStrategy;
 var BearerStrategy = require('passport-http-bearer').Strategy;
 
 /**
@@ -17,8 +17,8 @@ module.exports = function (passport, models) {
     /**
      * Strategy for username+password auth
      */
-    passport.use('password-authentication', new LocalStrategy({ passReqToCallback: true },
-        function (req, username, password, done) {
+    passport.use('basic-authentication', new BasicStrategy(
+        function (username, password, done) {
             User.findOne({
                 username: username,
                 password: password

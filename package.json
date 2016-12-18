@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "private": true,
   "scripts": {
-    "prestart": "npm run raml",
+    "prestart": "rm -rf ./public/* && cp -rf ./node_modules/swagger-ui/dist/* ./public/ && cp -rf ./swagger/* ./public/",
     "start": "node ./bin/clh-web-api",
     "reset": "npm run db-clean && npm run db-start && npm start",
     "db-start": "mkdir ./.db && mongod --dbpath ./.db --fork --logpath /dev/null",
@@ -21,7 +21,7 @@
     "mongodb": "=2.1.16",
     "mongoose": "=4.4.13",
     "passport": "=0.3.2",
-    "passport-local": "=1.0.0",
+    "passport-http": "=0.3.0",
     "passport-http-bearer": "=1.0.1",
     "moment": "=2.13.0",
     "node-uuid": "=1.4.7",
@@ -34,6 +34,7 @@
     "mocha": "=3.0.2",
     "chai": "=3.5.0",
     "sinon": "=1.17.5",
-    "istanbul": "=0.4.5"
+    "istanbul": "=0.4.5",
+    "swagger-ui": "=2.2.8"
   }
 }

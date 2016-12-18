@@ -3,9 +3,9 @@ info:
   title: clh-web-api
   version: '1'
   description: This is the CloudletHub API
-host: clh-web-api-dev.herokuapp.com
 basePath: /api/current
 schemes:
+  - http
   - https
 consumes:
   - application/json
@@ -238,14 +238,6 @@ definitions:
     type: array
 
 paths:
-  /info:
-    get:
-      description: Get service info
-      responses:
-        '200':
-          description: OK
-          schema:
-            $ref: '#/definitions/info'
   /status:
     get:
       description: Get service status
@@ -254,6 +246,14 @@ paths:
       responses:
         '200':
           description: OK
+  /info:
+    get:
+      description: Get service info
+      responses:
+        '200':
+          description: OK
+          schema:
+            $ref: '#/definitions/info'
   /auth_token:
     post:
       security:
