@@ -50,7 +50,7 @@ module.exports = function (require) {
      */
     var cookieParser = require('cookie-parser');
     var bodyParser = require('body-parser');
-    appConfig.parsingMiddleware(app, bodyParser, cookieParser);
+    appConfig.parsingMiddleware(app, cookieParser, bodyParser);
 
     /**
      * Routes

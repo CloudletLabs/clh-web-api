@@ -27,7 +27,7 @@ module.exports = {
             next();
         });
     },
-    parsingMiddleware: function (app, bodyParser, cookieParser) {
+    parsingMiddleware: function (app, cookieParser, bodyParser) {
         // parse json when application/json
         app.use(bodyParser.json());
         // parse params in URL
