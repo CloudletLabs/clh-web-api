@@ -6,9 +6,5 @@
   "avatar": "img\/mockUser2.jpg",
   "roles": [
     "5766c15dfa6c831a5d3aca44"
-  ],
-  "token": {
-    "auth_token": "ea647660-3643-11e6-8c9d-af76620da978",
-    "createDate": "2016-06-19T17:33:20.454Z"
-  }
+  ]
 }
