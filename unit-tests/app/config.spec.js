@@ -179,45 +179,57 @@ describe('The config module', function() {
         expect(appMock.use).to.have.been.calledWith('/api/current', errorHandlerMock);
     });
 
-    it('should configure error handlers', function () {
-        var appMock = sinon.stub();
-        var appUseSpy = sinon.spy();
-        var handlers = [];
-        appMock.use = function (handler) {
-            appUseSpy();
-            handlers.push(handler);
-        };
-        var reqMock = {};
-        reqMock.method = 'test method';
-        reqMock.connection = {};
-        reqMock.connection.remoteAddress = 'test address';
-        reqMock.path = 'test path';
-        var resMock = sinon.stub();
-        resMock.status = sinon.stub();
-        resMock.status.returns(resMock);
-        resMock.send = sinon.stub();
-        var consoleWarnMock = sinon.stub(console, 'warn');
-        var consoleErrorMock = sinon.stub(console, 'error');
+    describe('error handlers', function () {
+        var consoleWarnMock, consoleErrorMock;
 
-        var appConfig = require('../../app/config');
-        appConfig.errors(appMock);
+        beforeEach(function () {
+            consoleWarnMock = sinon.stub(console, 'warn');
+            consoleErrorMock = sinon.stub(console, 'error');
+        });
 
-        expect(appUseSpy).to.have.been.calledTwice;
-        expect(handlers.length).to.be.equal(2);
+        it('should configure', function () {
+            var appMock = sinon.stub();
+            var appUseSpy = sinon.spy();
+            var handlers = [];
+            appMock.use = function (handler) {
+                appUseSpy();
+                handlers.push(handler);
+            };
+            var reqMock = {};
+            reqMock.method = 'test method';
+            reqMock.connection = {};
+            reqMock.connection.remoteAddress = 'test address';
+            reqMock.path = 'test path';
+            var resMock = sinon.stub();
+            resMock.status = sinon.stub();
+            resMock.status.returns(resMock);
+            resMock.send = sinon.stub();
 
-        handlers[0](reqMock, resMock);
-        expect(consoleWarnMock).to.have.been.calledWith('[%s][%s] 404: %s', 'test method', 'test address', 'test path');
-        expect(resMock.status).to.have.been.calledWith(404);
-        expect(resMock.send).to.have.been.called;
+            var appConfig = require('../../app/config');
+            appConfig.errors(appMock);
 
-        handlers[1]({}, reqMock, resMock);
-        expect(consoleErrorMock).to.have.been.calledWith('[%s][%s] ERROR: %s', 'test method', 'test address', {});
-        expect(resMock.status).to.have.been.calledWith(500);
-        expect(resMock.send).to.have.been.called;
+            expect(appUseSpy).to.have.been.calledTwice;
+            expect(handlers.length).to.be.equal(2);
 
-        handlers[1]({ status: 199 }, reqMock, resMock);
-        expect(consoleErrorMock).to.have.been.calledWith('[%s][%s] ERROR: %s', 'test method', 'test address', { status: 199 });
-        expect(resMock.status).to.have.been.calledWith(199);
-        expect(resMock.send).to.have.been.called;
+            handlers[0](reqMock, resMock);
+            expect(consoleWarnMock).to.have.been.calledWith('[%s][%s] 404: %s', 'test method', 'test address', 'test path');
+            expect(resMock.status).to.have.been.calledWith(404);
+            expect(resMock.send).to.have.been.called;
+
+            handlers[1]({}, reqMock, resMock);
+            expect(consoleErrorMock).to.have.been.calledWith('[%s][%s] ERROR: %s', 'test method', 'test address', {});
+            expect(resMock.status).to.have.been.calledWith(500);
+            expect(resMock.send).to.have.been.called;
+
+            handlers[1]({ status: 199 }, reqMock, resMock);
+            expect(consoleErrorMock).to.have.been.calledWith('[%s][%s] ERROR: %s', 'test method', 'test address', { status: 199 });
+            expect(resMock.status).to.have.been.calledWith(199);
+            expect(resMock.send).to.have.been.called;
+        });
+
+        afterEach(function () {
+            console.warn.restore();
+            console.error.restore();
+        });
     });
 });
