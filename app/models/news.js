@@ -1,4 +1,4 @@
-module.exports = function (connection, mongoose, moment, deleteMongoFields) {
+module.exports = function (modelHelpers, connection, mongoose, moment) {
 
     var Schema = mongoose.Schema;
 
@@ -10,7 +10,7 @@ module.exports = function (connection, mongoose, moment, deleteMongoFields) {
         text: {type: String, required: true}
     });
 
-    deleteMongoFields(newsSchema);
+    modelHelpers.deleteMongoFields(newsSchema);
 
     var News = connection.model('News', newsSchema);
 

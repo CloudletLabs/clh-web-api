@@ -33,10 +33,13 @@ describe('The app module', function() {
         var connectionMock = sinon.stub();
         connectionConfigMock.withArgs(mongooseMock).returns(connectionMock);
 
+        var modelHelpersMock = sinon.stub();
+        requireMock.withArgs('../app/models/modelHelpers').returns(modelHelpersMock);
         var modelsConfigMock = sinon.stub();
         requireMock.withArgs('../app/models/models').returns(modelsConfigMock);
         var modelsMock = sinon.stub();
-        modelsConfigMock.withArgs(requireMock, connectionMock, mongooseMock, momentMock, uuidMock).returns(modelsMock);
+        modelsConfigMock.withArgs(
+            requireMock, modelHelpersMock, connectionMock, mongooseMock, momentMock, uuidMock).returns(modelsMock);
 
         var expressMock = sinon.stub();
         requireMock.withArgs('express').returns(expressMock);
@@ -94,8 +97,9 @@ describe('The app module', function() {
         expect(requireMock).to.have.been.calledWith('mongoose');
         expect(requireMock).to.have.been.calledWith('../app/config/database');
         expect(connectionConfigMock).to.have.been.calledWith(mongooseMock);
+        expect(requireMock).to.have.been.calledWith('../app/models/modelHelpers');
         expect(requireMock).to.have.been.calledWith('../app/models/models');
-        expect(modelsConfigMock).to.have.been.calledWith(requireMock, connectionMock, mongooseMock, momentMock, uuidMock);
+        expect(modelsConfigMock).to.have.been.calledWith(requireMock, modelHelpersMock, connectionMock, mongooseMock, momentMock, uuidMock);
 
         expect(requireMock).to.have.been.calledWith('express');
         expect(appConfigMock.createApp).to.have.been.calledWith(expressMock);

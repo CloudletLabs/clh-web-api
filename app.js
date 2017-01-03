@@ -18,7 +18,8 @@ module.exports = function (require) {
      */
     var mongoose = require('mongoose');
     var connection = require('../app/config/database')(mongoose);
-    var models = require('../app/models/models')(require, connection, mongoose, moment, uuid);
+    var modelHelpers = require('../app/models/modelHelpers');
+    var models = require('../app/models/models')(require, modelHelpers, connection, mongoose, moment, uuid);
 
     /**
      * Express

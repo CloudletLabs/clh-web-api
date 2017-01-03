@@ -1,4 +1,4 @@
-module.exports = function (connection, mongoose, deleteMongoFields) {
+module.exports = function (modelHelpers, connection, mongoose) {
 
     var Schema = mongoose.Schema;
 
@@ -7,7 +7,7 @@ module.exports = function (connection, mongoose, deleteMongoFields) {
         displayName: {type: String, required: true}
     });
 
-    deleteMongoFields(userRoleSchema);
+    modelHelpers.deleteMongoFields(userRoleSchema);
 
     var UserRole = connection.model('UserRole', userRoleSchema);
 

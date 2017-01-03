@@ -1,4 +1,4 @@
-module.exports = function (connection, mongoose, moment, uuid, expired_time, deleteMongoFields) {
+module.exports = function (modelHelpers, connection, mongoose, moment, uuid, expired_time) {
 
     var Schema = mongoose.Schema;
 
@@ -11,7 +11,7 @@ module.exports = function (connection, mongoose, moment, uuid, expired_time, del
         user: {type: mongoose.Schema.Types.ObjectId, ref: 'User'}
     });
 
-    deleteMongoFields(userAuthTokenSchema);
+    modelHelpers.deleteMongoFields(userAuthTokenSchema);
 
     userAuthTokenSchema.methods.hasExpired = function () {
         return (moment().utc().diff(this.createDate, 'days')) > expired_time;
