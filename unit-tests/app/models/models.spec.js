@@ -6,35 +6,35 @@ chai.use(sinonChai);
 
 describe('The models module', function() {
 
-    it('should perform default configuration', function () {
-        var requireMock = sinon.stub();
+    it('should perform default configuration', sinon.test(function () {
+        var requireMock = this.stub();
         requireMock.throws();
 
-        var modelHelpersMock = sinon.stub();
-        var connectionMock = sinon.stub();
-        var mongooseMock = sinon.stub();
-        var momentMock = sinon.stub();
-        var uuidMock = sinon.stub();
+        var modelHelpersMock = this.stub();
+        var connectionMock = this.stub();
+        var mongooseMock = this.stub();
+        var momentMock = this.stub();
+        var uuidMock = this.stub();
 
-        var userMockModule = sinon.stub();
+        var userMockModule = this.stub();
         requireMock.withArgs('../app/models/user').returns(userMockModule);
-        var userMock = sinon.stub();
+        var userMock = this.stub();
         userMockModule.withArgs(modelHelpersMock, connectionMock, mongooseMock).returns(userMock);
 
-        var userAuthTokenMockModule = sinon.stub();
+        var userAuthTokenMockModule = this.stub();
         requireMock.withArgs('../app/models/userAuthToken').returns(userAuthTokenMockModule);
-        var userAuthTokenMock = sinon.stub();
+        var userAuthTokenMock = this.stub();
         userAuthTokenMockModule.withArgs(
             modelHelpersMock, connectionMock, mongooseMock, momentMock, uuidMock, 30).returns(userAuthTokenMock);
 
-        var userRoleMockModule = sinon.stub();
+        var userRoleMockModule = this.stub();
         requireMock.withArgs('../app/models/userRole').returns(userRoleMockModule);
-        var userRoleMock = sinon.stub();
+        var userRoleMock = this.stub();
         userRoleMockModule.withArgs(modelHelpersMock, connectionMock, mongooseMock).returns(userRoleMock);
 
-        var newsMockModule = sinon.stub();
+        var newsMockModule = this.stub();
         requireMock.withArgs('../app/models/news').returns(newsMockModule);
-        var newsMock = sinon.stub();
+        var newsMock = this.stub();
         newsMockModule.withArgs(modelHelpersMock, connectionMock, mongooseMock, momentMock).returns(newsMock);
 
         var modelsMock = {
@@ -61,5 +61,5 @@ describe('The models module', function() {
         expect(newsMockModule).to.have.been.calledWith(modelHelpersMock, connectionMock, mongooseMock, momentMock);
 
         expect(models).to.eql(modelsMock);
-    });
+    }));
 });

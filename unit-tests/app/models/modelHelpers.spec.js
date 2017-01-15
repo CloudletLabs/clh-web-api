@@ -4,14 +4,20 @@ var sinonChai = require("sinon-chai");
 var expect = chai.expect;
 chai.use(sinonChai);
 
+var modelHelpers = require('../../../app/models/modelHelpers');
+
 describe('The modelHelpers module', function() {
 
-    it('should delete default mongo fields', function () {
+    it('should have functions', sinon.test(function () {
+        expect(Object.keys(modelHelpers).length).to.be.equal(1);
+        expect(modelHelpers.deleteMongoFields).to.be.a('function');
+    }));
+
+    it('should delete default mongo fields', sinon.test(function () {
         schema = {
             options: {}
         };
 
-        var modelHelpers = require('../../../app/models/modelHelpers');
         modelHelpers.deleteMongoFields(schema, ['myField']);
 
         expect(schema.options.toObject).to.respondTo('transform');
@@ -24,6 +30,6 @@ describe('The modelHelpers module', function() {
         }, null);
 
         expect(object).to.eql({ field1: 'value1' });
-    });
+    }));
 
 });

@@ -5,36 +5,31 @@ var expect = chai.expect;
 chai.use(sinonChai);
 
 describe('The database module', function() {
-    var processOnMock, processExitMock, processOnCallbackMock, consoleInfoMock, consoleWarnMock, consoleErrorMock;
 
-    var processOnFunctionMock = function (signal, callback) {
-        processOnCallbackMock = callback;
-    };
-    
-    beforeEach(function () {
-        processOnMock = sinon.stub(process, 'on', processOnFunctionMock);
-        processExitMock = sinon.stub(process, 'exit');
-        consoleInfoMock = sinon.stub(console, 'info');
-        consoleWarnMock = sinon.stub(console, 'warn');
-        consoleErrorMock = sinon.stub(console, 'error');
-    });
-    
-    var mongooseMock = sinon.stub();
-    var connectionMock = sinon.stub();
-    mongooseMock.createConnection = sinon.stub();
-    mongooseMock.createConnection.returns(connectionMock);
-
-    it('should perform default configuration', function () {
+    it('should perform default configuration', sinon.test(function () {
+        var mongooseMock = this.stub();
+        var connectionMock = this.stub();
+        mongooseMock.createConnection = this.stub();
+        mongooseMock.createConnection.returns(connectionMock);
         var handlers = {};
         connectionMock.on = function (event, handler) {
             handlers[event] = handler;
         };
-        var connectionCloseSpy = sinon.spy();
+        var connectionCloseSpy = this.spy();
         var connectionCloseCallback;
         connectionMock.close = function (callback) {
             connectionCloseSpy();
             connectionCloseCallback = callback;
         };
+
+        var processOnFunctionMock = function (signal, callback) {
+            processOnCallbackMock = callback;
+        };
+        var processOnMock = this.stub(process, 'on', processOnFunctionMock);
+        var processExitMock = this.stub(process, 'exit');
+        var consoleInfoMock = this.stub(console, 'info');
+        var consoleWarnMock = this.stub(console, 'warn');
+        var consoleErrorMock = this.stub(console, 'error');
 
         var connection = require('../../../app/config/database')(mongooseMock);
 
@@ -60,13 +55,5 @@ describe('The database module', function() {
         connectionCloseCallback();
         expect(consoleErrorMock).to.have.been.calledWith('Mongoose connection disconnected through app termination');
         expect(processExitMock).to.have.been.calledWith(0);
-    });
-
-    afterEach(function () {
-        console.info.restore();
-        console.warn.restore();
-        console.error.restore();
-        process.on.restore();
-        process.exit.restore();
-    });
+    }));
 });
