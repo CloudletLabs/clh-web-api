@@ -39,3 +39,7 @@ bower_components
 .db/
 
 public
+
+test-results
+
+.nyc_output

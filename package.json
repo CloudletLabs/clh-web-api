@@ -2,6 +2,19 @@
   "name": "clh-web-api",
   "version": "0.0.1",
   "private": true,
+  "nyc": {
+    "include": [
+      "app/**/*.js",
+      "app.js"
+    ],
+    "includeAllSources": true,
+    "reporter": [
+      "html",
+      "text",
+      "text-summary"
+    ],
+    "report-dir": "./test-results/unit-tests"
+  },
   "scripts": {
     "prestart": "rm -rf ./public && mkdir -p ./public && cp -rf ./node_modules/swagger-ui/dist/* ./public/ && cp -rf ./swagger/* ./public/",
     "start": "node ./bin/clh-web-api",
@@ -9,7 +22,7 @@
     "db-start": "mkdir ./.db && mongod --dbpath ./.db --fork --logpath /dev/null",
     "db-stop": "mongo admin --eval 'db.shutdownServer()' >/dev/null 2>&1 || true",
     "db-clean": "npm run db-stop && rm -rf ./.db",
-    "test-unit": "NODE_ENV=test istanbul cover --print both _mocha './unit-tests/**/*.spec.js'",
+    "test-unit": "nyc npm run test-unit-only",
     "test-unit-only": "NODE_ENV=test mocha './unit-tests/**/*.spec.js'",
     "docker-compose-up": "docker-compose up --build",
     "docker-compose-restart": "docker-compose restart",
@@ -37,6 +50,7 @@
     "sinon": "=1.17.5",
     "sinon-chai": "=2.8.0",
     "istanbul": "=0.4.5",
+    "nyc": "=10.0.0",
     "swagger-ui": "=2.2.8"
   }
 }

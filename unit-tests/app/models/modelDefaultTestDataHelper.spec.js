@@ -198,6 +198,32 @@ describe('The helper module', function() {
         });
     }));
 
+    it('should throw error on creating default data', sinon.test(function () {
+        var getResultsNameMock = this.stub(helper, '_getResultsName').returns('results name');
+        var data = [ 'data1' ];
+        exports.MyModule = function(data) {
+            this.data = data;
+        };
+        exports.MyModule.prototype.save = function (next) {
+            next('test error', this);
+        };
+        var modelMock = this.spy(exports, 'MyModule');
+        var modelSave = this.spy(exports.MyModule.prototype, 'save');
+        modelMock.modelName = 'model name';
+        var results = {
+            'already existing data': 'test data'
+        };
+        var consoleWarn = this.stub(console, 'warn');
+
+        expect(helper._createDefaultData.bind(helper, helper, exports.MyModule, results, data, null)).to.throw('test error');
+
+        expect(getResultsNameMock).to.have.been.calledWith('model name');
+        expect(consoleWarn).to.have.been.calledWith('Creating default %s', 'results name');
+        expect(modelMock).to.have.been.called;
+        expect(modelMock).to.have.been.calledWith('data1');
+        expect(modelSave).to.have.been.called;
+    }));
+
     it('should create default user roles', sinon.test(function () {
         var userRoles = helper._createDefaultUserRoles(null);
         expect(userRoles).to.eql([
