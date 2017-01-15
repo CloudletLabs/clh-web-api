@@ -10,6 +10,10 @@ module.exports = function (modelHelpers, connection, mongoose, moment) {
         text: {type: String, required: true}
     });
 
+    newsSchema.methods.toString = function () {
+        return this.slug;
+    };
+
     modelHelpers.deleteMongoFields(newsSchema);
 
     var News = connection.model('News', newsSchema);

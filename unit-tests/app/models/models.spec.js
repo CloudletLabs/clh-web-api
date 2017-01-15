@@ -44,9 +44,6 @@ describe('The models module', function() {
             news: newsMock
         };
 
-        modelHelpersMock.createDefaultTestData = sinon.stub();
-        modelHelpersMock.createDefaultTestData.withArgs(modelsMock, momentMock);
-
         var models = require('../../../app/models/models')
         (requireMock, modelHelpersMock, connectionMock, mongooseMock, momentMock, uuidMock);
 
@@ -62,8 +59,6 @@ describe('The models module', function() {
 
         expect(requireMock).to.have.been.calledWith('../app/models/news');
         expect(newsMockModule).to.have.been.calledWith(modelHelpersMock, connectionMock, mongooseMock, momentMock);
-
-        expect(modelHelpersMock.createDefaultTestData).to.have.been.calledWith(modelsMock, momentMock);
 
         expect(models).to.eql(modelsMock);
     });

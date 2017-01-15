@@ -7,6 +7,10 @@ module.exports = function (modelHelpers, connection, mongoose) {
         displayName: {type: String, required: true}
     });
 
+    userRoleSchema.methods.toString = function () {
+        return this.roleId;
+    };
+
     modelHelpers.deleteMongoFields(userRoleSchema);
 
     var UserRole = connection.model('UserRole', userRoleSchema);

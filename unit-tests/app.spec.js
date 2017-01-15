@@ -40,6 +40,10 @@ describe('The app module', function() {
         var modelsMock = sinon.stub();
         modelsConfigMock.withArgs(
             requireMock, modelHelpersMock, connectionMock, mongooseMock, momentMock, uuidMock).returns(modelsMock);
+        var modelDefaultTestDataHelperMock = sinon.stub();
+        requireMock.withArgs('../app/models/modelDefaultTestDataHelper').returns(modelDefaultTestDataHelperMock);
+        modelDefaultTestDataHelperMock.checkDefaultTestData = sinon.stub();
+        modelDefaultTestDataHelperMock.checkDefaultTestData.withArgs(modelsMock, momentMock);
 
         var expressMock = sinon.stub();
         requireMock.withArgs('express').returns(expressMock);
@@ -99,7 +103,9 @@ describe('The app module', function() {
         expect(connectionConfigMock).to.have.been.calledWith(mongooseMock);
         expect(requireMock).to.have.been.calledWith('../app/models/modelHelpers');
         expect(requireMock).to.have.been.calledWith('../app/models/models');
-        expect(modelsConfigMock).to.have.been.calledWith(requireMock, modelHelpersMock, connectionMock, mongooseMock, momentMock, uuidMock);
+        expect(modelsConfigMock).to.have.been.calledWith(
+            requireMock, modelHelpersMock, connectionMock, mongooseMock, momentMock, uuidMock);
+        expect(modelDefaultTestDataHelperMock.checkDefaultTestData).to.have.been.calledWith(modelsMock, momentMock);
 
         expect(requireMock).to.have.been.calledWith('express');
         expect(appConfigMock.createApp).to.have.been.calledWith(expressMock);

@@ -11,6 +11,10 @@ module.exports = function (modelHelpers, connection, mongoose) {
         roles: [{type: mongoose.Schema.Types.ObjectId, ref: 'UserRole'}]
     });
 
+    userSchema.methods.toString = function () {
+        return this.username;
+    };
+
     modelHelpers.deleteMongoFields(userSchema, ['password']);
 
     var User = connection.model('User', userSchema);

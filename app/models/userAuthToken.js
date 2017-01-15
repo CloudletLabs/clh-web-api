@@ -11,7 +11,9 @@ module.exports = function (modelHelpers, connection, mongoose, moment, uuid, exp
         user: {type: mongoose.Schema.Types.ObjectId, ref: 'User'}
     });
 
-    modelHelpers.deleteMongoFields(userAuthTokenSchema);
+    userAuthTokenSchema.methods.toString = function () {
+        return this.user.toString();
+    };
 
     userAuthTokenSchema.methods.hasExpired = function () {
         return (moment().utc().diff(this.createDate, 'days')) > expired_time;
@@ -32,6 +34,7 @@ module.exports = function (modelHelpers, connection, mongoose, moment, uuid, exp
         });
     };
 
+    modelHelpers.deleteMongoFields(userAuthTokenSchema);
     var UserAuthToken = connection.model('UserAuthToken', userAuthTokenSchema);
 
     return UserAuthToken;

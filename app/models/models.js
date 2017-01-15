@@ -12,7 +12,5 @@ module.exports = function (require, modelHelpers, connection, mongoose, moment, 
         news: News
     };
 
-    modelHelpers.createDefaultTestData(models, moment);
-
     return models;
 };

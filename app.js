@@ -20,6 +20,8 @@ module.exports = function (require) {
     var connection = require('../app/config/database')(mongoose);
     var modelHelpers = require('../app/models/modelHelpers');
     var models = require('../app/models/models')(require, modelHelpers, connection, mongoose, moment, uuid);
+    var modelDefaultTestDataHelper = require('../app/models/modelDefaultTestDataHelper');
+    modelDefaultTestDataHelper.checkDefaultTestData(models, moment);
 
     /**
      * Express
