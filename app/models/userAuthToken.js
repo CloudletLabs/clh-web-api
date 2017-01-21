@@ -19,6 +19,9 @@ module.exports = function (modelHelpers, connection, mongoose, moment, uuid, exp
         return (moment().utc().diff(this.createDate, 'days')) > expired_time;
     };
 
+    modelHelpers.deleteMongoFields(userAuthTokenSchema);
+    var UserAuthToken = connection.model('UserAuthToken', userAuthTokenSchema);
+
     userAuthTokenSchema.statics.tokenGenerate = function (user, ip, userAgent, done) {
         var timestamp = moment().utc();
         var token = new UserAuthToken({
@@ -33,9 +36,6 @@ module.exports = function (modelHelpers, connection, mongoose, moment, uuid, exp
             done(err, token);
         });
     };
-
-    modelHelpers.deleteMongoFields(userAuthTokenSchema);
-    var UserAuthToken = connection.model('UserAuthToken', userAuthTokenSchema);
 
     return UserAuthToken;
 };

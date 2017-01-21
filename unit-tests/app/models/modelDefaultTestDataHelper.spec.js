@@ -40,13 +40,13 @@ describe('The helper module', function() {
         helper.check(modelsMock);
 
         expect(checkSpy).to.have.been.callCount(3);
-        expect(checkSpy).to.have.been.calledWith(
+        expect(checkSpy).to.have.been.calledWithExactly(
             helper,
             modelsMock.userRole,
             sinon.match({}),
             helper._createDefaultUserRoles,
             sinon.match.func);
-        expect(checkSpy).to.have.been.calledWith(
+        expect(checkSpy).to.have.been.calledWithExactly(
             helper,
             modelsMock.user,
             sinon.match({
@@ -54,7 +54,7 @@ describe('The helper module', function() {
             }),
             helper._createDefaultUsers,
             sinon.match.func);
-        expect(checkSpy).to.have.been.calledWith(
+        expect(checkSpy).to.have.been.calledWithExactly(
             helper,
             modelsMock.news,
             sinon.match({
@@ -63,7 +63,7 @@ describe('The helper module', function() {
             }),
             helper._createDefaultNews,
             sinon.match.func);
-        expect(consoleWarn).to.have.been.calledWith('Default test data has been created: %s',
+        expect(consoleWarn).to.have.been.calledWithExactly('Default test data has been created: %s',
             ["userRoles:1", "users:1", "newss:1"]);
     }));
 
@@ -89,8 +89,8 @@ describe('The helper module', function() {
 
         helper._check(helper, modelMock, resultsMock, createDefaultCallbackMock, nextMock);
 
-        expect(createDefaultCallbackMock).to.have.been.calledWith(resultsMock);
-        expect(createDefaultDataMock).to.have.been.calledWith(helper, modelMock, resultsMock, 'data to create', nextMock);
+        expect(createDefaultCallbackMock).to.have.been.calledWithExactly(resultsMock);
+        expect(createDefaultDataMock).to.have.been.calledWithExactly(helper, modelMock, resultsMock, 'data to create', nextMock);
         expect(getExistingMock).not.to.have.been.called;
     }));
 
@@ -108,7 +108,7 @@ describe('The helper module', function() {
         helper._check(helper, modelMock, null, null, nextMock);
 
         expect(createDefaultCallbackMock).not.to.have.been.called;
-        expect(getExistingMock).to.have.been.calledWith(helper, modelMock, nextMock);
+        expect(getExistingMock).to.have.been.calledWithExactly(helper, modelMock, nextMock);
     }));
 
     it('should throw error on checking model data', sinon.test(function () {
@@ -141,7 +141,7 @@ describe('The helper module', function() {
 
         helper._getExisting(helper, modelMock, results, next);
 
-        expect(getResultsName).to.have.been.calledWith('test model name');
+        expect(getResultsName).to.have.been.calledWithExactly('test model name');
         expect(results).to.eql({
             'already existing data': 'test data',
             'test name': result
@@ -181,15 +181,15 @@ describe('The helper module', function() {
 
         helper._createDefaultData(helper, exports.MyModule, results, data, nextMock);
 
-        expect(getResultsNameMock).to.have.been.calledWith('model name');
-        expect(consoleWarn).to.have.been.calledWith('Creating default %s', 'results name');
+        expect(getResultsNameMock).to.have.been.calledWithExactly('model name');
+        expect(consoleWarn).to.have.been.calledWithExactly('Creating default %s', 'results name');
         expect(modelMock).to.have.been.calledTwice;
-        expect(modelMock).to.have.been.calledWith('data1');
-        expect(modelMock).to.have.been.calledWith('data2');
+        expect(modelMock).to.have.been.calledWithExactly('data1');
+        expect(modelMock).to.have.been.calledWithExactly('data2');
         expect(modelSave).to.have.been.calledTwice;
-        expect(consoleWarn).to.have.been.calledWith('New %s %s created', 'model name', { data: "data1" });
-        expect(consoleWarn).to.have.been.calledWith('New %s %s created', 'model name', { data: "data2" });
-        expect(nextMock).to.have.been.calledWith({
+        expect(consoleWarn).to.have.been.calledWithExactly('New %s %s created', 'model name', { data: "data1" });
+        expect(consoleWarn).to.have.been.calledWithExactly('New %s %s created', 'model name', { data: "data2" });
+        expect(nextMock).to.have.been.calledWithExactly({
             'already existing data': 'test data',
             'results name': [
                 { data: "data1" },
@@ -217,10 +217,10 @@ describe('The helper module', function() {
 
         expect(helper._createDefaultData.bind(helper, helper, exports.MyModule, results, data, null)).to.throw('test error');
 
-        expect(getResultsNameMock).to.have.been.calledWith('model name');
-        expect(consoleWarn).to.have.been.calledWith('Creating default %s', 'results name');
+        expect(getResultsNameMock).to.have.been.calledWithExactly('model name');
+        expect(consoleWarn).to.have.been.calledWithExactly('Creating default %s', 'results name');
         expect(modelMock).to.have.been.called;
-        expect(modelMock).to.have.been.calledWith('data1');
+        expect(modelMock).to.have.been.calledWithExactly('data1');
         expect(modelSave).to.have.been.called;
     }));
 

@@ -43,9 +43,9 @@ describe('The config module', function() {
 
         appConfig.morgan(appMock, morganFunctionMock);
 
-        expect(appMock.get).to.have.been.calledWith('env');
-        expect(appMock.use).to.have.been.calledWith(morganMock);
-        expect(morganFunctionSpy).to.have.been.calledWith('dev', config);
+        expect(appMock.get).to.have.been.calledWithExactly('env');
+        expect(appMock.use).to.have.been.calledWithExactly(morganMock);
+        expect(morganFunctionSpy).to.have.been.calledWithExactly('dev', config);
         expect(config.skip).to.be.a('function');
         expect(config.skip(null, { statusCode: 399 })).to.be.true;
         expect(config.skip(null, { statusCode: 400 })).to.be.false;
@@ -62,9 +62,9 @@ describe('The config module', function() {
 
         appConfig.morgan(appMock, morganFunctionMock);
 
-        expect(appMock.get).to.have.been.calledWith('env');
-        expect(appMock.use).to.have.been.calledWith(morganMock);
-        expect(morganFunctionMock).to.have.been.calledWith('combined');
+        expect(appMock.get).to.have.been.calledWithExactly('env');
+        expect(appMock.use).to.have.been.calledWithExactly(morganMock);
+        expect(morganFunctionMock).to.have.been.calledWithExactly('combined');
     }));
 
     it('should configure origin headers for OPTIONS request', sinon.test(function () {
@@ -86,10 +86,10 @@ describe('The config module', function() {
 
             configurator(reqMock, resMock, nextMock);
 
-            expect(resMock.setHeader).to.have.been.calledWith('Access-Control-Allow-Origin', '*');
-            expect(resMock.setHeader).to.have.been.calledWith('Access-Control-Allow-Headers', 'X-Requested-With, Authorization, Content-Type, Content-Length');
-            expect(resMock.setHeader).to.have.been.calledWith('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');
-            expect(resMock.status).to.have.been.calledWith(200);
+            expect(resMock.setHeader).to.have.been.calledWithExactly('Access-Control-Allow-Origin', '*');
+            expect(resMock.setHeader).to.have.been.calledWithExactly('Access-Control-Allow-Headers', 'X-Requested-With, Authorization, Content-Type, Content-Length');
+            expect(resMock.setHeader).to.have.been.calledWithExactly('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');
+            expect(resMock.status).to.have.been.calledWithExactly(200);
             expect(resMock.send).to.have.been.called;
             expect(nextMock).to.not.have.been.called;
         };
@@ -115,7 +115,7 @@ describe('The config module', function() {
 
             configurator(reqMock, resMock, nextMock);
 
-            expect(resMock.setHeader).to.have.been.calledWith('Access-Control-Allow-Origin', '*');
+            expect(resMock.setHeader).to.have.been.calledWithExactly('Access-Control-Allow-Origin', '*');
             expect(nextMock).to.have.been.called;
         };
 
@@ -137,9 +137,9 @@ describe('The config module', function() {
 
         appConfig.parsingMiddleware(appMock, cookieParserFunctionMock, bodyParserMock);
 
-        expect(appMock.use).to.have.been.calledWith(bodyParserUrlEncodedMock);
-        expect(bodyParserMock.urlencoded).to.have.been.calledWith({extended: false});
-        expect(appMock.use).to.have.been.calledWith(cookieParserMock);
+        expect(appMock.use).to.have.been.calledWithExactly(bodyParserUrlEncodedMock);
+        expect(bodyParserMock.urlencoded).to.have.been.calledWithExactly({extended: false});
+        expect(appMock.use).to.have.been.calledWithExactly(cookieParserMock);
         expect(cookieParserFunctionMock).to.have.been.called;
     }));
 
@@ -164,14 +164,14 @@ describe('The config module', function() {
 
         appConfig.routes(appMock, pJsonMock, expressMock, pathMock, apiHandlersMock, v1ApiMock, passportMock, modelsMock);
 
-        expect(pathMock.join).to.have.been.calledWith(sinon.match.string, '../public');
-        expect(expressMock.static).to.have.been.calledWith('test path');
-        expect(appMock.use).to.have.been.calledWith('test static');
-        expect(v1ApiMock).to.have.been.calledWith(expressMock, appMock, pJsonMock, apiHandlersMock, passportMock, modelsMock);
-        expect(appMock.use).to.have.been.calledWith('/api/v1', v1ApiRouter);
-        expect(appMock.use).to.have.been.calledWith('/api/v1', errorHandlerMock);
-        expect(appMock.use).to.have.been.calledWith('/api/current', v1ApiRouter);
-        expect(appMock.use).to.have.been.calledWith('/api/current', errorHandlerMock);
+        expect(pathMock.join).to.have.been.calledWithExactly(sinon.match.string, '../public');
+        expect(expressMock.static).to.have.been.calledWithExactly('test path');
+        expect(appMock.use).to.have.been.calledWithExactly('test static');
+        expect(v1ApiMock).to.have.been.calledWithExactly(expressMock, appMock, pJsonMock, apiHandlersMock, passportMock, modelsMock);
+        expect(appMock.use).to.have.been.calledWithExactly('/api/v1', v1ApiRouter);
+        expect(appMock.use).to.have.been.calledWithExactly('/api/v1', errorHandlerMock);
+        expect(appMock.use).to.have.been.calledWithExactly('/api/current', v1ApiRouter);
+        expect(appMock.use).to.have.been.calledWithExactly('/api/current', errorHandlerMock);
     }));
 
     it('should configure error handlers', sinon.test(function () {
@@ -201,18 +201,18 @@ describe('The config module', function() {
         expect(handlers.length).to.be.equal(2);
 
         handlers[0](reqMock, resMock);
-        expect(consoleWarnMock).to.have.been.calledWith('[%s][%s] 404: %s', 'test method', 'test address', 'test path');
-        expect(resMock.status).to.have.been.calledWith(404);
+        expect(consoleWarnMock).to.have.been.calledWithExactly('[%s][%s] 404: %s', 'test method', 'test address', 'test path');
+        expect(resMock.status).to.have.been.calledWithExactly(404);
         expect(resMock.send).to.have.been.called;
 
         handlers[1]({}, reqMock, resMock);
-        expect(consoleErrorMock).to.have.been.calledWith('[%s][%s] ERROR: %s', 'test method', 'test address', {});
-        expect(resMock.status).to.have.been.calledWith(500);
+        expect(consoleErrorMock).to.have.been.calledWithExactly('[%s][%s] ERROR: %s', 'test method', 'test address', {});
+        expect(resMock.status).to.have.been.calledWithExactly(500);
         expect(resMock.send).to.have.been.called;
 
         handlers[1]({ status: 199 }, reqMock, resMock);
-        expect(consoleErrorMock).to.have.been.calledWith('[%s][%s] ERROR: %s', 'test method', 'test address', { status: 199 });
-        expect(resMock.status).to.have.been.calledWith(199);
+        expect(consoleErrorMock).to.have.been.calledWithExactly('[%s][%s] ERROR: %s', 'test method', 'test address', { status: 199 });
+        expect(resMock.status).to.have.been.calledWithExactly(199);
         expect(resMock.send).to.have.been.called;
     }));
 });

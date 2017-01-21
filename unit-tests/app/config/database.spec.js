@@ -34,26 +34,26 @@ describe('The database module', function() {
         var connection = require('../../../app/config/database')(mongooseMock);
 
         expect(connection).to.be.equal(connectionMock);
-        expect(mongooseMock.createConnection).to.have.been.calledWith('mongodb://localhost:27017/clhApp',
+        expect(mongooseMock.createConnection).to.have.been.calledWithExactly('mongodb://localhost:27017/clhApp',
             {server: {poolSize: 1}});
         expect(Object.keys(handlers).length).to.be.equal(5);
         handlers['connected']();
-        expect(consoleInfoMock).to.have.been.calledWith('Mongoose connection open to mongodb://localhost:27017/clhApp');
+        expect(consoleInfoMock).to.have.been.calledWithExactly('Mongoose connection open to mongodb://localhost:27017/clhApp');
         handlers['error']('test error');
-        expect(consoleErrorMock).to.have.been.calledWith('Mongoose connection error: test error');
+        expect(consoleErrorMock).to.have.been.calledWithExactly('Mongoose connection error: test error');
         handlers['open']();
-        expect(consoleInfoMock).to.have.been.calledWith('Mongoose connection opened!');
+        expect(consoleInfoMock).to.have.been.calledWithExactly('Mongoose connection opened!');
         handlers['reconnected']();
-        expect(consoleInfoMock).to.have.been.calledWith('Mongoose reconnected!');
+        expect(consoleInfoMock).to.have.been.calledWithExactly('Mongoose reconnected!');
         handlers['disconnected']();
-        expect(consoleWarnMock).to.have.been.calledWith('Mongoose disconnected!');
-        expect(processOnMock).to.have.been.calledWith('SIGINT', sinon.match.func);
+        expect(consoleWarnMock).to.have.been.calledWithExactly('Mongoose disconnected!');
+        expect(processOnMock).to.have.been.calledWithExactly('SIGINT', sinon.match.func);
         expect(processOnCallbackMock).to.be.a('function');
         processOnCallbackMock();
         expect(connectionCloseSpy).to.have.been.called;
         expect(connectionCloseCallback).to.be.a('function');
         connectionCloseCallback();
-        expect(consoleErrorMock).to.have.been.calledWith('Mongoose connection disconnected through app termination');
-        expect(processExitMock).to.have.been.calledWith(0);
+        expect(consoleErrorMock).to.have.been.calledWithExactly('Mongoose connection disconnected through app termination');
+        expect(processExitMock).to.have.been.calledWithExactly(0);
     }));
 });

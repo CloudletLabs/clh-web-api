@@ -91,46 +91,46 @@ describe('The app module', function() {
 
         var app = require('../app')(requireMock);
 
-        expect(requireMock).to.have.been.calledWith('../package.json');
-        expect(requireMock).to.have.been.calledWith('../app/config');
+        expect(requireMock).to.have.been.calledWithExactly('../package.json');
+        expect(requireMock).to.have.been.calledWithExactly('../app/config');
 
-        expect(requireMock).to.have.been.calledWith('path');
-        expect(requireMock).to.have.been.calledWith('moment');
-        expect(requireMock).to.have.been.calledWith('node-uuid');
+        expect(requireMock).to.have.been.calledWithExactly('path');
+        expect(requireMock).to.have.been.calledWithExactly('moment');
+        expect(requireMock).to.have.been.calledWithExactly('node-uuid');
 
-        expect(requireMock).to.have.been.calledWith('mongoose');
-        expect(requireMock).to.have.been.calledWith('../app/config/database');
-        expect(connectionConfigMock).to.have.been.calledWith(mongooseMock);
-        expect(requireMock).to.have.been.calledWith('../app/models/modelHelpers');
-        expect(requireMock).to.have.been.calledWith('../app/models/models');
-        expect(modelsConfigMock).to.have.been.calledWith(
+        expect(requireMock).to.have.been.calledWithExactly('mongoose');
+        expect(requireMock).to.have.been.calledWithExactly('../app/config/database');
+        expect(connectionConfigMock).to.have.been.calledWithExactly(mongooseMock);
+        expect(requireMock).to.have.been.calledWithExactly('../app/models/modelHelpers');
+        expect(requireMock).to.have.been.calledWithExactly('../app/models/models');
+        expect(modelsConfigMock).to.have.been.calledWithExactly(
             requireMock, modelHelpersMock, connectionMock, mongooseMock, momentMock, uuidMock);
-        expect(requireMock).to.have.been.calledWith('../app/models/modelDefaultTestDataHelper');
-        expect(modelDefaultTestDataHelperMock.check).to.have.been.calledWith(modelsMock, momentMock);
+        expect(requireMock).to.have.been.calledWithExactly('../app/models/modelDefaultTestDataHelper');
+        expect(modelDefaultTestDataHelperMock.check).to.have.been.calledWithExactly(modelsMock, momentMock);
 
-        expect(requireMock).to.have.been.calledWith('express');
-        expect(appConfigMock.createApp).to.have.been.calledWith(expressMock);
+        expect(requireMock).to.have.been.calledWithExactly('express');
+        expect(appConfigMock.createApp).to.have.been.calledWithExactly(expressMock);
 
-        expect(requireMock).to.have.been.calledWith('morgan');
-        expect(appConfigMock.morgan).to.have.been.calledWith(appMock, morganMock);
+        expect(requireMock).to.have.been.calledWithExactly('morgan');
+        expect(appConfigMock.morgan).to.have.been.calledWithExactly(appMock, morganMock);
 
-        expect(appConfigMock.originHeaders).to.have.been.calledWith(appMock);
+        expect(appConfigMock.originHeaders).to.have.been.calledWithExactly(appMock);
 
-        expect(requireMock).to.have.been.calledWith('passport');
-        expect(requireMock).to.have.been.calledWith('../app/config/passport');
-        expect(passportConfigMock).to.have.been.calledWith(
+        expect(requireMock).to.have.been.calledWithExactly('passport');
+        expect(requireMock).to.have.been.calledWithExactly('../app/config/passport');
+        expect(passportConfigMock).to.have.been.calledWithExactly(
             passportMock, modelsMock, momentMock, BasicStrategyMock, BearerStrategyMock);
 
-        expect(requireMock).to.have.been.calledWith('cookie-parser');
-        expect(requireMock).to.have.been.calledWith('body-parser');
-        expect(appConfigMock.parsingMiddleware).to.have.been.calledWith(appMock, cookieParserMock, bodyParserMock);
+        expect(requireMock).to.have.been.calledWithExactly('cookie-parser');
+        expect(requireMock).to.have.been.calledWithExactly('body-parser');
+        expect(appConfigMock.parsingMiddleware).to.have.been.calledWithExactly(appMock, cookieParserMock, bodyParserMock);
 
-        expect(requireMock).to.have.been.calledWith('../app/routes/api/apiHandlers');
-        expect(requireMock).to.have.been.calledWith('../app/routes/api/v1/api');
-        expect(appConfigMock.routes).to.have.been.calledWith(
+        expect(requireMock).to.have.been.calledWithExactly('../app/routes/api/apiHandlers');
+        expect(requireMock).to.have.been.calledWithExactly('../app/routes/api/v1/api');
+        expect(appConfigMock.routes).to.have.been.calledWithExactly(
             appMock, pJsonMock, expressMock, pathMock, apiHandlersMock, v1ApiMock, passportMock, modelsMock);
 
-        expect(appConfigMock.errors).to.have.been.calledWith(appMock);
+        expect(appConfigMock.errors).to.have.been.calledWithExactly(appMock);
 
         expect(app).to.equal(appMock);
     }));
