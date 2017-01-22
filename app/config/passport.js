@@ -24,7 +24,7 @@ module.exports = function (passport, passportHelpers, models, moment, BasicStrat
      */
     passport.use('bearer-authentication', new BearerStrategy({ passReqToCallback: true },
         function (req, token, done) {
-            passportHelpers.authByToken(UserAuthToken, req, token, true, done);
+            passportHelpers.authByToken(passportHelpers, UserAuthToken, moment, req, token, true, done);
         }
     ));
 
@@ -33,7 +33,7 @@ module.exports = function (passport, passportHelpers, models, moment, BasicStrat
      */
     passport.use('bearer-renew-authentication', new BearerStrategy({ passReqToCallback: true },
         function (req, token, done) {
-            passportHelpers.authByToken(UserAuthToken, req, token, false, done);
+            passportHelpers.authByToken(passportHelpers, UserAuthToken, moment, req, token, false, done);
         }
     ));
 

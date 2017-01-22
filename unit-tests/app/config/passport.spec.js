@@ -115,14 +115,14 @@ describe('The passport module', function() {
         strategies['bearer-authentication'].strategy('test req', 'test token', 'test done');
 
         expect(passportHelpersMock.authByToken).to.have.been.calledWithExactly(
-            userAuthTokenMock, 'test req', 'test token', true, 'test done');
+            passportHelpersMock, userAuthTokenMock, momentMock, 'test req', 'test token', true, 'test done');
     });
 
     it('should perform bearer-renew-authentication', function () {
         strategies['bearer-renew-authentication'].strategy('test req', 'test token', 'test done');
 
         expect(passportHelpersMock.authByToken).to.have.been.calledWithExactly(
-            userAuthTokenMock, 'test req', 'test token', false, 'test done');
+            passportHelpersMock, userAuthTokenMock, momentMock, 'test req', 'test token', false, 'test done');
     });
 
     it('should perform user-authorization', function () {
