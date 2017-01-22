@@ -64,6 +64,9 @@ describe('The app module', function() {
         passportHttpBearerMock.Strategy = BearerStrategyMock;
         requireMock.withArgs('passport-http-bearer').returns(passportHttpBearerMock);
 
+        var passportHelpersMock = this.stub();
+        requireMock.withArgs('../app/config/passportHelpers').returns(passportHelpersMock);
+
         var passportConfigMock = this.stub();
         requireMock.withArgs('../app/config/passport').returns(passportConfigMock);
 
@@ -118,8 +121,9 @@ describe('The app module', function() {
 
         expect(requireMock).to.have.been.calledWithExactly('passport');
         expect(requireMock).to.have.been.calledWithExactly('../app/config/passport');
+        expect(requireMock).to.have.been.calledWithExactly('../app/config/passportHelpers');
         expect(passportConfigMock).to.have.been.calledWithExactly(
-            passportMock, modelsMock, momentMock, BasicStrategyMock, BearerStrategyMock);
+            passportMock, passportHelpersMock, modelsMock, momentMock, BasicStrategyMock, BearerStrategyMock);
 
         expect(requireMock).to.have.been.calledWithExactly('cookie-parser');
         expect(requireMock).to.have.been.calledWithExactly('body-parser');

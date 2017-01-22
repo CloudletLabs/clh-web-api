@@ -1,4 +1,4 @@
-module.exports = function (passport, models, moment, BasicStrategy, BearerStrategy) {
+module.exports = function (passport, passportHelpers, models, moment, BasicStrategy, BearerStrategy) {
 
     var UserAuthToken = models.userAuthToken;
     var User = models.user;
@@ -12,12 +12,8 @@ module.exports = function (passport, models, moment, BasicStrategy, BearerStrate
                 username: username,
                 password: password
             }, function (err, user) {
-                if (err) {
-                    return done(err);
-                }
-                if (!user) {
-                    return done(null, false);
-                }
+                if (err) return done(err);
+                if (!user) return done(null, false);
                 return done(null, user);
             });
         }
@@ -28,7 +24,7 @@ module.exports = function (passport, models, moment, BasicStrategy, BearerStrate
      */
     passport.use('bearer-authentication', new BearerStrategy({ passReqToCallback: true },
         function (req, token, done) {
-            authByToken(req, token, true, done);
+            passportHelpers.authByToken(UserAuthToken, req, token, true, done);
         }
     ));
 
@@ -37,7 +33,7 @@ module.exports = function (passport, models, moment, BasicStrategy, BearerStrate
      */
     passport.use('bearer-renew-authentication', new BearerStrategy({ passReqToCallback: true },
         function (req, token, done) {
-            authByToken(req, token, false, done);
+            passportHelpers.authByToken(UserAuthToken, req, token, false, done);
         }
     ));
 
@@ -46,7 +42,7 @@ module.exports = function (passport, models, moment, BasicStrategy, BearerStrate
      */
     passport.use('user-authorization', new BearerStrategy({ passReqToCallback: true },
         function (req, token, done) {
-            authByRole(req, token, 'USER', done);
+            passportHelpers.authByRole(passportHelpers, req, token, 'USER', done);
         }
     ));
 
@@ -55,67 +51,7 @@ module.exports = function (passport, models, moment, BasicStrategy, BearerStrate
      */
     passport.use('admin-authorization', new BearerStrategy({ passReqToCallback: true },
         function (req, token, done) {
-            authByRole(req, token, 'ADMIN', done);
+            passportHelpers.authByRole(passportHelpers, req, token, 'ADMIN', done);
         }
     ));
-
-    function authByRole(req, token, roleId, done) {
-        if (req.user) {
-            authByRole(req, roleId, done);
-        } else {
-            authByToken(req, token, true, function (err, userAuthToken) {
-                if (err) return done(err);
-                req.user = userAuthToken;
-                checkRole(req, roleId, done);
-            });
-        }
-    }
-
-    function checkRole(req, roleId, done) {
-        if (req.user.user.roles.some(function (role) {
-                return role.roleId == roleId;
-            })) {
-            return done(null, req.user.user);
-        } else {
-            done(null, false);
-        }
-    }
-
-    /**
-     * Auth by token
-     * @param req
-     * @param token
-     * @param checkExpire - check if token is expired
-     * @param done - passport done function (used in case of errors)
-     */
-    function authByToken(req, token, checkExpire, done) {
-        UserAuthToken.findOne({'auth_token': token})
-            .populate('user', 'username roles')
-            .exec(function (err, userAuthToken) {
-                if (err) return done(err);
-
-                if (!userAuthToken) {
-                    return done(null, false);
-                }
-
-                userAuthToken.user.populate('roles', 'roleId', function (err, user) {
-                    if (err) return done(err);
-
-                    if (checkExpire && userAuthToken.hasExpired()) {
-                        return done(null, false);
-                    }
-                    if (userAuthToken.userAgent != req.header('user-agent')) {
-                        return done(null, false);
-                    }
-                    userAuthToken.ip = req.connection.remoteAddress;
-                    userAuthToken.lastUsed = moment.utc();
-                    userAuthToken.save(function (err, userAuthToken) {
-                        if (err) return done(err);
-                        return done(null, userAuthToken);
-                    });
-                    
-                });
-            });
-    }
-
 };

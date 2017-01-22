@@ -46,7 +46,8 @@ module.exports = function (require) {
     var passport = require('passport');
     var BasicStrategy = require('passport-http').BasicStrategy;
     var BearerStrategy = require('passport-http-bearer').Strategy;
-    require('../app/config/passport')(passport, models, moment, BasicStrategy, BearerStrategy);
+    var passportHelpers = require('../app/config/passportHelpers');
+    require('../app/config/passport')(passport, passportHelpers, models, moment, BasicStrategy, BearerStrategy);
 
     /**
      * Middleware for parsing requests
