@@ -22,7 +22,7 @@ module.exports = function (modelHelpers, connection, mongoose, moment, uuid, exp
     modelHelpers.deleteMongoFields(userAuthTokenSchema);
     var UserAuthToken = connection.model('UserAuthToken', userAuthTokenSchema);
 
-    userAuthTokenSchema.statics.tokenGenerate = function (user, ip, userAgent, done) {
+    userAuthTokenSchema.statics.generateNew = function (user, ip, userAgent, done) {
         var timestamp = moment().utc();
         var token = new UserAuthToken({
             auth_token: uuid.v1(),

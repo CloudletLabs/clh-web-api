@@ -153,7 +153,7 @@ describe('The entity', function() {
                 user: 'test user'
             };
             var saveMock = sandbox.stub();
-            mongooseMock.SchemaInstance.statics.tokenGenerate(testObj.user, testObj.ip, testObj.userAgent, saveMock);
+            mongooseMock.SchemaInstance.statics.generateNew(testObj.user, testObj.ip, testObj.userAgent, saveMock);
             expect(saveMock).to.have.been.calledWithExactly('test error', testObj);
         });
     });
