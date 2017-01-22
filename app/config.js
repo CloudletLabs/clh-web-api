@@ -36,11 +36,20 @@ module.exports = {
     routes: function (app, pJson, express, path, apiHandlers, v1Api, passport, models) {
         // Publish our public folder
         app.use(express.static(path.join(__dirname, '../public')));
+
         // API v1 router
         var v1 = v1Api(express, app, pJson, apiHandlers, passport, models);
+        v1.router.get('/status', apiHandlers.status(v1));
+        v1.router.get('/info', apiHandlers.info(v1));
+
+        // Assign v1 router to specific path
         app.use('/api/v' + v1.apiVersion, v1.router);
+        app.use('/api/v' + v1.apiVersion, apiHandlers.notFoundHandler);
         app.use('/api/v' + v1.apiVersion, apiHandlers.errorHandler);
+
+        // Assign 'current' router
         app.use('/api/current', v1.router);
+        app.use('/api/current', apiHandlers.notFoundHandler);
         app.use('/api/current', apiHandlers.errorHandler);
     },
     errors: function (app) {

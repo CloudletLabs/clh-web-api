@@ -2,27 +2,14 @@ var apiVersion = '1';
 
 module.exports = function (express, app, pJson, apiHandlers, passport, models) {
 
-    /**
-     * Create new router for api
-     */
     var router = express.Router();
 
-    var log = apiHandlers.log;
+    var log = apiHandlers.log(apiHandlers);
 
     var User = models.user;
     var UserAuthToken = models.userAuthToken;
     var UserRole = models.userRole;
     var News = models.news;
-
-    /**
-     * Service calls
-     */
-
-    /* GET status. */
-    router.get('/status', apiHandlers.status(log));
-
-    /* GET info. */
-    router.get('/info', apiHandlers.info(pJson, apiVersion, log));
 
     /**
      * Auth
@@ -32,7 +19,7 @@ module.exports = function (express, app, pJson, apiHandlers, passport, models) {
     router.post('/auth_token',
         passport.authenticate('basic-authentication', { session: false }),
         function (req, res, next) {
-            log(req);
+            log.info(req);
 
             var user = req.user;
             UserAuthToken.tokenGenerate(user, req.connection.remoteAddress, req.header('user-agent'), function (err, token) {
@@ -48,7 +35,7 @@ module.exports = function (express, app, pJson, apiHandlers, passport, models) {
     router.put('/auth_token',
         passport.authenticate('bearer-renew-authentication', {session: false}),
         function (req, res, next) {
-            log(req);
+            log.info(req);
 
             var token = req.user;
             var user = token.user;
@@ -65,7 +52,7 @@ module.exports = function (express, app, pJson, apiHandlers, passport, models) {
         passport.authenticate('bearer-authentication', {
             session: false
         }), function (req, res, next) {
-            log(req);
+            log.info(req);
 
             var token = req.user;
             var user = token.user;
@@ -73,12 +60,12 @@ module.exports = function (express, app, pJson, apiHandlers, passport, models) {
                 if (err) return next(err);
 
                 if (!tokenToDelete) {
-                    log(req, "token not found");
+                    log.info(req, "token not found");
                     return next({status: 404});
                 }
 
                 if (user.username != tokenToDelete.user.username) {
-                    log(req, "cheating on %s", [tokenToDelete.user.username]);
+                    log.info(req, "cheating on %s", tokenToDelete.user.username);
                     return next({status: 401});
                 }
 
@@ -99,7 +86,7 @@ module.exports = function (express, app, pJson, apiHandlers, passport, models) {
         function (req, res, next) {
             var token = req.user;
             var user = token.user;
-            log(req);
+            log.info(req);
 
             token.populate("user", function (err, token) {
                 if (err) return next(err);
@@ -114,7 +101,7 @@ module.exports = function (express, app, pJson, apiHandlers, passport, models) {
     router.get('/users',
         passport.authorize('admin-authorization', { session: false }),
         function (req, res, next) {
-            log(req);
+            log.info(req);
 
             User.find().populate("roles", "roleId").exec(function (err, users) {
                 if (err) return next(err);
@@ -126,13 +113,13 @@ module.exports = function (express, app, pJson, apiHandlers, passport, models) {
     router.get('/users/:username',
         passport.authorize('admin-authorization', { session: false }),
         function (req, res, next) {
-            log(req);
+            log.info(req);
 
             User.findOne({username: req.params.username}).populate("roles", "roleId").exec(function (err, user) {
                 if (err) return next(err);
 
                 if (!user) {
-                    log(req, "user not found");
+                    log.info(req, "user not found");
                     return next({status: 404, message: "User not found"});
                 }
 
@@ -142,13 +129,13 @@ module.exports = function (express, app, pJson, apiHandlers, passport, models) {
 
     /* POST user */
     router.post('/users', function (req, res, next) {
-        log(req, "%s", [req.body.username]);
+        log.info(req, "%s", req.body.username);
 
         User.count({username: req.body.username}, function (err, count) {
             if (err) return next(err);
 
             if (count > 0) {
-                log(req, "user %s already exists", [req.body.username]);
+                log.info(req, "user %s already exists", req.body.username);
                 return next({status: 400, message: "User already exist"});
             }
 
@@ -174,13 +161,13 @@ module.exports = function (express, app, pJson, apiHandlers, passport, models) {
     router.put('/users/:username',
         passport.authorize('admin-authorization', { session: false }),
         function (req, res, next) {
-            log(req);
+            log.info(req);
 
             User.findOne({username: req.params.username}).populate("roles", "roleId").exec(function (err, user) {
                 if (err) return next(err);
 
                 if (!user) {
-                    log(req, "user not found");
+                    log.info(req, "user not found");
                     return next({status: 404, message: "User not found"});
                 }
 
@@ -200,7 +187,7 @@ module.exports = function (express, app, pJson, apiHandlers, passport, models) {
     router.delete('/users/:username',
         passport.authorize('admin-authorization', { session: false }),
         function (req, res, next) {
-            log(req);
+            log.info(req);
 
             User.findOneAndRemove({username: req.params.username}, function (err) {
                 if (err) return next(err);
@@ -214,7 +201,7 @@ module.exports = function (express, app, pJson, apiHandlers, passport, models) {
 
     /* GET news. */
     router.get('/news', function (req, res, next) {
-        log(req);
+        log.info(req);
 
         News.find().populate("creator", "name").sort({createDate: 'desc'}).exec(function (err, news) {
             if (err) return next(err);
@@ -224,13 +211,13 @@ module.exports = function (express, app, pJson, apiHandlers, passport, models) {
 
     /* GET news by friendly url. */
     router.get('/news/:slug', function (req, res, next) {
-        log(req);
+        log.info(req);
 
         News.findOne({slug: req.params.slug}).populate("creator", "name").exec(function (err, news) {
             if (err) return next(err);
 
             if (!news) {
-                log(req, "slug not found");
+                log.info(req, "slug not found");
                 return next({status: 404, message: "News with thus slug not found"});
             }
 
@@ -242,7 +229,7 @@ module.exports = function (express, app, pJson, apiHandlers, passport, models) {
     router.post('/news',
         passport.authorize('admin-authorization', { session: false }),
         function (req, res, next) {
-            log(req);
+            log.info(req);
 
             var token = req.user;
             var user = token.user;
@@ -250,7 +237,7 @@ module.exports = function (express, app, pJson, apiHandlers, passport, models) {
                 if (err) return next(err);
 
                 if (count > 0) {
-                    log(req, "slug %s already exists", [req.body.slug]);
+                    log.info(req, "slug %s already exists", req.body.slug);
                     return next({status: 400, message: "News with thus slug already exist"});
                 }
 
@@ -271,13 +258,13 @@ module.exports = function (express, app, pJson, apiHandlers, passport, models) {
     router.put('/news/:slug',
         passport.authorize('admin-authorization', { session: false }),
         function (req, res, next) {
-            log(req);
+            log.info(req);
 
             News.findOne({slug: req.params.slug}, function (err, news) {
                 if (err) return next(err);
 
                 if (!news) {
-                    log(req, "slug not found");
+                    log.info(req, "slug not found");
                     return next({status: 404, message: "News with this slug not found"});
                 }
 
@@ -285,7 +272,7 @@ module.exports = function (express, app, pJson, apiHandlers, passport, models) {
                     News.count({slug: req.body.slug}, function (err, count) {
                         if (err) return next(err);
                         if (count > 0) {
-                            log(req, "slug %s already exists", [req.body.slug]);
+                            log.info(req, "slug %s already exists", req.body.slug);
                             return next({status: 400, message: "News with thus slug already exist"});
                         }
                         updateNews();
@@ -316,7 +303,7 @@ module.exports = function (express, app, pJson, apiHandlers, passport, models) {
     router.delete('/news/:slug',
         passport.authorize('admin-authorization', { session: false }),
         function (req, res, next) {
-            log(req);
+            log.info(req);
 
             News.findOneAndRemove({slug: req.params.slug}, function (err) {
                 if (err) return next(err);
@@ -324,17 +311,10 @@ module.exports = function (express, app, pJson, apiHandlers, passport, models) {
             });
         });
 
-    /**
-     * 404
-     */
-    router.use(function (req, res, next) {
-        console.warn("[%s][%s] 404: %s", req.method, req.connection.remoteAddress, req.path);
-        res.status(404);
-        res.json({message: 'Not found'});
-    });
-
     return {
+        pJson: pJson,
         apiVersion: apiVersion,
-        router: router
+        router: router,
+        log: log
     };
 };

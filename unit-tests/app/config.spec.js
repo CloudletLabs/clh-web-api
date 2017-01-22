@@ -146,32 +146,53 @@ describe('The config module', function() {
     it('should configure routes', sinon.test(function () {
         var appMock = this.stub();
         appMock.use = this.stub();
+
         var pJsonMock = this.stub();
+
         var expressMock = this.stub();
         expressMock.static = this.stub();
         expressMock.static.returns('test static');
+
         var pathMock = this.stub();
         pathMock.join = this.stub();
         pathMock.join.returns('test path');
+
         var apiHandlersMock = this.stub();
-        var errorHandlerMock = this.stub();
-        apiHandlersMock.errorHandler = errorHandlerMock;
+        apiHandlersMock.notFoundHandler = this.stub();
+        apiHandlersMock.errorHandler = this.stub();
+        apiHandlersMock.status = this.stub();
+        apiHandlersMock.status.returns(apiHandlersMock.status);
+        apiHandlersMock.info = this.stub();
+        apiHandlersMock.info.returns(apiHandlersMock.info);
+
         var v1ApiMock = this.stub();
-        var v1ApiRouter = this.stub();
-        v1ApiMock.returns({apiVersion: 1, router: v1ApiRouter});
+        v1ApiMock.apiVersion = '1';
+        v1ApiMock.pJson = pJsonMock;
+        v1ApiMock.router = this.stub();
+        v1ApiMock.router.get = this.stub();
+        v1ApiMock.log = this.stub();
+        v1ApiMock.returns(v1ApiMock);
+
         var passportMock = this.stub();
         var modelsMock = this.stub();
 
-        appConfig.routes(appMock, pJsonMock, expressMock, pathMock, apiHandlersMock, v1ApiMock, passportMock, modelsMock);
+        appConfig.routes(
+            appMock, pJsonMock, expressMock, pathMock, apiHandlersMock, v1ApiMock, passportMock, modelsMock);
 
         expect(pathMock.join).to.have.been.calledWithExactly(sinon.match.string, '../public');
         expect(expressMock.static).to.have.been.calledWithExactly('test path');
         expect(appMock.use).to.have.been.calledWithExactly('test static');
-        expect(v1ApiMock).to.have.been.calledWithExactly(expressMock, appMock, pJsonMock, apiHandlersMock, passportMock, modelsMock);
-        expect(appMock.use).to.have.been.calledWithExactly('/api/v1', v1ApiRouter);
-        expect(appMock.use).to.have.been.calledWithExactly('/api/v1', errorHandlerMock);
-        expect(appMock.use).to.have.been.calledWithExactly('/api/current', v1ApiRouter);
-        expect(appMock.use).to.have.been.calledWithExactly('/api/current', errorHandlerMock);
+        expect(v1ApiMock).to.have.been.calledWithExactly(
+            expressMock, appMock, pJsonMock, apiHandlersMock, passportMock, modelsMock);
+        expect(apiHandlersMock.status).to.have.been.calledWithExactly(v1ApiMock);
+        expect(v1ApiMock.router.get).to.have.been.calledWithExactly('/status', apiHandlersMock.status);
+        expect(v1ApiMock.router.get).to.have.been.calledWithExactly('/info', apiHandlersMock.info);
+        expect(appMock.use).to.have.been.calledWithExactly('/api/v1', v1ApiMock.router);
+        expect(appMock.use).to.have.been.calledWithExactly('/api/v1', apiHandlersMock.notFoundHandler);
+        expect(appMock.use).to.have.been.calledWithExactly('/api/v1', apiHandlersMock.errorHandler);
+        expect(appMock.use).to.have.been.calledWithExactly('/api/current', v1ApiMock.router);
+        expect(appMock.use).to.have.been.calledWithExactly('/api/current', apiHandlersMock.notFoundHandler);
+        expect(appMock.use).to.have.been.calledWithExactly('/api/current', apiHandlersMock.errorHandler);
     }));
 
     it('should configure error handlers', sinon.test(function () {

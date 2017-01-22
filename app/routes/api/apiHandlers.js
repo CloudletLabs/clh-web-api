@@ -1,42 +1,58 @@
 module.exports = {
-    log: function (req, msg, args) {
-        var user;
+    log: function (apiHandlers) {
+        return {
+            info: function () {
+                apiHandlers._log('info', arguments);
+            },
+            warn: function () {
+                apiHandlers._log('warn', arguments);
+            },
+            error: function () {
+                apiHandlers._log('error', arguments);
+            }
+        }
+    },
+    _log: function (level, origArgs) {
+        var req = origArgs[0];
+        var args = [req.method, req.connection.remoteAddress, req.path];
+        var template = '[%s][%s][%s]';
         if (req.user) {
-            user = req.user.user || req.user;
+            template += '[%s]';
+            var user = req.user.user || req.user;
+            args.push(user.username);
         }
-        var arr = [req.method, req.connection.remoteAddress, req.path];
-        var template;
-        if (!user) {
-            template = "[%s][%s][%s]";
-        } else {
-            template = "[%s][%s][%s][%s]";
-            arr.push(user.username);
-        }
+        var msg = origArgs[1];
         if (msg) template += " " + msg;
-        arr.unshift(template);
-        if (args) arr = arr.concat(args);
-        console.info.apply(console, arr);
-    },
-    errorHandler: function (err, req, res) {
-        console.error("[%s][%s] API ERROR: %s", req.method, req.connection.remoteAddress, err);
-        res.status(err.status || 500);
-        delete err.status;
-        if (err.length === 0) {
-            res.send();
-        } else {
-            res.json(err);
+        args.unshift(template);
+        if (origArgs.length > 2) {
+            var extraArgs = Object.keys(origArgs).map(function(key){return origArgs[key].toString()});
+            extraArgs = extraArgs.slice(2);
+            args = args.concat(extraArgs);
         }
+        console[level].apply(console, args);
     },
-    status: function (log) {
+    notFoundHandler: function (req, res) {
+        console.warn('[%s][%s] 404: %s', req.method, req.connection.remoteAddress, req.path);
+        res.status(404);
+        res.json({message: 'Not found'});
+    },
+    errorHandler: function (err, req, res, next) {
+        var status = err.status || 500;
+        var message = err.message || 'Unknown API error';
+        console.error('[%s][%s] API ERROR %s: %s', req.method, req.connection.remoteAddress, status, message);
+        res.status(status);
+        res.json({message: message});
+    },
+    status: function (api) {
         return function (req, res, next) {
-            log(req);
+            api.log.info(req);
             res.send('ok');
         }
     },
-    info: function (pJson, apiVersion, log) {
+    info: function (api) {
         return function (req, res, next) {
-            log(req);
-            res.json({name: pJson.name, version: pJson.version, apiVersion: apiVersion});
+            api.log.info(req);
+            res.json({name: api.pJson.name, version: api.pJson.version, apiVersion: api.apiVersion});
         }
     }
 };

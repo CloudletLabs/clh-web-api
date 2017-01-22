@@ -24,7 +24,7 @@ module.exports = {
                 var data = createDefaultCallback(results);
                 helper._createDefaultData(helper, model, results, data, next);
             } else {
-                helper._getExisting(helper, model, next);
+                helper._getExisting(helper, model, results, next);
             }
         });
     },

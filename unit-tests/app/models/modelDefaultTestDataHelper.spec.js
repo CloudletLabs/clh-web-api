@@ -6,7 +6,7 @@ chai.use(sinonChai);
 
 var helper = require('../../../app/models/modelDefaultTestDataHelper');
 
-describe('The helper module', function() {
+describe('The modelDefaultTestDataHelper module', function() {
 
     it('should have functions', sinon.test(function () {
         expect(Object.keys(helper).length).to.be.equal(8);
@@ -102,13 +102,16 @@ describe('The helper module', function() {
             }
         };
         var createDefaultCallbackMock = this.stub();
+        var results = {
+            'already existing data': 'test data'
+        };
         var nextMock = this.stub();
         var getExistingMock = this.stub(helper, '_getExisting');
 
-        helper._check(helper, modelMock, null, null, nextMock);
+        helper._check(helper, modelMock, results, null, nextMock);
 
         expect(createDefaultCallbackMock).not.to.have.been.called;
-        expect(getExistingMock).to.have.been.calledWithExactly(helper, modelMock, nextMock);
+        expect(getExistingMock).to.have.been.calledWithExactly(helper, modelMock, results, nextMock);
     }));
 
     it('should throw error on checking model data', sinon.test(function () {
