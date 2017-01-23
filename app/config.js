@@ -33,12 +33,12 @@ module.exports = {
         // Parse and populate cookies
         app.use(cookieParser());
     },
-    routes: function (app, pJson, express, path, apiHandlers, v1Api, passport, models) {
+    routes: function (app, pJson, express, path, logger, apiHandlers, v1Api, passport, controllers) {
         // Publish our public folder
         app.use(express.static(path.join(__dirname, '../public')));
 
         // API v1 router
-        var v1 = v1Api(express, app, pJson, apiHandlers, passport, models);
+        var v1 = v1Api(express, app, pJson, logger, apiHandlers, passport, controllers);
         v1.router.get('/status', apiHandlers.status(v1));
         v1.router.get('/info', apiHandlers.info(v1));
 

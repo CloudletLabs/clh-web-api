@@ -1,35 +1,11 @@
 module.exports = {
-    log: function (apiHandlers) {
-        return {
-            info: function () {
-                apiHandlers._log('info', arguments);
-            },
-            warn: function () {
-                apiHandlers._log('warn', arguments);
-            },
-            error: function () {
-                apiHandlers._log('error', arguments);
-            }
-        }
-    },
-    _log: function (level, origArgs) {
-        var req = origArgs[0];
-        var args = [req.method, req.connection.remoteAddress, req.path];
-        var template = '[%s][%s][%s]';
+    generateRequestId: function (req) {
+        var reqId = `[${req.method}][${req.connection.remoteAddress}][${req.path}]`;
         if (req.user) {
-            template += '[%s]';
             var user = req.user.user || req.user;
-            args.push(user.username);
+            reqId += `[${user.username}]`;
         }
-        var msg = origArgs[1];
-        if (msg) template += " " + msg;
-        args.unshift(template);
-        if (origArgs.length > 2) {
-            var extraArgs = Object.keys(origArgs).map(function(key){return origArgs[key].toString()});
-            extraArgs = extraArgs.slice(2);
-            args = args.concat(extraArgs);
-        }
-        console[level].apply(console, args);
+        return reqId;
     },
     notFoundHandler: function (req, res) {
         console.warn('[%s][%s] 404: %s', req.method, req.connection.remoteAddress, req.path);

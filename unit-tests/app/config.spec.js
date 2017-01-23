@@ -157,6 +157,8 @@ describe('The config module', function() {
         pathMock.join = this.stub();
         pathMock.join.returns('test path');
 
+        var loggerMock = this.stub();
+
         var apiHandlersMock = this.stub();
         apiHandlersMock.notFoundHandler = this.stub();
         apiHandlersMock.errorHandler = this.stub();
@@ -174,16 +176,16 @@ describe('The config module', function() {
         v1ApiMock.returns(v1ApiMock);
 
         var passportMock = this.stub();
-        var modelsMock = this.stub();
+        var controllersMock = this.stub();
 
-        appConfig.routes(
-            appMock, pJsonMock, expressMock, pathMock, apiHandlersMock, v1ApiMock, passportMock, modelsMock);
+        appConfig.routes(appMock, pJsonMock, expressMock, pathMock, loggerMock,
+            apiHandlersMock, v1ApiMock, passportMock, controllersMock);
 
         expect(pathMock.join).to.have.been.calledWithExactly(sinon.match.string, '../public');
         expect(expressMock.static).to.have.been.calledWithExactly('test path');
         expect(appMock.use).to.have.been.calledWithExactly('test static');
         expect(v1ApiMock).to.have.been.calledWithExactly(
-            expressMock, appMock, pJsonMock, apiHandlersMock, passportMock, modelsMock);
+            expressMock, appMock, pJsonMock, loggerMock, apiHandlersMock, passportMock, controllersMock);
         expect(apiHandlersMock.status).to.have.been.calledWithExactly(v1ApiMock);
         expect(v1ApiMock.router.get).to.have.been.calledWithExactly('/status', apiHandlersMock.status);
         expect(v1ApiMock.router.get).to.have.been.calledWithExactly('/info', apiHandlersMock.info);

@@ -4,6 +4,7 @@ module.exports = function (require) {
      */
     var pJson = require('../package.json');
     var appConfig = require('../app/config');
+    var logger = require('../app/logger').log();
 
     /**
      * Some additional modules
@@ -57,11 +58,16 @@ module.exports = function (require) {
     appConfig.parsingMiddleware(app, cookieParser, bodyParser);
 
     /**
+     * Controllers
+     */
+    var controllers = require('../app/controllers/controllers')(require, logger, models);
+
+    /**
      * Routes
      */
     var apiHandlers = require('../app/routes/api/apiHandlers');
     var v1Api = require('../app/routes/api/v1/api');
-    appConfig.routes(app, pJson, express, path, apiHandlers, v1Api, passport, models);
+    appConfig.routes(app, pJson, express, path, logger, apiHandlers, v1Api, passport, controllers);
 
     /**
      * Catch errors

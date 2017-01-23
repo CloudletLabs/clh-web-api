@@ -1,64 +1,35 @@
 var apiVersion = '1';
 
-module.exports = function (express, app, pJson, apiHandlers, passport, models) {
+module.exports = function (express, app, pJson, logger, apiHandlers, passport, controllers) {
 
     var router = express.Router();
-
-    var log = apiHandlers.log(apiHandlers);
-
-    var User = models.user;
-    var UserAuthToken = models.userAuthToken;
-    var UserRole = models.userRole;
-    var News = models.news;
 
     var handlers = {
         authToken: {
             post: function (req, res, next) {
-                log.info(req);
-
-                var user = req.user;
-                UserAuthToken.generateNew(user, req.connection.remoteAddress, req.header('user-agent'), function (err, token) {
-                    if (err) return next(err);
-                    // Should be better way to 'depopulate' user object
-                    var responseObject = token.toObject();
-                    responseObject.user = {username: user.username};
-                    res.json(responseObject);
-                });
+                var reqId = apiHandlers.generateRequestId(req);
+                logger.info(reqId);
+                controllers.userAuthToken.generateNew(reqId, req.user, req.connection.remoteAddress, req.header('user-agent'),
+                    function (err, result) {
+                        if (err) return next(err);
+                        res.json(result);
+                    });
             },
             put: function (req, res, next) {
-                log.info(req);
-
-                var token = req.user;
-                var user = token.user;
-                UserAuthToken.generateNew(user, req.connection.remoteAddress, req.header('user-agent'), function (err, newToken) {
-                    token.remove(function (err) {
+                var reqId = apiHandlers.generateRequestId(req);
+                logger.info(reqId);
+                controllers.userAuthToken.renew(reqId, req.user,
+                    function (err, result) {
                         if (err) return next(err);
-                        res.json(newToken.toObject());
+                        res.json(result);
                     });
-                });
             },
             delete: function (req, res, next) {
-                log.info(req);
-
-                var token = req.user;
-                var user = token.user;
-                UserAuthToken.findOne({auth_token: req.params.token}).populate('user', 'username').exec(function (err, tokenToDelete) {
+                var reqId = apiHandlers.generateRequestId(req);
+                logger.info(reqId);
+                controllers.userAuthToken.delete(reqId, req.user.user, req.params.token, function (err) {
                     if (err) return next(err);
-
-                    if (!tokenToDelete) {
-                        log.info(req, "token not found");
-                        return next({status: 404});
-                    }
-
-                    if (user.username != tokenToDelete.user.username) {
-                        log.info(req, "cheating on %s", tokenToDelete.user.username);
-                        return next({status: 401});
-                    }
-
-                    tokenToDelete.remove(function (err) {
-                        if (err) return next(err);
-                        res.send();
-                    });
+                    res.send();
                 });
             }
         },
@@ -66,7 +37,8 @@ module.exports = function (express, app, pJson, apiHandlers, passport, models) {
             get: function (req, res, next) {
                 var token = req.user;
                 var user = token.user;
-                log.info(req);
+                var reqId = apiHandlers.generateRequestId(req);
+                logger.info(reqId);
 
                 token.populate("user", function (err, token) {
                     if (err) return next(err);
@@ -79,7 +51,8 @@ module.exports = function (express, app, pJson, apiHandlers, passport, models) {
         },
         users: {
             get: function (req, res, next) {
-                log.info(req);
+                var reqId = apiHandlers.generateRequestId(req);
+                logger.info(reqId);
 
                 User.find().populate("roles", "roleId").exec(function (err, users) {
                     if (err) return next(err);
@@ -89,13 +62,14 @@ module.exports = function (express, app, pJson, apiHandlers, passport, models) {
                 });
             },
             post: function (req, res, next) {
-                log.info(req, "%s", req.body.username);
+                var reqId = apiHandlers.generateRequestId(req);
+                logger.info(reqId, "%s", req.body.username);
 
                 User.count({username: req.body.username}, function (err, count) {
                     if (err) return next(err);
 
                     if (count > 0) {
-                        log.info(req, "user %s already exists", req.body.username);
+                        logger.info(req, "user %s already exists", req.body.username);
                         return next({status: 400, message: "User already exist"});
                     }
 
@@ -118,13 +92,14 @@ module.exports = function (express, app, pJson, apiHandlers, passport, models) {
             },
             username: {
                 get: function (req, res, next) {
-                    log.info(req);
+                    var reqId = apiHandlers.generateRequestId(req);
+                    logger.info(reqId);
 
                     User.findOne({username: req.params.username}).populate("roles", "roleId").exec(function (err, user) {
                         if (err) return next(err);
 
                         if (!user) {
-                            log.info(req, "user not found");
+                            logger.info(req, "user not found");
                             return next({status: 404, message: "User not found"});
                         }
 
@@ -132,13 +107,14 @@ module.exports = function (express, app, pJson, apiHandlers, passport, models) {
                     });
                 },
                 put: function (req, res, next) {
-                    log.info(req);
+                    var reqId = apiHandlers.generateRequestId(req);
+                    logger.info(reqId);
 
                     User.findOne({username: req.params.username}).populate("roles", "roleId").exec(function (err, user) {
                         if (err) return next(err);
 
                         if (!user) {
-                            log.info(req, "user not found");
+                            logger.info(req, "user not found");
                             return next({status: 404, message: "User not found"});
                         }
 
@@ -154,7 +130,8 @@ module.exports = function (express, app, pJson, apiHandlers, passport, models) {
                     });
                 },
                 delete: function (req, res, next) {
-                    log.info(req);
+                    var reqId = apiHandlers.generateRequestId(req);
+                    logger.info(reqId);
 
                     User.findOneAndRemove({username: req.params.username}, function (err) {
                         if (err) return next(err);
@@ -165,7 +142,8 @@ module.exports = function (express, app, pJson, apiHandlers, passport, models) {
         },
         news: {
             get: function (req, res, next) {
-                log.info(req);
+                var reqId = apiHandlers.generateRequestId(req);
+                logger.info(reqId);
 
                 News.find().populate("creator", "name").sort({createDate: 'desc'}).exec(function (err, news) {
                     if (err) return next(err);
@@ -175,7 +153,8 @@ module.exports = function (express, app, pJson, apiHandlers, passport, models) {
                 });
             },
             post: function (req, res, next) {
-                log.info(req);
+                var reqId = apiHandlers.generateRequestId(req);
+                logger.info(reqId);
 
                 var token = req.user;
                 var user = token.user;
@@ -183,7 +162,7 @@ module.exports = function (express, app, pJson, apiHandlers, passport, models) {
                     if (err) return next(err);
 
                     if (count > 0) {
-                        log.info(req, "slug %s already exists", req.body.slug);
+                        logger.info(req, "slug %s already exists", req.body.slug);
                         return next({status: 400, message: "News with thus slug already exist"});
                     }
 
@@ -201,13 +180,14 @@ module.exports = function (express, app, pJson, apiHandlers, passport, models) {
             },
             slug: {
                 get: function (req, res, next) {
-                    log.info(req);
+                    var reqId = apiHandlers.generateRequestId(req);
+                    logger.info(reqId);
 
                     News.findOne({slug: req.params.slug}).populate("creator", "name").exec(function (err, news) {
                         if (err) return next(err);
 
                         if (!news) {
-                            log.info(req, "slug not found");
+                            logger.info(req, "slug not found");
                             return next({status: 404, message: "News with thus slug not found"});
                         }
 
@@ -215,13 +195,14 @@ module.exports = function (express, app, pJson, apiHandlers, passport, models) {
                     });
                 },
                 put: function (req, res, next) {
-                    log.info(req);
+                    var reqId = apiHandlers.generateRequestId(req);
+                    logger.info(reqId);
 
                     News.findOne({slug: req.params.slug}, function (err, news) {
                         if (err) return next(err);
 
                         if (!news) {
-                            log.info(req, "slug not found");
+                            logger.info(req, "slug not found");
                             return next({status: 404, message: "News with this slug not found"});
                         }
 
@@ -229,7 +210,7 @@ module.exports = function (express, app, pJson, apiHandlers, passport, models) {
                             News.count({slug: req.body.slug}, function (err, count) {
                                 if (err) return next(err);
                                 if (count > 0) {
-                                    log.info(req, "slug %s already exists", req.body.slug);
+                                    logger.info(req, "slug %s already exists", req.body.slug);
                                     return next({status: 400, message: "News with thus slug already exist"});
                                 }
                                 updateNews();
@@ -256,7 +237,8 @@ module.exports = function (express, app, pJson, apiHandlers, passport, models) {
                     });
                 },
                 delete: function (req, res, next) {
-                    log.info(req);
+                    var reqId = apiHandlers.generateRequestId(req);
+                    logger.info(reqId);
 
                     News.findOneAndRemove({slug: req.params.slug}, function (err) {
                         if (err) return next(err);
@@ -314,7 +296,6 @@ module.exports = function (express, app, pJson, apiHandlers, passport, models) {
         pJson: pJson,
         apiVersion: apiVersion,
         router: router,
-        handlers: handlers,
         log: log
     };
 };

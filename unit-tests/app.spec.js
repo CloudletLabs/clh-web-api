@@ -16,6 +16,12 @@ describe('The app module', function() {
         var appConfigMock = this.stub();
         requireMock.withArgs('../app/config').returns(appConfigMock);
 
+        var loggerModuleMock = this.stub();
+        var loggerMock = this.stub();
+        requireMock.withArgs('../app/logger').returns(loggerModuleMock);
+        loggerModuleMock.log = this.stub();
+        loggerModuleMock.log.returns(loggerMock);
+
         var pathMock = this.stub();
         requireMock.withArgs('path').returns(pathMock);
 
@@ -76,6 +82,11 @@ describe('The app module', function() {
         var bodyParserMock = this.stub();
         requireMock.withArgs('body-parser').returns(bodyParserMock);
 
+        var controllersModuleMock = this.stub();
+        requireMock.withArgs('../app/controllers/controllers').returns(controllersModuleMock);
+        var controllersMock = this.stub();
+        controllersModuleMock.returns(controllersMock);
+
         var apiHandlersMock = this.stub();
         requireMock.withArgs('../app/routes/api/apiHandlers').returns(apiHandlersMock);
 
@@ -96,6 +107,8 @@ describe('The app module', function() {
 
         expect(requireMock).to.have.been.calledWithExactly('../package.json');
         expect(requireMock).to.have.been.calledWithExactly('../app/config');
+        expect(requireMock).to.have.been.calledWithExactly('../app/logger');
+        expect(loggerModuleMock.log).to.have.been.called;
 
         expect(requireMock).to.have.been.calledWithExactly('path');
         expect(requireMock).to.have.been.calledWithExactly('moment');
@@ -129,10 +142,14 @@ describe('The app module', function() {
         expect(requireMock).to.have.been.calledWithExactly('body-parser');
         expect(appConfigMock.parsingMiddleware).to.have.been.calledWithExactly(appMock, cookieParserMock, bodyParserMock);
 
+        expect(requireMock).to.have.been.calledWithExactly('../app/controllers/controllers');
+        expect(controllersModuleMock).to.have.been.calledWithExactly(requireMock, loggerMock, modelsMock);
+
         expect(requireMock).to.have.been.calledWithExactly('../app/routes/api/apiHandlers');
         expect(requireMock).to.have.been.calledWithExactly('../app/routes/api/v1/api');
         expect(appConfigMock.routes).to.have.been.calledWithExactly(
-            appMock, pJsonMock, expressMock, pathMock, apiHandlersMock, v1ApiMock, passportMock, modelsMock);
+            appMock, pJsonMock, expressMock, pathMock, loggerMock,
+            apiHandlersMock, v1ApiMock, passportMock, controllersMock);
 
         expect(appConfigMock.errors).to.have.been.calledWithExactly(appMock);
 
