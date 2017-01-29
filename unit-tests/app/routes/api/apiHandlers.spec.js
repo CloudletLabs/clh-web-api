@@ -9,58 +9,11 @@ var handlersModule = require('../../../../app/routes/api/apiHandlers');
 describe('The apiHandlers module', function() {
     it('should have functions', sinon.test(function () {
         expect(Object.keys(handlersModule).length).to.be.equal(5);
-        expect(handlersModule.generateRequestId).to.be.a('function');
         expect(handlersModule.notFoundHandler).to.be.a('function');
         expect(handlersModule.errorHandler).to.be.a('function');
         expect(handlersModule.status).to.be.a('function');
         expect(handlersModule.info).to.be.a('function');
-    }));
-
-    it('should generate anonymous request id', sinon.test(function () {
-        var req = {
-            method: 'test method',
-            connection: {
-                remoteAddress: 'test address'
-            },
-            path: 'test path'
-        };
-
-        var id = handlersModule.generateRequestId(req);
-        expect(id).to.eql('[test method][test address][test path]');
-    }));
-
-    it('should generate request id with user', sinon.test(function () {
-        var req = {
-            method: 'test method',
-            connection: {
-                remoteAddress: 'test address'
-            },
-            path: 'test path',
-            user: {
-                username: 'test username'
-            }
-        };
-
-        var id = handlersModule.generateRequestId(req);
-        expect(id).to.eql('[test method][test address][test path][test username]');
-    }));
-
-    it('should generate request id with token', sinon.test(function () {
-        var req = {
-            method: 'test method',
-            connection: {
-                remoteAddress: 'test address'
-            },
-            path: 'test path',
-            user: {
-                user: {
-                    username: 'test username'
-                }
-            }
-        };
-
-        var id = handlersModule.generateRequestId(req);
-        expect(id).to.eql('[test method][test address][test path][test username]');
+        expect(handlersModule.sendRes).to.be.a('function');
     }));
 
     it('should handle 404', sinon.test(function () {
@@ -126,8 +79,7 @@ describe('The apiHandlers module', function() {
 
     it('should handle status', sinon.test(function () {
         var apiMock = this.stub();
-        apiMock.log = this.stub();
-        apiMock.log.info = this.stub();
+        apiMock.pJson = { name: 'test api' };
         var reqMock = this.stub();
         var resMock = this.stub();
         resMock.send = this.stub();
@@ -135,14 +87,11 @@ describe('The apiHandlers module', function() {
         var status = handlersModule.status(apiMock);
         status(reqMock, resMock);
 
-        expect(apiMock.log.info).to.have.been.calledWithExactly(reqMock);
-        expect(resMock.send).to.have.been.calledWithExactly('ok');
+        expect(resMock.send).to.have.been.calledWithExactly('test api: ok');
     }));
 
     it('should handle info', sinon.test(function () {
         var apiMock = this.stub();
-        apiMock.log = this.stub();
-        apiMock.log.info = this.stub();
         apiMock.pJson = this.stub();
         apiMock.pJson.name = this.stub();
         apiMock.pJson.version = this.stub();
@@ -154,8 +103,31 @@ describe('The apiHandlers module', function() {
         var info = handlersModule.info(apiMock);
         info(reqMock, resMock);
 
-        expect(apiMock.log.info).to.have.been.calledWithExactly(reqMock);
         expect(resMock.json).to.have.been.calledWithExactly(
             {name: apiMock.pJson.name, version: apiMock.pJson.version, apiVersion: apiMock.apiVersion});
+    }));
+    
+    it('should send response', sinon.test(function () {
+        var resMock = this.stub();
+        resMock.json = this.stub();
+        var resultMock = this.stub();
+
+        var handler = handlersModule.sendRes(resMock, null);
+        handler(null, resultMock);
+
+        expect(resMock.json).to.have.been.calledWithExactly(resultMock);
+    }));
+
+    it('should not send response', sinon.test(function () {
+        var resMock = this.stub();
+        resMock.json = this.stub();
+        var nextMock = this.stub();
+        var errMock = this.stub();
+
+        var handler = handlersModule.sendRes(null, nextMock);
+        handler(errMock);
+
+        expect(nextMock).to.have.been.calledWithExactly(errMock);
+        expect(resMock.json).not.to.have.been.called;
     }));
 });

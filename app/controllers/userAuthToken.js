@@ -1,12 +1,9 @@
 module.exports = function (logger, models) {
 
-    var User = models.user;
     var UserAuthToken = models.userAuthToken;
-    var UserRole = models.userRole;
-    var News = models.news;
 
     return {
-        generateNew: function (reqId, ip, userAgent, done) {
+        generateNew: function (user, ip, userAgent, done) {
             UserAuthToken.generateNew(user, ip, userAgent, function (err, token) {
                 if (err) return done(err);
                 // Should be better way to 'depopulate' user object
@@ -15,20 +12,25 @@ module.exports = function (logger, models) {
                 done(null, result);
             });
         },
-        renew: function (reqId, token, done) {
-            UserAuthToken.generateNew(token.user, ip, userAgent, function (err, newToken) {
+        renew: function (logPrefix, token, done) {
+            UserAuthToken.generateNew(token.user, token.ip, token.userAgent, function (err, newToken) {
+                if (err) return done(err);
+                if (!newToken) {
+                    logger.info(logPrefix, "regenerated token saving failed");
+                    return done({status: 500, message: 'Error during saving new token'});
+                }
                 token.remove(function (err) {
                     if (err) return done(err);
                     done(null, newToken.toObject());
                 });
             });
         },
-        delete: function (reqId, user, token, done) {
+        delete: function (logPrefix, user, token, done) {
             UserAuthToken.findOne({auth_token: token}).populate('user', 'username').exec(function (err, tokenObject) {
                 if (err) return done(err);
 
                 if (!tokenObject) {
-                    logger.info(reqId, "token not found");
+                    logger.info(logPrefix, "token not found");
                     return done({status: 404});
                 }
 

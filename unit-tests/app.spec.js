@@ -51,6 +51,11 @@ describe('The app module', function() {
         modelDefaultTestDataHelperMock.check = this.stub();
         modelDefaultTestDataHelperMock.check.withArgs(modelsMock, momentMock);
 
+        var controllersModuleMock = this.stub();
+        requireMock.withArgs('../app/controllers/controllers').returns(controllersModuleMock);
+        var controllersMock = this.stub();
+        controllersModuleMock.returns(controllersMock);
+
         var expressMock = this.stub();
         requireMock.withArgs('express').returns(expressMock);
 
@@ -82,11 +87,6 @@ describe('The app module', function() {
         var bodyParserMock = this.stub();
         requireMock.withArgs('body-parser').returns(bodyParserMock);
 
-        var controllersModuleMock = this.stub();
-        requireMock.withArgs('../app/controllers/controllers').returns(controllersModuleMock);
-        var controllersMock = this.stub();
-        controllersModuleMock.returns(controllersMock);
-
         var apiHandlersMock = this.stub();
         requireMock.withArgs('../app/routes/api/apiHandlers').returns(apiHandlersMock);
 
@@ -100,6 +100,7 @@ describe('The app module', function() {
         appConfigMock.morgan = this.stub();
         appConfigMock.originHeaders = this.stub();
         appConfigMock.parsingMiddleware = this.stub();
+        appConfigMock.loggingMiddleware = this.stub();
         appConfigMock.routes = this.stub();
         appConfigMock.errors = this.stub();
 
@@ -124,6 +125,9 @@ describe('The app module', function() {
         expect(requireMock).to.have.been.calledWithExactly('../app/models/modelDefaultTestDataHelper');
         expect(modelDefaultTestDataHelperMock.check).to.have.been.calledWithExactly(modelsMock, momentMock);
 
+        expect(requireMock).to.have.been.calledWithExactly('../app/controllers/controllers');
+        expect(controllersModuleMock).to.have.been.calledWithExactly(requireMock, loggerMock, modelsMock);
+
         expect(requireMock).to.have.been.calledWithExactly('express');
         expect(appConfigMock.createApp).to.have.been.calledWithExactly(expressMock);
 
@@ -142,8 +146,7 @@ describe('The app module', function() {
         expect(requireMock).to.have.been.calledWithExactly('body-parser');
         expect(appConfigMock.parsingMiddleware).to.have.been.calledWithExactly(appMock, cookieParserMock, bodyParserMock);
 
-        expect(requireMock).to.have.been.calledWithExactly('../app/controllers/controllers');
-        expect(controllersModuleMock).to.have.been.calledWithExactly(requireMock, loggerMock, modelsMock);
+        expect(appConfigMock.loggingMiddleware).to.have.been.calledWithExactly(appMock, loggerModuleMock);
 
         expect(requireMock).to.have.been.calledWithExactly('../app/routes/api/apiHandlers');
         expect(requireMock).to.have.been.calledWithExactly('../app/routes/api/v1/api');

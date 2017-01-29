@@ -1,25 +1,20 @@
-module.exports = {
-    authByRole: function (helper, req, token, roleId, done) {
-        if (req.user) {
-            helper._checkRole(req, roleId, done);
-        } else {
-            helper.authByToken(req, token, true, function (err, userAuthToken) {
-                if (err) return done(err);
-                req.user = userAuthToken;
-                helper._checkRole(req, roleId, done);
-            });
-        }
+var helper = {
+    authByRole: function (UserAuthToken, moment, req, token, roleId, done) {
+        helper.authByToken(UserAuthToken, moment, req, token, true, function (err, userAuthToken) {
+            if (err) return done(err);
+            helper._checkRole(userAuthToken.user, roleId, done);
+        });
     },
-    _checkRole: function (req, roleId, done) {
-        if (req.user.user.roles.some(function (role) {
+    _checkRole: function (user, roleId, done) {
+        if (user.roles.some(function (role) {
                 return role.roleId == roleId;
             })) {
-            done(null, req.user.user);
+            done(null, user);
         } else {
             done(null, false);
         }
     },
-    authByToken: function (helper, UserAuthToken, moment, req, token, checkExpire, done) {
+    authByToken: function (UserAuthToken, moment, req, token, checkExpire, done) {
         UserAuthToken.findOne({'auth_token': token})
             .populate('user', 'username roles')
             .exec(function (err, userAuthToken) {
@@ -48,3 +43,5 @@ module.exports = {
         });
     }
 };
+
+module.exports = helper;

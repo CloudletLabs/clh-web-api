@@ -4,7 +4,8 @@ module.exports = function (require) {
      */
     var pJson = require('../package.json');
     var appConfig = require('../app/config');
-    var logger = require('../app/logger').log();
+    var loggerModule = require('../app/logger');
+    var logger = loggerModule.log();
 
     /**
      * Some additional modules
@@ -23,6 +24,11 @@ module.exports = function (require) {
     var models = require('../app/models/models')(require, modelHelpers, connection, mongoose, moment, uuid);
     var modelDefaultTestDataHelper = require('../app/models/modelDefaultTestDataHelper');
     modelDefaultTestDataHelper.check(models, moment);
+
+    /**
+     * Controllers
+     */
+    var controllers = require('../app/controllers/controllers')(require, logger, models);
 
     /**
      * Express
@@ -58,9 +64,9 @@ module.exports = function (require) {
     appConfig.parsingMiddleware(app, cookieParser, bodyParser);
 
     /**
-     * Controllers
+     * Logging middleware
      */
-    var controllers = require('../app/controllers/controllers')(require, logger, models);
+    appConfig.loggingMiddleware(app, loggerModule);
 
     /**
      * Routes

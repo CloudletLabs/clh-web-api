@@ -45,12 +45,12 @@
     "morgan": "=1.6.1"
   },
   "devDependencies": {
-    "mocha": "=3.0.2",
+    "mocha": "=3.2.0",
     "chai": "=3.5.0",
-    "sinon": "=1.17.5",
+    "sinon": "=1.17.7",
     "sinon-chai": "=2.8.0",
     "istanbul": "=0.4.5",
-    "nyc": "=10.0.0",
-    "swagger-ui": "=2.2.8"
+    "nyc": "=10.1.2",
+    "swagger-ui": "=2.2.10"
   }
 }

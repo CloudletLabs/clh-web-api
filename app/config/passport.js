@@ -24,7 +24,7 @@ module.exports = function (passport, passportHelpers, models, moment, BasicStrat
      */
     passport.use('bearer-authentication', new BearerStrategy({ passReqToCallback: true },
         function (req, token, done) {
-            passportHelpers.authByToken(passportHelpers, UserAuthToken, moment, req, token, true, done);
+            passportHelpers.authByToken(UserAuthToken, moment, req, token, true, done);
         }
     ));
 
@@ -33,7 +33,7 @@ module.exports = function (passport, passportHelpers, models, moment, BasicStrat
      */
     passport.use('bearer-renew-authentication', new BearerStrategy({ passReqToCallback: true },
         function (req, token, done) {
-            passportHelpers.authByToken(passportHelpers, UserAuthToken, moment, req, token, false, done);
+            passportHelpers.authByToken(UserAuthToken, moment, req, token, false, done);
         }
     ));
 
@@ -42,7 +42,7 @@ module.exports = function (passport, passportHelpers, models, moment, BasicStrat
      */
     passport.use('user-authorization', new BearerStrategy({ passReqToCallback: true },
         function (req, token, done) {
-            passportHelpers.authByRole(passportHelpers, req, token, 'USER', done);
+            passportHelpers.authByRole(UserAuthToken, moment, req, token, 'USER', done);
         }
     ));
 
@@ -51,7 +51,7 @@ module.exports = function (passport, passportHelpers, models, moment, BasicStrat
      */
     passport.use('admin-authorization', new BearerStrategy({ passReqToCallback: true },
         function (req, token, done) {
-            passportHelpers.authByRole(passportHelpers, req, token, 'ADMIN', done);
+            passportHelpers.authByRole(UserAuthToken, moment, req, token, 'ADMIN', done);
         }
     ));
 };

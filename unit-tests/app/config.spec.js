@@ -8,11 +8,12 @@ var appConfig = require('../../app/config');
 
 describe('The config module', function() {
     it('should have functions', sinon.test(function () {
-        expect(Object.keys(appConfig).length).to.be.equal(6);
+        expect(Object.keys(appConfig).length).to.be.equal(7);
         expect(appConfig.createApp).to.be.a('function');
         expect(appConfig.morgan).to.be.a('function');
         expect(appConfig.originHeaders).to.be.a('function');
         expect(appConfig.parsingMiddleware).to.be.a('function');
+        expect(appConfig.loggingMiddleware).to.be.a('function');
         expect(appConfig.routes).to.be.a('function');
         expect(appConfig.errors).to.be.a('function');
     }));
@@ -141,6 +142,19 @@ describe('The config module', function() {
         expect(bodyParserMock.urlencoded).to.have.been.calledWithExactly({extended: false});
         expect(appMock.use).to.have.been.calledWithExactly(cookieParserMock);
         expect(cookieParserFunctionMock).to.have.been.called;
+    }));
+
+    it('should configure logging middleware', sinon.test(function () {
+        var appMock = this.stub();
+        appMock.use = this.stub();
+        var loggerModuleMock = this.stub();
+        loggerModuleMock.logPrefixGenerator = this.stub();
+        loggerModuleMock.reqLogger = this.stub();
+
+        appConfig.loggingMiddleware(appMock, loggerModuleMock);
+
+        expect(appMock.use).to.have.been.calledWithExactly(loggerModuleMock.logPrefixGenerator);
+        expect(appMock.use).to.have.been.calledWithExactly(loggerModuleMock.reqLogger);
     }));
 
     it('should configure routes', sinon.test(function () {

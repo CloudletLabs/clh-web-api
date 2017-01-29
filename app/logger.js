@@ -1,6 +1,5 @@
-module.exports = {
+var logger = {
     log: function () {
-        var logger = this;
         return {
             info: function () {
                 logger._log('info', arguments);
@@ -14,9 +13,9 @@ module.exports = {
         }
     },
     _log: function (level, origArgs) {
-        var id = origArgs[0];
+        var logPrefix = origArgs[0];
         var msg = origArgs[1];
-        var template = id;
+        var template = logPrefix;
         if (msg) template += " " + msg;
         var args = [template];
         if (origArgs.length > 2) {
@@ -25,5 +24,20 @@ module.exports = {
             args = args.concat(extraArgs);
         }
         console[level].apply(console, args);
+    },
+    logPrefixGenerator: function (req, res, next) {
+        var prefix = `[${req.method}][${req.connection.remoteAddress}][${req.path}]`;
+        if (req.user) {
+            var user = req.user.user || req.user;
+            prefix += `[${user.username}]`;
+        }
+        req.logPrefix = prefix;
+        next();
+    },
+    reqLogger: function (req, res, next) {
+        logger.log().info(req.logPrefix);
+        next();
     }
 };
+
+module.exports = logger;

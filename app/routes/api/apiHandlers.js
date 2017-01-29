@@ -1,12 +1,4 @@
 module.exports = {
-    generateRequestId: function (req) {
-        var reqId = `[${req.method}][${req.connection.remoteAddress}][${req.path}]`;
-        if (req.user) {
-            var user = req.user.user || req.user;
-            reqId += `[${user.username}]`;
-        }
-        return reqId;
-    },
     notFoundHandler: function (req, res) {
         console.warn('[%s][%s] 404: %s', req.method, req.connection.remoteAddress, req.path);
         res.status(404);
@@ -21,14 +13,18 @@ module.exports = {
     },
     status: function (api) {
         return function (req, res, next) {
-            api.log.info(req);
-            res.send('ok');
+            res.send(api.pJson.name + ': ok');
         }
     },
     info: function (api) {
         return function (req, res, next) {
-            api.log.info(req);
             res.json({name: api.pJson.name, version: api.pJson.version, apiVersion: api.apiVersion});
+        }
+    },
+    sendRes: function (res, next) {
+        return function (err, result) {
+            if (err) return next(err);
+            res.json(result);
         }
     }
 };

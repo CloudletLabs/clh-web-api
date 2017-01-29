@@ -7,84 +7,75 @@ chai.use(sinonChai);
 var helper = require('../../../app/config/passportHelpers');
 
 describe('The passportHelpers module', function() {
-    it('should auth by role for already logged in user', sinon.test(function () {
-        var helperMock = this.stub();
-        helperMock._checkRole = this.stub();
-        var req = { user: 'test user' };
-
-        helper.authByRole(helperMock, req, null, 'role', 'done');
-
-        expect(helperMock._checkRole).to.have.been.calledWithExactly(req, 'role', 'done');
-    }));
-
-    it('should auth by role for token', sinon.test(function () {
-        var helperMock = this.stub();
-        helperMock.authByToken = this.stub();
-        helperMock.authByToken.callsArgWith(3, null, 'token object');
-        helperMock._checkRole = this.stub();
-        var req = { };
-
-        helper.authByRole(helperMock, req, 'token', 'role', 'done');
-
-        expect(req).to.eql({user: 'token object'});
-        expect(helperMock.authByToken).to.have.been.calledWithExactly(req, 'token', true, sinon.match.func);
-        expect(helperMock._checkRole).to.have.been.calledWithExactly(req, 'role', 'done');
-    }));
-
-    it('should fail at error in auth by role auth', sinon.test(function () {
-        var helperMock = this.stub();
-        helperMock.authByToken = this.stub();
-        helperMock.authByToken.callsArgWith(3, 'test error');
-        var doneMock = this.stub();
-
-        helper.authByRole(helperMock, {}, null, null, doneMock);
-
-        expect(doneMock).to.have.been.calledWithExactly('test error');
-    }));
-
-    it('should accept role', sinon.test(function () {
-        var req = {
-          user: {
-              user: {
-                  roles: [
-                      {
-                          roleId: 'fake role'
-                      }
-                  ]
-              }
-          }
-        };
-        var doneMock = this.stub();
-
-        helper._checkRole(req, 'fake role', doneMock);
-
-        expect(doneMock).to.have.been.calledWithExactly(null, {
-            roles: [
-                {
-                    roleId: 'fake role'
-                }
-            ]
+    describe('authByRole', function () {
+        var sandbox = sinon.sandbox.create();
+        afterEach(function () {
+            sandbox.restore();
         });
-    }));
 
-    it('should refuse role', sinon.test(function () {
-        var req = {
-            user: {
-                user: {
-                    roles: [
-                        {
-                            roleId: 'another fake role'
-                        }
-                    ]
-                }
-            }
-        };
-        var doneMock = this.stub();
+        it('should auth by role for token', function () {
+            helper.authByToken = sandbox.stub(helper, 'authByToken');
+            helper.authByToken.callsArgWith(5, null, { user: 'user object' });
+            helper._checkRole = sandbox.stub(helper, '_checkRole');
+            var UserAuthTokenMock = sandbox.stub();
+            var momentMock = sandbox.stub();
+            var reqMock = sandbox.stub();
 
-        helper._checkRole(req, 'fake role', doneMock);
+            helper.authByRole(UserAuthTokenMock, momentMock, reqMock, 'token', 'role', 'done');
 
-        expect(doneMock).to.have.been.calledWithExactly(null, false);
-    }));
+            expect(helper.authByToken).to.have.been.calledWithExactly(
+                UserAuthTokenMock, momentMock, reqMock, 'token', true, sinon.match.func);
+            expect(helper._checkRole).to.have.been.calledWithExactly('user object', 'role', 'done');
+        });
+
+        it('should fail at error in auth by role auth', function () {
+            helper.authByToken = sandbox.stub(helper, 'authByToken');
+            helper.authByToken.callsArgWith(5, 'test error');
+            var doneMock = sandbox.stub();
+
+            helper.authByRole(null, null, null, null, null, doneMock);
+
+            expect(doneMock).to.have.been.calledWithExactly('test error');
+        });
+    });
+
+    describe('_checkRole', function () {
+        it('should accept role', sinon.test(function () {
+            var user = {
+                roles: [
+                    {
+                        roleId: 'fake role'
+                    }
+                ]
+            };
+            var doneMock = this.stub();
+
+            helper._checkRole(user, 'fake role', doneMock);
+
+            expect(doneMock).to.have.been.calledWithExactly(null, {
+                roles: [
+                    {
+                        roleId: 'fake role'
+                    }
+                ]
+            });
+        }));
+
+        it('should refuse role', sinon.test(function () {
+            var user = {
+                roles: [
+                    {
+                        roleId: 'another fake role'
+                    }
+                ]
+            };
+            var doneMock = this.stub();
+
+            helper._checkRole(user, 'fake role', doneMock);
+
+            expect(doneMock).to.have.been.calledWithExactly(null, false);
+        }));
+    });
 
     describe('authByToken', function () {
         var sandbox = sinon.sandbox.create();
@@ -94,7 +85,6 @@ describe('The passportHelpers module', function() {
 
         var
             UserAuthTokenMock,
-            helperMock,
             momentMock,
             reqMock,
             tokenMock,
@@ -109,8 +99,7 @@ describe('The passportHelpers module', function() {
             UserAuthTokenMock.populate.returns(UserAuthTokenMock);
             UserAuthTokenMock.exec = sandbox.stub();
 
-            helperMock = sandbox.stub();
-            helperMock._checkToken = sandbox.stub();
+            helper._checkToken = sandbox.stub(helper, '_checkToken');
 
             momentMock = sandbox.stub();
             reqMock = sandbox.stub();
@@ -125,33 +114,33 @@ describe('The passportHelpers module', function() {
             expect(UserAuthTokenMock.exec).to.have.been.calledWithExactly(sinon.match.func);
         }
 
-        it('should accept token', sinon.test(function () {
+        it('should accept token', function () {
             UserAuthTokenMock.exec.callsArgWith(0, null, 'token object');
 
-            helper.authByToken(helperMock, UserAuthTokenMock, momentMock, reqMock, tokenMock, checkExpireMock, doneMock);
+            helper.authByToken(UserAuthTokenMock, momentMock, reqMock, tokenMock, checkExpireMock, doneMock);
 
             commonTest();
-            expect(helperMock._checkToken).to.have.been.calledWithExactly(
+            expect(helper._checkToken).to.have.been.calledWithExactly(
                 momentMock, reqMock, 'token object', checkExpireMock, doneMock);
-        }));
+        });
 
-        it('should refuse token', sinon.test(function () {
+        it('should refuse token', function () {
             UserAuthTokenMock.exec.callsArgWith(0, null, null);
 
-            helper.authByToken(helperMock, UserAuthTokenMock, momentMock, reqMock, tokenMock, checkExpireMock, doneMock);
+            helper.authByToken(UserAuthTokenMock, momentMock, reqMock, tokenMock, checkExpireMock, doneMock);
 
             commonTest();
             expect(doneMock).to.have.been.calledWithExactly(null, false);
-        }));
+        });
 
-        it('should fail token', sinon.test(function () {
+        it('should fail token', function () {
             UserAuthTokenMock.exec.callsArgWith(0, 'test error', null);
 
-            helper.authByToken(helperMock, UserAuthTokenMock, momentMock, reqMock, tokenMock, checkExpireMock, doneMock);
+            helper.authByToken(UserAuthTokenMock, momentMock, reqMock, tokenMock, checkExpireMock, doneMock);
 
             commonTest();
             expect(doneMock).to.have.been.calledWithExactly('test error');
-        }));
+        });
     });
 
     describe('_checkToken', function () {

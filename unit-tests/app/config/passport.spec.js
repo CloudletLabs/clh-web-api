@@ -115,27 +115,27 @@ describe('The passport module', function() {
         strategies['bearer-authentication'].strategy('test req', 'test token', 'test done');
 
         expect(passportHelpersMock.authByToken).to.have.been.calledWithExactly(
-            passportHelpersMock, userAuthTokenMock, momentMock, 'test req', 'test token', true, 'test done');
+            userAuthTokenMock, momentMock, 'test req', 'test token', true, 'test done');
     });
 
     it('should perform bearer-renew-authentication', function () {
         strategies['bearer-renew-authentication'].strategy('test req', 'test token', 'test done');
 
         expect(passportHelpersMock.authByToken).to.have.been.calledWithExactly(
-            passportHelpersMock, userAuthTokenMock, momentMock, 'test req', 'test token', false, 'test done');
+            userAuthTokenMock, momentMock, 'test req', 'test token', false, 'test done');
     });
 
     it('should perform user-authorization', function () {
         strategies['user-authorization'].strategy('test req', 'test token', 'test done');
 
         expect(passportHelpersMock.authByRole).to.have.been.calledWithExactly(
-            passportHelpersMock, 'test req', 'test token', 'USER', 'test done');
+            userAuthTokenMock, momentMock, 'test req', 'test token', 'USER', 'test done');
     });
 
     it('should perform admin-authorization', function () {
         strategies['admin-authorization'].strategy('test req', 'test token', 'test done');
 
         expect(passportHelpersMock.authByRole).to.have.been.calledWithExactly(
-            passportHelpersMock, 'test req', 'test token', 'ADMIN', 'test done');
+            userAuthTokenMock, momentMock, 'test req', 'test token', 'ADMIN', 'test done');
     });
 });

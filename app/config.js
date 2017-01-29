@@ -33,6 +33,12 @@ module.exports = {
         // Parse and populate cookies
         app.use(cookieParser());
     },
+    loggingMiddleware: function (app, loggerModule) {
+        // generate logging prefix
+        app.use(loggerModule.logPrefixGenerator);
+        // log current request
+        app.use(loggerModule.reqLogger);
+    },
     routes: function (app, pJson, express, path, logger, apiHandlers, v1Api, passport, controllers) {
         // Publish our public folder
         app.use(express.static(path.join(__dirname, '../public')));
