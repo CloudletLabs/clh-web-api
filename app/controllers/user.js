@@ -22,12 +22,11 @@ module.exports = function (logger, models) {
                 }));
             });
         },
-        create: function (logPrefix, user, done) {
+        create: function (user, done) {
             User.count({username: user.username}, function (err, count) {
                 if (err) return done(err);
 
                 if (count > 0) {
-                    logger.info(logPrefix, "user %s already exists", user.username);
                     return done({status: 400, message: "User already exist"});
                 }
 
@@ -48,24 +47,22 @@ module.exports = function (logger, models) {
                 });
             });
         },
-        get: function (logPrefix, username, done) {
+        get: function (username, done) {
             User.findOne({username: username}).populate("roles", "roleId").exec(function (err, user) {
                 if (err) return done(err);
 
                 if (!user) {
-                    logger.info(logPrefix, "user %s not found", username);
                     return done({status: 404, message: "User not found"});
                 }
 
                 done(null, user.toObject());
             });
         },
-        update: function (logPrefix, username, updatedUser, done) {
+        update: function (username, updatedUser, done) {
             User.findOne({username: username}).populate("roles", "roleId").exec(function (err, user) {
                 if (err) return done(err);
 
                 if (!user) {
-                    logger.info(req, "user %s not found", username);
                     return done({status: 404, message: "User not found"});
                 }
 

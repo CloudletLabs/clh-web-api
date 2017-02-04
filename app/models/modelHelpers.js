@@ -12,11 +12,5 @@ module.exports = {
             }
             return ret;
         }
-    },
-    exec: function (condition, resultHandler, done) {
-        condition.exec(function (err, result) {
-            if (err) return done(err);
-            resultHandler(result);
-        });
     }
 };

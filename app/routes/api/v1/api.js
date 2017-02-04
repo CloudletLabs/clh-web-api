@@ -15,12 +15,12 @@ module.exports = function (express, app, pJson, logger, apiHandlers, passport, c
     router.put('/auth_token',
         passport.authenticate('bearer-renew-authentication', defaultPassportConfig),
         function (req, res, next) {
-            controllers.userAuthToken.renew(req.logPrefix, req.account, apiHandlers.sendRes(res, next));
+            controllers.userAuthToken.renew(req.account, apiHandlers.sendRes(res, next));
         });
     router.delete('/auth_token/:token',
         passport.authenticate('bearer-authentication', defaultPassportConfig),
         function (req, res, next) {
-            controllers.userAuthToken.delete(req.logPrefix, req.account.user, req.params.token,
+            controllers.userAuthToken.delete(req.account.user, req.params.token,
                 apiHandlers.sendRes(res, next));
         });
 
@@ -37,18 +37,18 @@ module.exports = function (express, app, pJson, logger, apiHandlers, passport, c
         });
     router.post('/users',
         function (req, res, next) {
-            controllers.user.create(req.logPrefix, req.body, apiHandlers.sendRes(res, next));
+            controllers.user.create(req.body, apiHandlers.sendRes(res, next));
         });
 
     router.get('/users/:username',
         passport.authorize('admin-authorization', defaultPassportConfig),
         function (req, res, next) {
-            controllers.user.get(req.logPrefix, req.params.username, apiHandlers.sendRes(res, next));
+            controllers.user.get(req.params.username, apiHandlers.sendRes(res, next));
         });
     router.put('/users/:username',
         passport.authorize('admin-authorization', defaultPassportConfig),
         function (req, res, next) {
-            controllers.user.update(req.logPrefix, req.params.username, req.body, apiHandlers.sendRes(res, next));
+            controllers.user.update(req.params.username, req.body, apiHandlers.sendRes(res, next));
         });
     router.delete('/users/:username',
         passport.authorize('admin-authorization', defaultPassportConfig),
@@ -63,17 +63,17 @@ module.exports = function (express, app, pJson, logger, apiHandlers, passport, c
     router.post('/news',
         passport.authorize('admin-authorization', defaultPassportConfig),
         function (req, res, next) {
-            controllers.news.create(req.logPrefix, req.account, req.body, apiHandlers.sendRes(res, next));
+            controllers.news.create(req.account, req.body, apiHandlers.sendRes(res, next));
         });
 
     router.get('/news/:slug',
         function (req, res, next) {
-            controllers.news.get(req.logPrefix, req.params.slug, apiHandlers.sendRes(res, next));
+            controllers.news.get(req.params.slug, apiHandlers.sendRes(res, next));
         });
     router.put('/news/:slug',
         passport.authorize('admin-authorization', defaultPassportConfig),
         function (req, res, next) {
-            controllers.news.update(req.logPrefix, req.params.slug, req.body, apiHandlers.sendRes(res, next));
+            controllers.news.update(req.params.slug, req.body, apiHandlers.sendRes(res, next));
         });
     router.delete('/news/:slug',
         passport.authorize('admin-authorization', defaultPassportConfig),

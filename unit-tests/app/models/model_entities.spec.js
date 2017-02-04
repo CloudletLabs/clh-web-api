@@ -19,7 +19,8 @@ describe('The entity', function() {
         momentModuleMock,
         momentMock,
         utcMock,
-        uuidMock;
+        uuidMock,
+        populateStub;
 
     beforeEach(function () {
         sandbox = sinon.sandbox.create();
@@ -54,6 +55,9 @@ describe('The entity', function() {
         uuidMock = sandbox.stub();
         uuidMock.v1 = sandbox.stub();
         uuidMock.v1.returns('mock uuid');
+
+        populateStub = sandbox.stub();
+        populateStub.populate = sandbox.stub();
     });
     
     afterEach(function () {
@@ -75,6 +79,11 @@ describe('The entity', function() {
         expect(connectionMock.model).to.have.been.calledWithExactly(schemaName, mongooseMock.SchemaInstance);
         expect(result).to.eql(expectedResult);
         expect(mongooseMock.SchemaInstance.methods.toString.bind(expectedResult)()).to.eql(toString);
+
+        if (mongooseMock.SchemaInstance.statics.defaultPopulate) {
+            expect(mongooseMock.SchemaInstance.statics.defaultPopulate).to.be.a('function');
+            mongooseMock.SchemaInstance.statics.defaultPopulate.apply(populateStub);
+        }
     }
 
     describe('news', function() {
@@ -89,6 +98,8 @@ describe('The entity', function() {
             var expectedResult = {slug: 'test slug'};
 
             commonTests('News', schema, newsModule, [momentModuleMock], null, expectedResult, 'test slug');
+
+            expect(populateStub.populate).to.have.been.calledWithExactly('creator', 'name');
         });
     });
 
@@ -105,6 +116,8 @@ describe('The entity', function() {
             var expectedResult = {username: 'test username'};
 
             commonTests('User', schema, userModule, [], ['password'], expectedResult, 'test username');
+
+            expect(populateStub.populate).to.have.been.calledWithExactly('roles', 'roleId');
         });
     });
 
@@ -138,6 +151,8 @@ describe('The entity', function() {
                 null,
                 expectedResult,
                 'test token username');
+
+            expect(populateStub.populate).to.have.been.calledWithExactly('user', 'username');
 
             expect(mongooseMock.SchemaInstance.methods.hasExpired.bind(expectedResult)()).to.be.false;
             expect(utcMock.diff).to.have.been.calledWithExactly(-1, 'days');

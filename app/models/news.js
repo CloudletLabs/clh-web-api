@@ -14,6 +14,10 @@ module.exports = function (modelHelpers, connection, mongoose, moment) {
         return this.slug;
     };
 
+    newsSchema.statics.defaultPopulate = function () {
+        return this.populate('creator', 'name');
+    };
+
     modelHelpers.deleteMongoFields(newsSchema);
 
     var News = connection.model('News', newsSchema);

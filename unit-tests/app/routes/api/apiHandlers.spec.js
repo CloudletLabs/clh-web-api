@@ -19,11 +19,7 @@ describe('The apiHandlers module', function() {
     it('should handle 404', sinon.test(function () {
         console.warn = this.stub();
         var req = {
-            method: 'test method',
-            connection: {
-                remoteAddress: 'test address'
-            },
-            path: 'test path'
+            logPrefix: 'test prefix'
         };
         var respMock = this.stub();
         respMock.status = this.stub();
@@ -31,8 +27,7 @@ describe('The apiHandlers module', function() {
 
         handlersModule.notFoundHandler(req, respMock);
 
-        expect(console.warn).to.have.been.calledWithExactly(
-            '[%s][%s] 404: %s', 'test method', 'test address', 'test path');
+        expect(console.warn).to.have.been.calledWithExactly('%s API 404: Not Found', 'test prefix');
         expect(respMock.status).to.have.been.calledWithExactly(404);
         expect(respMock.json).to.have.been.calledWithExactly({message: 'Not found'});
     }));
@@ -40,10 +35,7 @@ describe('The apiHandlers module', function() {
     it('should handle unknown api error', sinon.test(function () {
         console.error = this.stub();
         var req = {
-            method: 'test method',
-            connection: {
-                remoteAddress: 'test address'
-            }
+            logPrefix: 'test prefix'
         };
         var respMock = this.stub();
         respMock.status = this.stub();
@@ -51,8 +43,7 @@ describe('The apiHandlers module', function() {
 
         handlersModule.errorHandler({}, req, respMock);
 
-        expect(console.error).to.have.been.calledWithExactly(
-            '[%s][%s] API ERROR %s: %s', 'test method', 'test address', 500, 'Unknown API error');
+        expect(console.error).to.have.been.calledWithExactly('%s API ERROR %s: %s', 'test prefix', 500, 'Unknown API error');
         expect(respMock.status).to.have.been.calledWithExactly(500);
         expect(respMock.json).to.have.been.calledWithExactly({message: 'Unknown API error'});
     }));
@@ -60,10 +51,7 @@ describe('The apiHandlers module', function() {
     it('should handle api error', sinon.test(function () {
         console.error = this.stub();
         var req = {
-            method: 'test method',
-            connection: {
-                remoteAddress: 'test address'
-            }
+            logPrefix: 'test prefix'
         };
         var respMock = this.stub();
         respMock.status = this.stub();
@@ -71,10 +59,25 @@ describe('The apiHandlers module', function() {
 
         handlersModule.errorHandler({status: 501, message: 'Dummy error'}, req, respMock);
 
-        expect(console.error).to.have.been.calledWithExactly(
-            '[%s][%s] API ERROR %s: %s', 'test method', 'test address', 501, 'Dummy error');
+        expect(console.error).to.have.been.calledWithExactly('%s API ERROR %s: %s', 'test prefix', 501, 'Dummy error');
         expect(respMock.status).to.have.been.calledWithExactly(501);
         expect(respMock.json).to.have.been.calledWithExactly({message: 'Dummy error'});
+    }));
+
+    it('should handle api warning', sinon.test(function () {
+        console.warn = this.stub();
+        var req = {
+            logPrefix: 'test prefix'
+        };
+        var respMock = this.stub();
+        respMock.status = this.stub();
+        respMock.json = this.stub();
+
+        handlersModule.errorHandler({status: 401, message: 'Dummy warning'}, req, respMock);
+
+        expect(console.warn).to.have.been.calledWithExactly('%s API WARN %s: %s', 'test prefix', 401, 'Dummy warning');
+        expect(respMock.status).to.have.been.calledWithExactly(401);
+        expect(respMock.json).to.have.been.calledWithExactly({message: 'Dummy warning'});
     }));
 
     it('should handle status', sinon.test(function () {
@@ -106,7 +109,7 @@ describe('The apiHandlers module', function() {
         expect(resMock.json).to.have.been.calledWithExactly(
             {name: apiMock.pJson.name, version: apiMock.pJson.version, apiVersion: apiMock.apiVersion});
     }));
-    
+
     it('should send response', sinon.test(function () {
         var resMock = this.stub();
         resMock.json = this.stub();
@@ -119,6 +122,16 @@ describe('The apiHandlers module', function() {
     }));
 
     it('should not send response', sinon.test(function () {
+        var nextMock = this.stub();
+        var resultMock = this.stub();
+
+        var handler = handlersModule.sendRes(null, nextMock);
+        handler();
+
+        expect(nextMock).to.have.been.calledWithExactly();
+    }));
+
+    it('should send error', sinon.test(function () {
         var resMock = this.stub();
         resMock.json = this.stub();
         var nextMock = this.stub();

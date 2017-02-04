@@ -34,6 +34,10 @@ module.exports = function (modelHelpers, connection, mongoose, moment, uuid, exp
         });
     };
 
+    userAuthTokenSchema.statics.defaultPopulate = function () {
+        return this.populate('user', 'username');
+    };
+
     modelHelpers.deleteMongoFields(userAuthTokenSchema);
     var UserAuthToken = connection.model('UserAuthToken', userAuthTokenSchema);
 

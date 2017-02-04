@@ -72,7 +72,6 @@ describe('The v1/api module', function() {
         reqMock.header.returnsArg(0);
         reqMock.params = sandbox.stub();
         reqMock.body = sandbox.stub();
-        reqMock.logPrefix = sandbox.stub();
         resMock = sandbox.stub();
         nextMock = sandbox.stub();
 
@@ -126,7 +125,6 @@ describe('The v1/api module', function() {
             commonApiMethodTest('put', '/auth_token', 'bearer-renew-authentication');
 
             expect(controllersMock.userAuthToken.renew).to.have.been.calledWithExactly(
-                reqMock.logPrefix,
                 reqMock.account,
                 sendResMock
             );
@@ -139,7 +137,6 @@ describe('The v1/api module', function() {
             commonApiMethodTest('delete', '/auth_token/:token', 'bearer-authentication');
 
             expect(controllersMock.userAuthToken.delete).to.have.been.calledWithExactly(
-                reqMock.logPrefix,
                 reqMock.account.user,
                 reqMock.params.token,
                 sendResMock
@@ -173,7 +170,6 @@ describe('The v1/api module', function() {
             commonApiMethodTest('post', '/users');
 
             expect(controllersMock.user.create).to.have.been.calledWithExactly(
-                reqMock.logPrefix,
                 reqMock.body,
                 sendResMock
             );
@@ -186,7 +182,6 @@ describe('The v1/api module', function() {
             commonApiMethodTest('get', '/users/:username', 'admin-authorization');
 
             expect(controllersMock.user.get).to.have.been.calledWithExactly(
-                reqMock.logPrefix,
                 reqMock.params.username,
                 sendResMock
             );
@@ -199,7 +194,6 @@ describe('The v1/api module', function() {
             commonApiMethodTest('put', '/users/:username', 'admin-authorization');
 
             expect(controllersMock.user.update).to.have.been.calledWithExactly(
-                reqMock.logPrefix,
                 reqMock.params.username,
                 reqMock.body,
                 sendResMock
@@ -234,7 +228,6 @@ describe('The v1/api module', function() {
             commonApiMethodTest('post', '/news', 'admin-authorization');
 
             expect(controllersMock.news.create).to.have.been.calledWithExactly(
-                reqMock.logPrefix,
                 reqMock.account,
                 reqMock.body,
                 sendResMock
@@ -248,7 +241,6 @@ describe('The v1/api module', function() {
             commonApiMethodTest('get', '/news/:slug');
 
             expect(controllersMock.news.get).to.have.been.calledWithExactly(
-                reqMock.logPrefix,
                 reqMock.params.slug,
                 sendResMock
             );
@@ -261,7 +253,6 @@ describe('The v1/api module', function() {
             commonApiMethodTest('put', '/news/:slug', 'admin-authorization');
 
             expect(controllersMock.news.update).to.have.been.calledWithExactly(
-                reqMock.logPrefix,
                 reqMock.params.slug,
                 reqMock.body,
                 sendResMock

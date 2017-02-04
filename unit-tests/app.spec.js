@@ -51,6 +51,8 @@ describe('The app module', function() {
         modelDefaultTestDataHelperMock.check = this.stub();
         modelDefaultTestDataHelperMock.check.withArgs(modelsMock, momentMock);
 
+        var controllerHelpersMock = this.stub();
+        requireMock.withArgs('../app/controllers/controllerHelpers').returns(controllerHelpersMock);
         var controllersModuleMock = this.stub();
         requireMock.withArgs('../app/controllers/controllers').returns(controllersModuleMock);
         var controllersMock = this.stub();
@@ -125,8 +127,9 @@ describe('The app module', function() {
         expect(requireMock).to.have.been.calledWithExactly('../app/models/modelDefaultTestDataHelper');
         expect(modelDefaultTestDataHelperMock.check).to.have.been.calledWithExactly(modelsMock, momentMock);
 
+        expect(requireMock).to.have.been.calledWithExactly('../app/controllers/controllerHelpers');
         expect(requireMock).to.have.been.calledWithExactly('../app/controllers/controllers');
-        expect(controllersModuleMock).to.have.been.calledWithExactly(requireMock, loggerMock, modelsMock, modelHelpersMock);
+        expect(controllersModuleMock).to.have.been.calledWithExactly(requireMock, loggerMock, modelsMock, controllerHelpersMock);
 
         expect(requireMock).to.have.been.calledWithExactly('express');
         expect(appConfigMock.createApp).to.have.been.calledWithExactly(expressMock);

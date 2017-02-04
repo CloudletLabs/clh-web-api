@@ -15,6 +15,10 @@ module.exports = function (modelHelpers, connection, mongoose) {
         return this.username;
     };
 
+    userSchema.statics.defaultPopulate = function () {
+        return this.populate('roles', 'roleId');
+    };
+
     modelHelpers.deleteMongoFields(userSchema, ['password']);
 
     var User = connection.model('User', userSchema);

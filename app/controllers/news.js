@@ -1,56 +1,24 @@
-module.exports = function (logger, models, modelHelpers) {
+module.exports = function (logger, models, controllerHelpers) {
 
     var News = models.news;
 
-    return {
+    var controller = {
         getAll: function (done) {
-            modelHelpers.exec(News.find().sort({createDate: 'desc'}).populate('creator', 'name'),
-                function (news) {
-                    done(null, news.map(function (news) {
-                        return news.toObject();
-                    }));
-                },
-                done);
+            controllerHelpers.getAll(News.find().sort({createDate: 'desc'}), News.defaultPopulate, done);
         },
-        create: function (logPrefix, creator, news, done) {
-            News.count({slug: news.slug}, function (err, count) {
-                if (err) return done(err);
-
-                if (count > 0) {
-                    logger.info(logPrefix, "slug %s already exists", news.slug);
-                    return done({status: 400, message: "News with thus slug already exist"});
-                }
-
-                var newNews = new News(news);
-                newNews.creator = creator;
-                newNews.save(function (err, news) {
-                    if (err) return done(err);
-
-                    news.populate("creator", "name", function (err, news) {
-                        if (err) return done(err);
-                        done(null, news.toObject());
-                    });
-                });
-            });
+        create: function (creator, news, done) {
+            var newNews = new News(news);
+            newNews.creator = creator;
+            controllerHelpers.create(News.count({slug: news.slug}), newNews, News.defaultPopulate, done);
         },
-        get: function (logPrefix, slug, done) {
-            News.findOne({slug: slug}).populate("creator", "name").exec(function (err, news) {
-                if (err) return done(err);
-
-                if (!news) {
-                    logger.info(logPrefix, "slug %s not found", slug);
-                    return done({status: 404, message: "News with thus slug not found"});
-                }
-
-                done(null, news.toObject());
-            });
+        get: function (slug, done) {
+            controllerHelpers.get(News.findOne({slug: slug}), News.defaultPopulate, done);
         },
-        update: function (logPrefix, slug, updatedNews, done) {
+        update: function (slug, updatedNews, done) {
             News.findOne({slug: slug}, function (err, news) {
                 if (err) return done(err);
 
                 if (!news) {
-                    logger.info(logPrefix, "slug %s not found", slug);
                     return done({status: 404, message: "News with this slug not found"});
                 }
 
@@ -58,7 +26,6 @@ module.exports = function (logger, models, modelHelpers) {
                     News.count({slug: updatedNews.slug}, function (err, count) {
                         if (err) return done(err);
                         if (count > 0) {
-                            logger.info(logPrefix, "slug %s already exists", updatedNews.slug);
                             return done({status: 400, message: "News with thus slug already exist"});
                         }
                         updateNews();
@@ -90,5 +57,7 @@ module.exports = function (logger, models, modelHelpers) {
                 done();
             });
         }
-    }
+    };
+
+    return controller;
 };
