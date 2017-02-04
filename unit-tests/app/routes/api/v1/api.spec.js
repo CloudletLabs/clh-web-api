@@ -235,7 +235,7 @@ describe('The v1/api module', function() {
 
             expect(controllersMock.news.create).to.have.been.calledWithExactly(
                 reqMock.logPrefix,
-                reqMock.user,
+                reqMock.account,
                 reqMock.body,
                 sendResMock
             );

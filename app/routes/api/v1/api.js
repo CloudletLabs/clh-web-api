@@ -63,7 +63,7 @@ module.exports = function (express, app, pJson, logger, apiHandlers, passport, c
     router.post('/news',
         passport.authorize('admin-authorization', defaultPassportConfig),
         function (req, res, next) {
-            controllers.news.create(req.logPrefix, req.user, req.body, apiHandlers.sendRes(res, next));
+            controllers.news.create(req.logPrefix, req.account, req.body, apiHandlers.sendRes(res, next));
         });
 
     router.get('/news/:slug',

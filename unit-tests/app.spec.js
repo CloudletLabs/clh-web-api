@@ -126,7 +126,7 @@ describe('The app module', function() {
         expect(modelDefaultTestDataHelperMock.check).to.have.been.calledWithExactly(modelsMock, momentMock);
 
         expect(requireMock).to.have.been.calledWithExactly('../app/controllers/controllers');
-        expect(controllersModuleMock).to.have.been.calledWithExactly(requireMock, loggerMock, modelsMock);
+        expect(controllersModuleMock).to.have.been.calledWithExactly(requireMock, loggerMock, modelsMock, modelHelpersMock);
 
         expect(requireMock).to.have.been.calledWithExactly('express');
         expect(appConfigMock.createApp).to.have.been.calledWithExactly(expressMock);

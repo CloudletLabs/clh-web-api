@@ -2,6 +2,7 @@ var helper = {
     authByRole: function (UserAuthToken, moment, req, token, roleId, done) {
         helper.authByToken(UserAuthToken, moment, req, token, true, function (err, userAuthToken) {
             if (err) return done(err);
+            if (!userAuthToken) return done(null, false);
             helper._checkRole(userAuthToken.user, roleId, done);
         });
     },

@@ -37,6 +37,16 @@ describe('The passportHelpers module', function() {
 
             expect(doneMock).to.have.been.calledWithExactly('test error');
         });
+
+        it('should refuse auth by role for token', function () {
+            helper.authByToken = sandbox.stub(helper, 'authByToken');
+            helper.authByToken.callsArgWith(5, null, false);
+            var doneMock = sandbox.stub();
+
+            helper.authByRole(null, null, null, null, null, doneMock);
+
+            expect(doneMock).to.have.been.calledWithExactly(null, false);
+        });
     });
 
     describe('_checkRole', function () {

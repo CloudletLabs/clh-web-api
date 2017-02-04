@@ -1,8 +1,8 @@
-module.exports = function (require, logger, models) {
+module.exports = function (require, logger, models, modelHelpers) {
 
-    var userAuthToken = require('../app/controllers/userAuthToken')(logger, models);
-    var user = require('../app/controllers/user')(logger, models);
-    var news = require('../app/controllers/news')(logger, models);
+    var userAuthToken = require('../app/controllers/userAuthToken')(logger, models, modelHelpers);
+    var user = require('../app/controllers/user')(logger, models, modelHelpers);
+    var news = require('../app/controllers/news')(logger, models, modelHelpers);
 
     return {
         userAuthToken: userAuthToken,

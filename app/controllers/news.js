@@ -1,15 +1,16 @@
-module.exports = function (logger, models) {
+module.exports = function (logger, models, modelHelpers) {
 
     var News = models.news;
 
     return {
         getAll: function (done) {
-            News.find().populate("creator", "name").sort({createDate: 'desc'}).exec(function (err, news) {
-                if (err) return done(err);
-                done(null, news.map(function (news) {
-                    return news.toObject();
-                }));
-            });
+            modelHelpers.exec(News.find().sort({createDate: 'desc'}).populate('creator', 'name'),
+                function (news) {
+                    done(null, news.map(function (news) {
+                        return news.toObject();
+                    }));
+                },
+                done);
         },
         create: function (logPrefix, creator, news, done) {
             News.count({slug: news.slug}, function (err, count) {

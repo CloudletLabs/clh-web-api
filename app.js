@@ -28,7 +28,7 @@ module.exports = function (require) {
     /**
      * Controllers
      */
-    var controllers = require('../app/controllers/controllers')(require, logger, models);
+    var controllers = require('../app/controllers/controllers')(require, logger, models, modelHelpers);
 
     /**
      * Express

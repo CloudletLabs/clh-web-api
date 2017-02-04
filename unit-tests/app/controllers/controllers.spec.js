@@ -12,6 +12,7 @@ describe('The controllers module', function() {
 
         var loggerMock = this.stub();
         var modelsMock = this.stub();
+        var modelHelpersMock = this.stub();
 
         var userAuthTokenMockModule = this.stub();
         requireMock.withArgs('../app/controllers/userAuthToken').returns(userAuthTokenMockModule);
@@ -34,16 +35,16 @@ describe('The controllers module', function() {
             news: newsMock
         };
 
-        var controllers = require('../../../app/controllers/controllers')(requireMock, loggerMock, modelsMock);
+        var controllers = require('../../../app/controllers/controllers')(requireMock, loggerMock, modelsMock, modelHelpersMock);
 
         expect(requireMock).to.have.been.calledWith('../app/controllers/userAuthToken');
-        expect(userAuthTokenMockModule).to.have.been.calledWith(loggerMock, modelsMock);
+        expect(userAuthTokenMockModule).to.have.been.calledWith(loggerMock, modelsMock, modelHelpersMock);
 
         expect(requireMock).to.have.been.calledWith('../app/controllers/user');
-        expect(userMockModule).to.have.been.calledWith(loggerMock, modelsMock);
+        expect(userMockModule).to.have.been.calledWith(loggerMock, modelsMock, modelHelpersMock);
 
         expect(requireMock).to.have.been.calledWith('../app/controllers/news');
-        expect(newsMockModule).to.have.been.calledWith(loggerMock, modelsMock);
+        expect(newsMockModule).to.have.been.calledWith(loggerMock, modelsMock, modelHelpersMock);
 
         expect(controllers).to.eql(controllersMock);
     }));
