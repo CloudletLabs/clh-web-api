@@ -28,6 +28,8 @@ module.exports = {
         });
     },
     parsingMiddleware: function (app, cookieParser, bodyParser) {
+        // parse json when application/json
+        app.use(bodyParser.json());
         // parse params in URL
         app.use(bodyParser.urlencoded({extended: false}));
         // Parse and populate cookies

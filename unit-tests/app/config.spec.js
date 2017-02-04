@@ -132,13 +132,18 @@ describe('The config module', function() {
         var cookieParserMock = this.stub();
         cookieParserFunctionMock.returns(cookieParserMock);
         var bodyParserMock = this.stub();
+        bodyParserMock.json = this.stub();
+        var bodyParserJsonMock = this.stub();
+        bodyParserMock.json.returns(bodyParserJsonMock);
         bodyParserMock.urlencoded = this.stub();
         var bodyParserUrlEncodedMock = this.stub();
         bodyParserMock.urlencoded.returns(bodyParserUrlEncodedMock);
 
         appConfig.parsingMiddleware(appMock, cookieParserFunctionMock, bodyParserMock);
 
+        expect(appMock.use).to.have.been.calledWithExactly(bodyParserJsonMock);
         expect(appMock.use).to.have.been.calledWithExactly(bodyParserUrlEncodedMock);
+        expect(bodyParserMock.json).to.have.been.calledWithExactly();
         expect(bodyParserMock.urlencoded).to.have.been.calledWithExactly({extended: false});
         expect(appMock.use).to.have.been.calledWithExactly(cookieParserMock);
         expect(cookieParserFunctionMock).to.have.been.called;
