@@ -11,26 +11,20 @@ module.exports = function (logger, models, controllerHelpers) {
         renew: function (token, done) {
             var newToken = UserAuthToken.generateNew(token.user, token.ip, token.userAgent);
             controllerHelpers.create(
-                UserAuthToken.count({auth_token: newToken.auth_token}), newToken, UserAuthToken.defaultPopulate,
-                function (err, newToken) {
-                    if (err) return done(err);
-                    token.remove(function (err) {
-                        if (err) return done(err);
+                UserAuthToken.count({auth_token: newToken.auth_token}), newToken, UserAuthToken.defaultPopulate, done,
+                function (newToken) {
+                    controllerHelpers.remove(token.remove, done, function () {
                         done(null, newToken.toObject());
                     });
                 });
         },
         delete: function (user, token, done) {
-            UserAuthToken.findOne({auth_token: token}).populate('user', 'username').exec(function (err, tokenObject) {
-                if (err) return done(err);
-                if (!tokenObject) return done();
-                if (user.username != tokenObject.user.username) return done();
+            controllerHelpers.exec(UserAuthToken.findOne({auth_token: token}).populate('user', 'username'), done,
+                function (tokenObject) {
+                    if (user.username != tokenObject.user.username) return done();
 
-                tokenObject.remove(function (err) {
-                    if (err) return done(err);
-                    done(null, {});
+                    controllerHelpers.remove(tokenObject.remove, done);
                 });
-            });
         }
     }
 };

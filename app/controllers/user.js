@@ -11,8 +11,7 @@ module.exports = function (logger, models, controllerHelpers) {
 
     return {
         populateFromToken: function (token, done) {
-            token.populate('user', function (err, token) {
-                if (err) return done(err);
+            controllerHelpers.populate(token, token.populate('user'), done, function (token) {
                 controllerHelpers.populate(token.user, User.defaultPopulate, done);
             });
         },
@@ -33,7 +32,7 @@ module.exports = function (logger, models, controllerHelpers) {
                 updatedUser, User.defaultPopulate, done);
         },
         remove: function (username, done) {
-            controllerHelpers.remove(User.findOneAndRemove({username: username}), done);
+            controllerHelpers.remove(User.findOneAndRemove({username: username}).exec, done);
         }
     }
 };

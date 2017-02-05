@@ -101,10 +101,11 @@ describe('The news controller module', function() {
 
         modelsMock.news.findOneAndRemove = sandbox.stub();
         modelsMock.news.findOneAndRemove.returns(modelsMock.news);
+        modelsMock.news.exec = sandbox.stub();
 
         controller.remove(slugMock, doneMock);
 
         expect(modelsMock.news.findOneAndRemove).to.have.been.calledWithExactly({slug: slugMock});
-        expect(controllerHelpersMock.remove).to.have.been.calledWithExactly(modelsMock.news, doneMock);
+        expect(controllerHelpersMock.remove).to.have.been.calledWithExactly(modelsMock.news.exec, doneMock);
     });
 });

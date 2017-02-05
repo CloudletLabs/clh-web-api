@@ -26,6 +26,7 @@ describe('The user controller module', function() {
         modelsMock.user.defaultPopulate = sandbox.stub();
 
         controllerHelpersMock = sandbox.stub();
+        controllerHelpersMock.populate = sandbox.stub();
         controllerHelpersMock.create = sandbox.stub();
         controllerHelpersMock.get = sandbox.stub();
         controllerHelpersMock.update = sandbox.stub();
@@ -68,27 +69,19 @@ describe('The user controller module', function() {
 
     it('should populate user from token', function () {
         var tokenMock = sandbox.stub();
+        var populateConditionMock = sandbox.stub();
+        tokenMock.populate = sandbox.stub().returns(populateConditionMock);
         var populatedTokenMock = sandbox.stub();
         populatedTokenMock.user = sandbox.stub();
-        tokenMock.populate = sandbox.stub().callsArgWith(1, null, populatedTokenMock);
-
-        controllerHelpersMock.populate = sandbox.stub();
+        controllerHelpersMock.populate.onFirstCall().callsArgWith(3, populatedTokenMock);
 
         controller.populateFromToken(tokenMock, doneMock);
 
-        expect(tokenMock.populate).to.have.been.calledWithExactly('user', sinon.match.func);
+        expect(tokenMock.populate).to.have.been.calledWithExactly('user');
+        expect(controllerHelpersMock.populate).to.have.been.calledWithExactly(
+            tokenMock, populateConditionMock, doneMock, sinon.match.func);
         expect(controllerHelpersMock.populate).to.have.been.calledWithExactly(
             populatedTokenMock.user, modelsMock.user.defaultPopulate, doneMock);
-    });
-
-    it('should not populate user from token on error', function () {
-        var tokenMock = sandbox.stub();
-        var errorMock = sandbox.stub();
-        tokenMock.populate = sandbox.stub().callsArgWith(1, errorMock);
-
-        controller.populateFromToken(tokenMock, doneMock);
-
-        expect(doneMock).to.have.been.calledWithExactly(errorMock);
     });
 
     it('should get all users', function () {
@@ -152,10 +145,11 @@ describe('The user controller module', function() {
 
         modelsMock.user.findOneAndRemove = sandbox.stub();
         modelsMock.user.findOneAndRemove.returns(modelsMock.user);
+        modelsMock.user.exec = sandbox.stub();
 
         controller.remove(usernameMock, doneMock);
 
         expect(modelsMock.user.findOneAndRemove).to.have.been.calledWithExactly({username: usernameMock});
-        expect(controllerHelpersMock.remove).to.have.been.calledWithExactly(modelsMock.user, doneMock);
+        expect(controllerHelpersMock.remove).to.have.been.calledWithExactly(modelsMock.user.exec, doneMock);
     });
 });

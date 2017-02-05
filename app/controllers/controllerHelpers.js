@@ -86,7 +86,7 @@ var helpers = {
         }
     },
     remove: function (condition, done, callback) {
-        condition.exec(function (err) {
+        condition(function (err) {
             if (err) return done(err);
             if (callback) {
                 callback();

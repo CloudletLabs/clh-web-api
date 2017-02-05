@@ -385,15 +385,15 @@ describe('The controllerHelpers module', function() {
         
         beforeEach(function () {
             conditionMock = sandbox.stub();
-            conditionMock.exec = sandbox.stub();
+            conditionMock = sandbox.stub();
         });
         
         var commonTests = function () {
-            expect(conditionMock.exec).to.have.been.calledWithExactly(sinon.match.func);
+            expect(conditionMock).to.have.been.calledWithExactly(sinon.match.func);
         };
 
         it('should callback', function () {
-            conditionMock.exec.callsArg(0);
+            conditionMock.callsArg(0);
 
             controllerHelpers.remove(conditionMock, doneMock, callbackMock);
 
@@ -402,7 +402,7 @@ describe('The controllerHelpers module', function() {
         });
 
         it('should done', function () {
-            conditionMock.exec.callsArg(0);
+            conditionMock.callsArg(0);
 
             controllerHelpers.remove(conditionMock, doneMock);
 
@@ -411,7 +411,7 @@ describe('The controllerHelpers module', function() {
         });
 
         it('should error', function () {
-            conditionMock.exec.callsArgWith(0, errorMock);
+            conditionMock.callsArgWith(0, errorMock);
 
             controllerHelpers.remove(conditionMock, doneMock);
 

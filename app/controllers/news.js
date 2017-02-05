@@ -19,7 +19,7 @@ module.exports = function (logger, models, controllerHelpers) {
                 updatedNews, News.defaultPopulate, done);
         },
         remove: function (slug, done) {
-            controllerHelpers.remove(News.findOneAndRemove({slug: slug}), done);
+            controllerHelpers.remove(News.findOneAndRemove({slug: slug}).exec, done);
         }
     };
 
