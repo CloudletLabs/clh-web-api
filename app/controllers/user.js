@@ -20,10 +20,8 @@ module.exports = function (logger, models, controllerHelpers) {
             controllerHelpers.getAll(User.find(), User.defaultPopulate, done);
         },
         create: function (user, done) {
-            var newUser = new User(user);
-            newUser.avatar = 'img/mockUser2.jpg';
-            newUser.roles = [];
-            newUser.roles.push(userRole);
+            var newUser = User.generateNew(
+                user.username, user.password, user.email, user.name, 'img/mockUser2.jpg', userRole);
             controllerHelpers.create(User.count({username: user.username}), newUser, User.defaultPopulate, done);
         },
         get: function (username, done) {

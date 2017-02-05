@@ -1,20 +1,16 @@
-module.exports = function (logger, models) {
+module.exports = function (logger, models, controllerHelpers) {
 
     var UserAuthToken = models.userAuthToken;
 
     return {
         generateNew: function (user, ip, userAgent, done) {
-            UserAuthToken.generateNew(user, ip, userAgent, function (err, token) {
-                if (err) return done(err);
-                if (!token) return done({message: 'Token was null after generation'});
-                // Should be better way to 'depopulate' user object
-                var result = token.toObject();
-                result.user = {username: user.username};
-                done(null, result);
-            });
+            var newToken = UserAuthToken.generateNew(user, ip, userAgent);
+            controllerHelpers.create(
+                UserAuthToken.count({auth_token: newToken.auth_token}), newToken, UserAuthToken.defaultPopulate, done);
         },
         renew: function (token, done) {
-            UserAuthToken.generateNew(token.user, token.ip, token.userAgent, function (err, newToken) {
+            var newToken = UserAuthToken.generateNew(token.user, token.ip, token.userAgent);
+            newToken.save(function (err, newToken) {
                 if (err) return done(err);
                 if (!newToken) return done({message: 'Token was null after regeneration'});
                 token.remove(function (err) {

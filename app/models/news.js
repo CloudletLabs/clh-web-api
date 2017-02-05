@@ -14,6 +14,17 @@ module.exports = function (modelHelpers, connection, mongoose, moment) {
         return this.slug;
     };
 
+    newsSchema.statics.generateNew = function (slug, creator, subject, text) {
+        var newNews = new News({
+            slug: slug,
+            creator: creator,
+            createDate: moment().utc(),
+            subject: subject,
+            text: text
+        });
+        return newNews;
+    };
+
     newsSchema.statics.defaultPopulate = function () {
         return this.populate('creator', 'name');
     };

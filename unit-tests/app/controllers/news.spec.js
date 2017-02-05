@@ -62,18 +62,26 @@ describe('The news controller module', function() {
 
     it('should create news', function () {
         var creatorMock = sandbox.stub();
-        var newsJsonMock = sandbox.stub();
-        newsJsonMock.slug = sandbox.stub();
+        var newsJsonMock = {
+            slug: 'test slug',
+            subject: 'test subject',
+            text: 'test text'
+        };
+        var savedNews = sandbox.stub();
+
+        modelsMock.news.generateNew = sandbox.stub();
+        modelsMock.news.generateNew.returns(savedNews);
 
         modelsMock.news.count = sandbox.stub();
         modelsMock.news.count.returns(modelsMock.news);
 
         controller.create(creatorMock, newsJsonMock, doneMock);
 
-        expect(modelsMock.news).to.have.been.calledWithNew;
-        expect(modelsMock.news.count).to.have.been.calledWithExactly({slug: newsJsonMock.slug});
+        expect(modelsMock.news.generateNew).to.have.been.calledWithExactly(
+            'test slug', creatorMock, 'test subject', 'test text');
+        expect(modelsMock.news.count).to.have.been.calledWithExactly({slug: 'test slug'});
         expect(controllerHelpersMock.create).to.have.been.calledWithExactly(
-            modelsMock.news, {creator: creatorMock}, modelsMock.news.defaultPopulate, doneMock);
+            modelsMock.news, savedNews, modelsMock.news.defaultPopulate, doneMock);
     });
 
     it('should get single news', function () {

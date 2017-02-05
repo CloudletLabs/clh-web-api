@@ -95,11 +95,24 @@ describe('The entity', function() {
                 subject: {type: String, required: true},
                 text: {type: String, required: true}
             };
-            var expectedResult = {slug: 'test slug'};
+            var expectedResult = function (object) {
+              this.object = object;
+            };
+            expectedResult.slug = 'test slug';
 
             commonTests('News', schema, newsModule, [momentModuleMock], null, expectedResult, 'test slug');
 
             expect(populateStub.populate).to.have.been.calledWithExactly('creator', 'name');
+
+            var generatedResult =
+                mongooseMock.SchemaInstance.statics.generateNew('mock uuid', 'mock creator', 'test user agent', 'test ip');
+            expect(generatedResult.object).to.eql({
+                slug: 'mock uuid',
+                creator: 'mock creator',
+                createDate: utcMock,
+                subject: 'test user agent',
+                text: 'test ip'
+            });
         });
     });
 
@@ -113,11 +126,26 @@ describe('The entity', function() {
                 avatar: String,
                 roles: [{type: mongooseMock.Schema.Types.ObjectId, ref: 'UserRole'}]
             };
-            var expectedResult = {username: 'test username'};
+            var expectedResult = function (object) {
+                this.object = object;
+            };
+            expectedResult.username = 'test username';
 
             commonTests('User', schema, userModule, [], ['password'], expectedResult, 'test username');
 
             expect(populateStub.populate).to.have.been.calledWithExactly('roles', 'roleId');
+
+            var generatedResult =
+                mongooseMock.SchemaInstance.statics.generateNew(
+                    'test username', 'test password', 'test email', 'test name', 'test avatar', 'test defaultRole');
+            expect(generatedResult.object).to.eql({
+                username: 'test username',
+                password: 'test password',
+                email: 'test email',
+                name: 'test name',
+                avatar: 'test avatar',
+                roles: ['test defaultRole']
+            });
         });
     });
 
@@ -132,9 +160,7 @@ describe('The entity', function() {
                 user: {type: mongooseMock.Schema.Types.ObjectId, ref: 'User'}
             };
             var expectedResult = function (object) {
-                this.save = function (done) {
-                    done('test error', object);
-                };
+                this.object = object;
             };
             expectedResult.user = {
                 toString: function () {
@@ -159,17 +185,16 @@ describe('The entity', function() {
             utcMock.diff.returns(1);
             expect(mongooseMock.SchemaInstance.methods.hasExpired.bind(expectedResult)()).to.be.true;
 
-            var testObj = {
+            var generatedResult =
+                mongooseMock.SchemaInstance.statics.generateNew('test user', 'test ip', 'test user agent');
+            expect(generatedResult.object).to.eql({
                 auth_token: 'mock uuid',
                 createDate: utcMock,
                 userAgent: 'test user agent',
                 ip: 'test ip',
                 lastUsed: utcMock,
                 user: 'test user'
-            };
-            var saveMock = sandbox.stub();
-            mongooseMock.SchemaInstance.statics.generateNew(testObj.user, testObj.ip, testObj.userAgent, saveMock);
-            expect(saveMock).to.have.been.calledWithExactly('test error', testObj);
+            });
         });
     });
 

@@ -15,6 +15,18 @@ module.exports = function (modelHelpers, connection, mongoose) {
         return this.username;
     };
 
+    userSchema.statics.generateNew = function (username, password, email, name, avatar, defaultRole) {
+        var token = new User({
+            username: username,
+            password: password,
+            email: email,
+            name: name,
+            avatar: avatar,
+            roles: [defaultRole]
+        });
+        return token;
+    };
+
     userSchema.statics.defaultPopulate = function () {
         return this.populate('roles', 'roleId');
     };

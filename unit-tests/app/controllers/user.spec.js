@@ -104,19 +104,34 @@ describe('The user controller module', function() {
     });
 
     it('should create user', function () {
-        var userJsonMock = sandbox.stub();
-        userJsonMock.username = sandbox.stub();
+        var userJsonMock = {
+            username: 'test username',
+            password: 'test password',
+            email: 'test email',
+            name: 'test name',
+            roles: ['test defaultRole']
+        };
+        var generatedResult = sandbox.stub();
+
+        modelsMock.user.generateNew = sandbox.stub();
+        modelsMock.user.generateNew.returns(generatedResult);
 
         modelsMock.user.count = sandbox.stub();
         modelsMock.user.count.returns(modelsMock.user);
 
         controller.create(userJsonMock, doneMock);
 
-        expect(modelsMock.user).to.have.been.calledWithNew;
+        expect(modelsMock.user.generateNew).to.have.been.calledWith(
+            userJsonMock.username,
+            userJsonMock.password,
+            userJsonMock.email,
+            userJsonMock.name,
+            'img/mockUser2.jpg',
+            defaultRoleMock);
         expect(modelsMock.user.count).to.have.been.calledWithExactly({username: userJsonMock.username});
         expect(controllerHelpersMock.create).to.have.been.calledWithExactly(
             modelsMock.user,
-            {avatar: 'img/mockUser2.jpg', roles: [defaultRoleMock]},
+            generatedResult,
             modelsMock.user.defaultPopulate, doneMock);
     });
 
