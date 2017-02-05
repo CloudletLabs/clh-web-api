@@ -57,4 +57,24 @@ describe('The userAuthToken controller module', function() {
             generatedResult,
             modelsMock.userAuthToken.defaultPopulate, doneMock);
     });
+
+    it('should regenerate', function () {
+        var generatedResult = sandbox.stub();
+        generatedResult.auth_token = sandbox.stub();
+
+        modelsMock.userAuthToken.count = sandbox.stub();
+        modelsMock.userAuthToken.count.returns(modelsMock.userAuthToken);
+
+        modelsMock.userAuthToken.generateNew = sandbox.stub();
+        modelsMock.userAuthToken.generateNew.returns(generatedResult);
+
+        controller.generateNew('test user', 'test ip', 'test userAgent', doneMock);
+
+        expect(modelsMock.userAuthToken.generateNew).to.have.been.calledWith('test user', 'test ip', 'test userAgent');
+        expect(modelsMock.userAuthToken.count).to.have.been.calledWithExactly({auth_token: generatedResult.auth_token});
+        expect(controllerHelpersMock.create).to.have.been.calledWithExactly(
+            modelsMock.userAuthToken,
+            generatedResult,
+            modelsMock.userAuthToken.defaultPopulate, doneMock);
+    });
 });
