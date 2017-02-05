@@ -19,15 +19,18 @@ var helpers = {
             if (err) return done(err);
             if (!result) return done({status: 500, message: 'Saved result was null'});
             if (defaultPopulate) {
-                defaultPopulate.apply(result).execPopulate().then(function (populated) {
-                    if (!populated) return done({status: 500, message: 'Populated result was null'});
-                    done(null, populated.toObject());
-                }, function (err) {
-                    done(err);
-                });
+                helpers._populate(result, defaultPopulate, done);
             } else {
                 done(null, result.toObject());
             }
+        });
+    },
+    _populate: function (obj, defaultPopulate, done) {
+        defaultPopulate.apply(obj).execPopulate().then(function (populated) {
+            if (!populated) return done({status: 500, message: 'Populated result was null'});
+            done(null, populated.toObject());
+        }, function (err) {
+            done(err);
         });
     },
     _updateFields: function (condition, updated, defaultPopulate, done) {
@@ -42,16 +45,21 @@ var helpers = {
                 helpers._save(original, defaultPopulate, done);
             }, done);
     },
-    getAll: function (condition, defaultPopulate, done) {
+    _get: function (condition, defaultPopulate, resultHandler, done) {
         if (defaultPopulate) {
             condition = defaultPopulate.apply(condition);
         }
         helpers._exec(condition,
             function (result) {
-                done(null, result.map(function (entry) {
-                    return entry.toObject();
-                }));
+                resultHandler(result);
             }, done);
+    },
+    getAll: function (condition, defaultPopulate, done) {
+        helpers._get(condition, defaultPopulate, function (result) {
+            done(null, result.map(function (entry) {
+                return entry.toObject();
+            }));
+        }, done);
     },
     create: function (existenceCheckCondition, obj, defaultPopulate, done) {
         helpers._ensureNotExist(existenceCheckCondition, function () {
@@ -59,23 +67,15 @@ var helpers = {
         }, done);
     },
     get: function (condition, defaultPopulate, done) {
-        if (defaultPopulate) {
-            condition = defaultPopulate.apply(condition);
-        }
-        helpers._exec(condition,
-            function (result) {
-                done(null, result.toObject());
-            }, done);
+        helpers._get(condition, defaultPopulate, function (result) {
+            done(null, result.toObject());
+        }, done);
     },
     update: function (condition, keyFieldUpdateCondition, updated, defaultPopulate, done) {
         if (keyFieldUpdateCondition) {
-            helpers._exec(keyFieldUpdateCondition,
-                function (count) {
-                    if (count > 0) {
-                        return done({status: 400, message: "Conflicting with already existing"});
-                    }
-                    helpers._updateFields(condition, updated, defaultPopulate, done);
-                }, done);
+            helpers._ensureNotExist(keyFieldUpdateCondition, function () {
+                helpers._updateFields(condition, updated, defaultPopulate, done);
+            }, done);
         } else {
             helpers._updateFields(condition, updated, defaultPopulate, done);
         }
