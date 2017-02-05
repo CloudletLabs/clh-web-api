@@ -5,21 +5,15 @@ module.exports = function (logger, models, controllerHelpers) {
     var userRole;
     models.userRole.findOne({roleId: 'USER'}, function (err, role) {
         if (err) throw err;
-        if (!role) throw 'Default USER role not found';
+        if (!role) throw new Error('Default USER role not found');
         userRole = role;
     });
 
     return {
         populateFromToken: function (token, done) {
-            token.populate("user", function (err, token) {
+            token.populate('user', function (err, token) {
                 if (err) return done(err);
-
-                User.defaultPopulate.apply(token.user).execPopulate().then(function (user) {
-                    if (!user) return done({status: 500, message: 'Populated user was null'});
-                    done(null, user.toObject());
-                }, function (err) {
-                    done(err);
-                });
+                controllerHelpers._populate(token.user, User.defaultPopulate, done);
             });
         },
         getAll: function (done) {
@@ -28,6 +22,7 @@ module.exports = function (logger, models, controllerHelpers) {
         create: function (user, done) {
             var newUser = new User(user);
             newUser.avatar = 'img/mockUser2.jpg';
+            newUser.roles = [];
             newUser.roles.push(userRole);
             controllerHelpers.create(User.count({username: user.username}), newUser, User.defaultPopulate, done);
         },

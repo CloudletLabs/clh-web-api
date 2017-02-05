@@ -89,7 +89,7 @@ describe('The news controller module', function() {
             modelsMock.news, modelsMock.news.defaultPopulate, doneMock);
     });
 
-    it('should get single news', function () {
+    it('should remove single news', function () {
         var slugMock = sandbox.stub();
 
         modelsMock.news.findOneAndRemove = sandbox.stub();
