@@ -1,3 +1,5 @@
+'use strict';
+
 module.exports = function (modelHelpers, connection, mongoose) {
 
     var Schema = mongoose.Schema;

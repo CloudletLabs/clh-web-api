@@ -1,6 +1,8 @@
+'use strict';
+
 module.exports = {
     check: function (models) {
-        helper = this;
+        var helper = this;
         helper._check(helper, models.userRole, {}, helper._createDefaultUserRoles, function (results) {
             helper._check(helper, models.user, results, helper._createDefaultUsers, function (results) {
                 helper._check(helper, models.news, results, helper._createDefaultNews, function (results) {

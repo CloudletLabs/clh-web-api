@@ -1,3 +1,5 @@
+'use strict';
+
 var sinon = require('sinon');
 var chai = require('chai');
 var sinonChai = require("sinon-chai");
@@ -95,7 +97,7 @@ describe('The apiHandlers module', function() {
 
     it('should handle info', sinon.test(function () {
         var apiMock = this.stub();
-        apiMock.pJson = this.stub();
+        apiMock.pJson = {};
         apiMock.pJson.name = this.stub();
         apiMock.pJson.version = this.stub();
         apiMock.apiVersion = this.stub();

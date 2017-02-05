@@ -1,3 +1,5 @@
+'use strict';
+
 var apiVersion = '1';
 
 module.exports = function (express, app, pJson, logger, apiHandlers, passport, controllers) {

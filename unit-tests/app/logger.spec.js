@@ -1,3 +1,5 @@
+'use strict';
+
 var sinon = require('sinon');
 var chai = require('chai');
 var sinonChai = require("sinon-chai");
@@ -9,7 +11,10 @@ var logger = require('../../app/logger');
 describe('The logger module', function() {
     it('should have functions', sinon.test(function () {
         expect(Object.keys(logger).length).to.be.equal(4);
-        expect(logger.log).to.be.a('function');
+        expect(logger.logger).to.be.an('object');
+        expect(logger.logger.info).to.be.an('function');
+        expect(logger.logger.warn).to.be.an('function');
+        expect(logger.logger.error).to.be.an('function');
         expect(logger._log).to.be.a('function');
         expect(logger.logPrefixGenerator).to.be.a('function');
         expect(logger.reqLogger).to.be.a('function');
@@ -48,7 +53,7 @@ describe('The logger module', function() {
         it('should be a wrapper', sinon.test(function () {
             logger._log = this.stub();
 
-            var log = logger.log();
+            var log = logger.logger;
             expect(Object.keys(log).length).to.be.equal(3);
             expect(log.info).to.be.a('function');
             expect(log.warn).to.be.a('function');
@@ -139,10 +144,8 @@ describe('The logger module', function() {
     
     describe('reqLogger', function () {
         it('should log requests', sinon.test(function () {
-            logger.log = this.stub();
-            var loggerMock = this.stub();
-            loggerMock.info = this.stub();
-            logger.log.returns(loggerMock);
+            logger.logger = this.stub();
+            logger.logger.info = this.stub();
 
             var reqMock = this.stub();
             reqMock.logPrefix = this.stub();
@@ -150,8 +153,7 @@ describe('The logger module', function() {
 
             logger.reqLogger(reqMock, null, nextMock);
 
-            expect(logger.log).to.have.been.called;
-            expect(loggerMock.info).to.have.been.calledWithExactly(reqMock.logPrefix);
+            expect(logger.logger.info).to.have.been.calledWithExactly(reqMock.logPrefix);
             expect(nextMock).to.have.been.called;
         }));
     });

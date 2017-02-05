@@ -1,3 +1,5 @@
+'use strict';
+
 module.exports = function (modelHelpers, connection, mongoose, moment, uuid, expired_time) {
 
     var Schema = mongoose.Schema;

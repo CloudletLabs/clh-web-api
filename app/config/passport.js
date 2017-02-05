@@ -1,3 +1,5 @@
+'use strict';
+
 module.exports = function (passport, passportHelpers, models, moment, BasicStrategy, BearerStrategy) {
 
     var UserAuthToken = models.userAuthToken;

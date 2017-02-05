@@ -1,8 +1,10 @@
-module.exports = function (require, logger, models, controllerHelpers) {
+'use strict';
 
-    var userAuthToken = require('../app/controllers/userAuthToken')(logger, models, controllerHelpers);
-    var user = require('../app/controllers/user')(logger, models, controllerHelpers);
-    var news = require('../app/controllers/news')(logger, models, controllerHelpers);
+module.exports = function (logger, models, controllerHelpers) {
+
+    var userAuthToken = require('./userAuthToken')(logger, models, controllerHelpers);
+    var user = require('./user')(logger, models, controllerHelpers);
+    var news = require('./news')(logger, models, controllerHelpers);
 
     return {
         userAuthToken: userAuthToken,

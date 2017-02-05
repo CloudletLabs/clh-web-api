@@ -1,3 +1,5 @@
+'use strict';
+
 module.exports = function (logger, models, controllerHelpers) {
 
     var News = models.news;

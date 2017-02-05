@@ -1,15 +1,15 @@
+'use strict';
+
 var logger = {
-    log: function () {
-        return {
-            info: function () {
-                logger._log('info', arguments);
-            },
-            warn: function () {
-                logger._log('warn', arguments);
-            },
-            error: function () {
-                logger._log('error', arguments);
-            }
+    logger: {
+        info: function () {
+            logger._log('info', arguments);
+        },
+        warn: function () {
+            logger._log('warn', arguments);
+        },
+        error: function () {
+            logger._log('error', arguments);
         }
     },
     _log: function (level, origArgs) {
@@ -35,7 +35,7 @@ var logger = {
         next();
     },
     reqLogger: function (req, res, next) {
-        logger.log().info(req.logPrefix);
+        logger.logger.info(req.logPrefix);
         next();
     }
 };

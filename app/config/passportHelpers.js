@@ -1,3 +1,5 @@
+'use strict';
+
 var helper = {
     authByRole: function (UserAuthToken, moment, req, token, roleId, done) {
         helper.authByToken(UserAuthToken, moment, req, token, true, function (err, userAuthToken) {

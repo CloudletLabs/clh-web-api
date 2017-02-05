@@ -1,88 +1,88 @@
-module.exports = function (require) {
-    /**
-     * App configurator
-     */
-    var pJson = require('../package.json');
-    var appConfig = require('../app/config');
-    var loggerModule = require('../app/logger');
-    var logger = loggerModule.log();
+'use strict';
 
-    /**
-     * Some additional modules
-     */
-    var path = require('path');
-    var moment = require('moment');
-    var uuid = require('node-uuid');
+/**
+ * Express
+ */
+let express = require('express');
 
-    /**
-     * DB configuration and model
-     * mongoose used as ORM for mongodb
-     */
-    var mongoose = require('mongoose');
-    var connection = require('../app/config/database')(mongoose);
-    var modelHelpers = require('../app/models/modelHelpers');
-    var models = require('../app/models/models')(require, modelHelpers, connection, mongoose, moment, uuid);
-    var modelDefaultTestDataHelper = require('../app/models/modelDefaultTestDataHelper');
-    modelDefaultTestDataHelper.check(models, moment);
+/**
+ * App configurator
+ */
+let pJson = require('./package.json');
+let appConfig = require('./app/config');
+let loggerModule = require('./app/logger');
+let logger = loggerModule.logger;
+let app = appConfig.createApp(express);
 
-    /**
-     * Controllers
-     */
-    var controllerHelpers = require('../app/controllers/controllerHelpers');
-    var controllers = require('../app/controllers/controllers')(require, logger, models, controllerHelpers);
+/**
+ * Some additional modules
+ */
+let path = require('path');
+let moment = require('moment/moment');
+let uuid = require('uuid');
 
-    /**
-     * Express
-     */
-    var express = require('express');
-    var app = appConfig.createApp(express);
+/**
+ * DB configuration and model
+ * mongoose used as ORM for mongodb
+ */
+let mongoose = require('mongoose');
+let connection = require('./app/config/database')(mongoose);
+let modelHelpers = require('./app/models/modelHelpers');
+let models = require('./app/models/models')(modelHelpers, connection, mongoose, moment, uuid);
+let modelDefaultTestDataHelper = require('./app/models/modelDefaultTestDataHelper');
+modelDefaultTestDataHelper.check(models, moment);
 
-    /**
-     * Middleware for logging in Express
-     */
-    var morgan = require('morgan');
-    appConfig.morgan(app, morgan);
+/**
+ * Controllers
+ */
+let controllerHelpers = require('./app/controllers/controllerHelpers');
+let controllers = require('./app/controllers/controllers')(logger, models, controllerHelpers);
 
-    /**
-     * Add Access-Control-Allow-Origin header
-     */
-    appConfig.originHeaders(app);
+/**
+ * Middleware for logging in Express
+ */
+let morgan = require('morgan');
+appConfig.morgan(app, morgan);
 
-    /**
-     * Auth with passport
-     */
-    var passport = require('passport');
-    var BasicStrategy = require('passport-http').BasicStrategy;
-    var BearerStrategy = require('passport-http-bearer').Strategy;
-    var passportHelpers = require('../app/config/passportHelpers');
-    require('../app/config/passport')(passport, passportHelpers, models, moment, BasicStrategy, BearerStrategy);
+/**
+ * Add Access-Control-Allow-Origin header
+ */
+appConfig.originHeaders(app);
 
-    /**
-     * Middleware for parsing requests
-     */
-    var cookieParser = require('cookie-parser');
-    var bodyParser = require('body-parser');
-    appConfig.parsingMiddleware(app, cookieParser, bodyParser);
+/**
+ * Auth with passport
+ */
+let passport = require('passport');
+let BasicStrategy = require('passport-http').BasicStrategy;
+let BearerStrategy = require('passport-http-bearer').Strategy;
+let passportHelpers = require('./app/config/passportHelpers');
+require('./app/config/passport')(passport, passportHelpers, models, moment, BasicStrategy, BearerStrategy);
 
-    /**
-     * Logging middleware
-     */
-    appConfig.loggingMiddleware(app, loggerModule);
+/**
+ * Middleware for parsing requests
+ */
+let cookieParser = require('cookie-parser');
+let bodyParser = require('body-parser');
+appConfig.parsingMiddleware(app, cookieParser, bodyParser);
 
-    /**
-     * Routes
-     */
-    var apiHandlers = require('../app/routes/api/apiHandlers');
-    var v1Api = require('../app/routes/api/v1/api');
-    appConfig.routes(app, pJson, express, path, logger, apiHandlers, v1Api, passport, controllers);
+/**
+ * Logging middleware
+ */
+appConfig.loggingMiddleware(app, loggerModule);
 
-    /**
-     * Catch errors
-     */
-    appConfig.errors(app);
+/**
+ * Routes
+ */
+let apiHandlers = require('./app/routes/api/apiHandlers');
+let v1Api = require('./app/routes/api/v1/api');
+appConfig.routes(app, pJson, express, path, logger, apiHandlers, v1Api, passport, controllers);
 
-    /**
-     * Export app
-     */
-    return app;
-};
+/**
+ * Catch errors
+ */
+appConfig.errors(app);
+
+/**
+ * Export app
+ */
+module.exports = app;

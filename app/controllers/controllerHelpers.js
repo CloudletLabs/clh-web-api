@@ -1,3 +1,5 @@
+'use strict';
+
 var helpers = {
     exec: function (condition, done, callback) {
         condition.exec(function (err, result) {

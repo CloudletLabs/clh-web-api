@@ -1,3 +1,5 @@
+'use strict';
+
 module.exports = {
     notFoundHandler: function (req, res) {
         console.warn('%s API 404: Not Found', req.logPrefix);

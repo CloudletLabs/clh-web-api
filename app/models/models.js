@@ -1,9 +1,11 @@
-module.exports = function (require, modelHelpers, connection, mongoose, moment, uuid) {
+'use strict';
 
-    var User = require('../app/models/user')(modelHelpers, connection, mongoose);
-    var UserAuthToken = require('../app/models/userAuthToken')(modelHelpers, connection, mongoose, moment, uuid, 30);
-    var UserRole = require('../app/models/userRole')(modelHelpers, connection, mongoose);
-    var News = require('../app/models/news')(modelHelpers, connection, mongoose, moment);
+module.exports = function (modelHelpers, connection, mongoose, moment, uuid) {
+
+    var User = require('./user')(modelHelpers, connection, mongoose);
+    var UserAuthToken = require('./userAuthToken')(modelHelpers, connection, mongoose, moment, uuid, 30);
+    var UserRole = require('./userRole')(modelHelpers, connection, mongoose);
+    var News = require('./news')(modelHelpers, connection, mongoose, moment);
 
     var models = {
         user: User,

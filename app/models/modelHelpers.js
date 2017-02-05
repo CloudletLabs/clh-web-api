@@ -1,3 +1,5 @@
+'use strict';
+
 module.exports = {
     deleteMongoFields: function(schema, modelSpecificFields) {
         if (!schema.options.toObject) schema.options.toObject = {};
