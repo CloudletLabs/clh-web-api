@@ -13,11 +13,11 @@ module.exports = function (logger, models, controllerHelpers) {
         populateFromToken: function (token, done) {
             token.populate('user', function (err, token) {
                 if (err) return done(err);
-                controllerHelpers._populate(token.user, User.defaultPopulate, done);
+                controllerHelpers.populate(token.user, User.defaultPopulate, done);
             });
         },
         getAll: function (done) {
-            controllerHelpers.getAll(User.find(), User.defaultPopulate, done);
+            controllerHelpers.get(User.find(), User.defaultPopulate, done);
         },
         create: function (user, done) {
             var newUser = User.generateNew(

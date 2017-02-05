@@ -21,7 +21,6 @@ describe('The news controller module', function() {
         modelsMock.news.defaultPopulate = sandbox.stub();
 
         controllerHelpersMock = sandbox.stub();
-        controllerHelpersMock.getAll = sandbox.stub();
         controllerHelpersMock.create = sandbox.stub();
         controllerHelpersMock.get = sandbox.stub();
         controllerHelpersMock.update = sandbox.stub();
@@ -56,7 +55,7 @@ describe('The news controller module', function() {
 
         expect(modelsMock.news.find).to.have.been.calledWithExactly();
         expect(modelsMock.news.sort).to.have.been.calledWithExactly({createDate: 'desc'});
-        expect(controllerHelpersMock.getAll).to.have.been.calledWithExactly(
+        expect(controllerHelpersMock.get).to.have.been.calledWithExactly(
             modelsMock.news, modelsMock.news.defaultPopulate, doneMock);
     });
 

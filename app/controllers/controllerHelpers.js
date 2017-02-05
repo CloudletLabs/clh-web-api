@@ -16,34 +16,44 @@ var helpers = {
             }
         });
     },
-    _ensureNotExist: function (condition, callback, done) {
+    ensureNotExist: function (condition, done, callback) {
         helpers.exec(condition, done, function (count) {
             if (count > 0) {
                 return done({status: 400, message: "Already exist"});
             }
-            callback();
+            if (callback) {
+                callback();
+            } else {
+                done(null, true);
+            }
         });
     },
-    _save: function (obj, defaultPopulate, done) {
+    save: function (obj, populateCondition, done, callback) {
         obj.save(function (err, result) {
             if (err) return done(err);
             if (!result) return done({status: 500, message: 'Saved result was null'});
-            if (defaultPopulate) {
-                helpers._populate(result, defaultPopulate, done);
+            if (populateCondition) {
+                helpers.populate(result, populateCondition, done, callback);
+            } else if (callback) {
+                callback(result)
             } else {
                 done(null, result.toObject());
             }
         });
     },
-    _populate: function (obj, defaultPopulate, done) {
-        defaultPopulate.apply(obj).execPopulate().then(function (populated) {
+    populate: function (obj, populateCondition, done, callback) {
+        populateCondition.apply(obj).execPopulate().then(function (populated) {
             if (!populated) return done({status: 500, message: 'Populated result was null'});
-            done(null, populated.toObject());
+            if (callback) {
+                callback(populated);
+            } else {
+                done(null, populated.toObject());
+            }
         }, function (err) {
             done(err);
         });
     },
-    _updateFields: function (condition, updated, defaultPopulate, done) {
+    updateFields: function (condition, updated, populateCondition, done, callback) {
         helpers.exec(condition, done,
             function (original) {
                 for (var attrname in updated) {
@@ -52,48 +62,37 @@ var helpers = {
                         original[attrname] = updated[attrname];
                 }
 
-                helpers._save(original, defaultPopulate, done);
+                helpers.save(original, populateCondition, done, callback);
             });
     },
-    _get: function (condition, defaultPopulate, resultHandler, done) {
-        if (defaultPopulate) {
-            condition = defaultPopulate.apply(condition);
+    get: function (condition, populateCondition, done, callback) {
+        if (populateCondition) {
+            condition = populateCondition.apply(condition);
         }
-        helpers.exec(condition, done,
-            function (result) {
-                resultHandler(result);
-            });
+        helpers.exec(condition, done, callback);
     },
-    getAll: function (condition, defaultPopulate, done) {
-        helpers._get(condition, defaultPopulate, function (result) {
-            done(null, result.map(function (entry) {
-                return entry.toObject();
-            }));
-        }, done);
+    create: function (existenceCheckCondition, obj, populateCondition, done, callback) {
+        helpers.ensureNotExist(existenceCheckCondition, done, function () {
+            helpers.save(obj, populateCondition, done, callback);
+        });
     },
-    create: function (existenceCheckCondition, obj, defaultPopulate, done) {
-        helpers._ensureNotExist(existenceCheckCondition, function () {
-            helpers._save(obj, defaultPopulate, done);
-        }, done);
-    },
-    get: function (condition, defaultPopulate, done) {
-        helpers._get(condition, defaultPopulate, function (result) {
-            done(null, result.toObject());
-        }, done);
-    },
-    update: function (condition, keyFieldUpdateCondition, updated, defaultPopulate, done) {
+    update: function (condition, keyFieldUpdateCondition, updated, populateCondition, done, callback) {
         if (keyFieldUpdateCondition) {
-            helpers._ensureNotExist(keyFieldUpdateCondition, function () {
-                helpers._updateFields(condition, updated, defaultPopulate, done);
-            }, done);
+            helpers.ensureNotExist(keyFieldUpdateCondition, done, function () {
+                helpers.updateFields(condition, updated, populateCondition, done, callback);
+            });
         } else {
-            helpers._updateFields(condition, updated, defaultPopulate, done);
+            helpers.updateFields(condition, updated, populateCondition, done, callback);
         }
     },
-    remove: function (condition, done) {
+    remove: function (condition, done, callback) {
         condition.exec(function (err) {
             if (err) return done(err);
-            done(null, {});
+            if (callback) {
+                callback();
+            } else {
+                done(null, {});
+            }
         });
     }
 };

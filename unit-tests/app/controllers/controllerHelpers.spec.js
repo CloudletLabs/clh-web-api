@@ -8,49 +8,55 @@ var controllerHelpers = require('../../../app/controllers/controllerHelpers');
 
 describe('The controllerHelpers module', function() {
     var sandbox = sinon.sandbox.create();
+    var doneMock,
+        callbackMock,
+        resultMock,
+        errorMock;
+    
+    beforeEach(function () {
+        doneMock = sandbox.stub();
+        callbackMock = sandbox.stub();
+        resultMock = sandbox.stub();
+        resultMock.toObject = sandbox.stub();
+        resultMock.toObject.returns(resultMock.toObject);
+        errorMock = sandbox.stub();
+    });
 
     afterEach(function () {
         sandbox.restore();
     });
 
     it('should have functions', function () {
-        expect(Object.keys(controllerHelpers).length).to.be.equal(11);
+        expect(Object.keys(controllerHelpers).length).to.be.equal(9);
         expect(controllerHelpers.exec).to.be.a('function');
-        expect(controllerHelpers._ensureNotExist).to.be.a('function');
-        expect(controllerHelpers._save).to.be.a('function');
-        expect(controllerHelpers._populate).to.be.a('function');
-        expect(controllerHelpers._updateFields).to.be.a('function');
-        expect(controllerHelpers._get).to.be.a('function');
-        expect(controllerHelpers.getAll).to.be.a('function');
-        expect(controllerHelpers.create).to.be.a('function');
+        expect(controllerHelpers.ensureNotExist).to.be.a('function');
+        expect(controllerHelpers.save).to.be.a('function');
+        expect(controllerHelpers.populate).to.be.a('function');
+        expect(controllerHelpers.updateFields).to.be.a('function');
         expect(controllerHelpers.get).to.be.a('function');
+        expect(controllerHelpers.create).to.be.a('function');
         expect(controllerHelpers.update).to.be.a('function');
         expect(controllerHelpers.remove).to.be.a('function');
     });
     
     describe('exec', function () {
-        var conditionMock,
-            doneMock,
-            callbackMock,
-            resultMock,
-            errorMock;
+        var conditionMock;
         
         beforeEach(function () {
             conditionMock = sandbox.stub();
             conditionMock.exec = sandbox.stub();
-            doneMock = sandbox.stub();
-            callbackMock = sandbox.stub();
-            resultMock = sandbox.stub();
-            resultMock.toObject = sandbox.stub();
-            resultMock.toObject.returns(resultMock.toObject);
-            errorMock = sandbox.stub();
         });
+
+        var commonTests = function () {
+            expect(conditionMock.exec).to.have.been.calledWithExactly(sinon.match.func);
+        };
 
         it('should success where result is array', function () {
             conditionMock.exec.callsArgWith(0, null, [resultMock]);
 
             controllerHelpers.exec(conditionMock, doneMock, null);
 
+            commonTests();
             expect(doneMock).to.have.been.calledWithExactly(null, [resultMock.toObject]);
         });
 
@@ -59,6 +65,7 @@ describe('The controllerHelpers module', function() {
 
             controllerHelpers.exec(conditionMock, doneMock, null);
 
+            commonTests();
             expect(doneMock).to.have.been.calledWithExactly(null, resultMock.toObject);
         });
 
@@ -67,6 +74,7 @@ describe('The controllerHelpers module', function() {
 
             controllerHelpers.exec(conditionMock, doneMock, callbackMock);
 
+            commonTests();
             expect(callbackMock).to.have.been.calledWithExactly(resultMock);
         });
 
@@ -75,6 +83,7 @@ describe('The controllerHelpers module', function() {
 
             controllerHelpers.exec(conditionMock, doneMock, null);
 
+            commonTests();
             expect(doneMock).to.have.been.calledWithExactly();
         });
 
@@ -83,6 +92,7 @@ describe('The controllerHelpers module', function() {
 
             controllerHelpers.exec(conditionMock, doneMock, null);
 
+            commonTests();
             expect(doneMock).to.have.been.calledWithExactly();
         });
 
@@ -91,154 +101,172 @@ describe('The controllerHelpers module', function() {
 
             controllerHelpers.exec(conditionMock, doneMock, null);
 
+            commonTests();
+            expect(doneMock).to.have.been.calledWithExactly(errorMock);
+        });
+    });
+    
+    describe('ensureNotExist', function () {
+        var conditionMock,
+            execMock;
+        
+        beforeEach(function () {
+            conditionMock = sandbox.stub();
+            execMock = sandbox.stub(controllerHelpers, 'exec');
+        });
+
+        var commonTests = function () {
+            expect(execMock).to.have.been.calledWithExactly(conditionMock, doneMock, sinon.match.func);
+        };
+
+        it('should callback', function () {
+            execMock.callsArgWith(2, 0);
+
+            controllerHelpers.ensureNotExist(conditionMock, doneMock, callbackMock);
+
+            commonTests();
+            expect(callbackMock).to.have.been.calledWithExactly();
+        });
+
+        it('should done', function () {
+            execMock.callsArgWith(2, 0);
+
+            controllerHelpers.ensureNotExist(conditionMock, doneMock);
+
+            commonTests();
+            expect(doneMock).to.have.been.calledWithExactly(null, true);
+        });
+
+        it('should refuse', function () {
+            execMock.callsArgWith(2, 1);
+
+            controllerHelpers.ensureNotExist(conditionMock, doneMock);
+
+            commonTests();
+            expect(doneMock).to.have.been.calledWithExactly({status: 400, message: "Already exist"});
+        });
+    });
+    
+    describe('save', function () {
+        var objMock,
+            populateConditionMock,
+            populateMock;
+        
+        beforeEach(function () {
+            objMock = sandbox.stub();
+            objMock.save = sandbox.stub();
+            populateConditionMock = sandbox.stub();
+            populateMock = sandbox.stub(controllerHelpers, 'populate');
+        });
+
+        var commonTests = function () {
+            expect(objMock.save).to.have.been.calledWithExactly(sinon.match.func);
+        };
+
+        it('should callback', function () {
+            objMock.save.callsArgWith(0, null, resultMock);
+
+            controllerHelpers.save(objMock, null, doneMock, callbackMock);
+
+            commonTests();
+            expect(callbackMock).to.have.been.calledWithExactly(resultMock);
+        });
+
+        it('should done', function () {
+            objMock.save.callsArgWith(0, null, resultMock);
+
+            controllerHelpers.save(objMock, null, doneMock);
+
+            commonTests();
+            expect(doneMock).to.have.been.calledWithExactly(null, resultMock.toObject);
+        });
+
+        it('should populate', function () {
+            objMock.save.callsArgWith(0, null, resultMock);
+
+            controllerHelpers.save(objMock, populateConditionMock, doneMock, callbackMock);
+
+            commonTests();
+            expect(populateMock).to.have.been.calledWithExactly(resultMock, populateConditionMock, doneMock, callbackMock);
+        });
+
+        it('should fail', function () {
+            objMock.save.callsArg(0);
+
+            controllerHelpers.save(objMock, null, doneMock);
+
+            commonTests();
+            expect(doneMock).to.have.been.calledWithExactly({status: 500, message: 'Saved result was null'});
+        });
+
+        it('should error', function () {
+            objMock.save.callsArgWith(0, errorMock);
+
+            controllerHelpers.save(objMock, null, doneMock);
+
+            commonTests();
             expect(doneMock).to.have.been.calledWithExactly(errorMock);
         });
     });
 
-    it('should _ensureNotExist', function () {
-        var conditionMock = sandbox.stub();
-        var callbackMock = sandbox.stub();
-        var doneMock = sandbox.stub();
-        var execMock = sandbox.stub(controllerHelpers, 'exec');
-        execMock.callsArgWith(2, 0);
+    describe('populate', function () {
+        var objMock,
+            populateConditionMock,
+            promiseMock;
 
-        controllerHelpers._ensureNotExist(conditionMock, callbackMock, doneMock);
+        beforeEach(function () {
+            objMock = sandbox.stub();
+            populateConditionMock = sandbox.stub();
+            promiseMock = sandbox.stub();
 
-        expect(execMock).to.have.been.calledWithExactly(conditionMock, doneMock, sinon.match.func);
-        expect(callbackMock).to.have.been.calledWithExactly();
+            populateConditionMock.apply = sandbox.stub().returns(populateConditionMock);
+            populateConditionMock.execPopulate = sandbox.stub().returns(promiseMock);
+            promiseMock.then = sandbox.stub();
+        });
+
+        var commonTests = function () {
+            expect(populateConditionMock.apply).to.have.been.calledWithExactly(objMock);
+            expect(populateConditionMock.execPopulate).to.have.been.calledWithExactly();
+        };
+
+        it('should callback', function () {
+            promiseMock.then.callsArgWith(0, resultMock);
+
+            controllerHelpers.populate(objMock, populateConditionMock, doneMock, callbackMock);
+
+            commonTests();
+            expect(callbackMock).to.have.been.calledWithExactly(resultMock);
+        });
+
+        it('should done', function () {
+            promiseMock.then.callsArgWith(0, resultMock);
+
+            controllerHelpers.populate(objMock, populateConditionMock, doneMock);
+
+            commonTests();
+            expect(doneMock).to.have.been.calledWithExactly(null, resultMock.toObject);
+        });
+
+        it('should fail', function () {
+            promiseMock.then.callsArg(0);
+
+            controllerHelpers.populate(objMock, populateConditionMock, doneMock);
+
+            commonTests();
+            expect(doneMock).to.have.been.calledWithExactly({status: 500, message: 'Populated result was null'});
+        });
+
+        it('should error', function () {
+            promiseMock.then.callsArgWith(1, errorMock);
+
+            controllerHelpers.populate(objMock, populateConditionMock, doneMock);
+
+            commonTests();
+            expect(doneMock).to.have.been.calledWithExactly(errorMock);
+        });
     });
 
-    it('should _ensureNotExist fail', function () {
-        var conditionMock = sandbox.stub();
-        var doneMock = sandbox.stub();
-        var execMock = sandbox.stub(controllerHelpers, 'exec');
-        execMock.callsArgWith(2, 1);
-
-        controllerHelpers._ensureNotExist(conditionMock, null, doneMock);
-
-        expect(execMock).to.have.been.calledWithExactly(conditionMock, doneMock, sinon.match.func);
-        expect(doneMock).to.have.been.calledWithExactly({status: 400, message: "Already exist"});
-    });
-
-    it('should _save', function () {
-        var objMock = sandbox.stub();
-        objMock.save = sandbox.stub();
-        var resultMock = sandbox.stub();
-        resultMock.toObject = sandbox.stub();
-        var jsonMock = sandbox.stub();
-        resultMock.toObject.returns(jsonMock);
-        objMock.save.callsArgWith(0, null, resultMock);
-        var doneMock = sandbox.stub();
-
-        controllerHelpers._save(objMock, null, doneMock);
-
-        expect(objMock.save).to.have.been.calledWithExactly(sinon.match.func);
-        expect(doneMock).to.have.been.calledWithExactly(null, jsonMock);
-    });
-
-    it('should _save with defaultPopulate', function () {
-        var objMock = sandbox.stub();
-        objMock.save = sandbox.stub();
-        var resultMock = sandbox.stub();
-        objMock.save.callsArgWith(0, null, resultMock);
-        var defaultPopulateMock = sandbox.stub();
-        var populateMock = sandbox.stub(controllerHelpers, '_populate');
-        var doneMock = sandbox.stub();
-
-        controllerHelpers._save(objMock, defaultPopulateMock, doneMock);
-
-        expect(objMock.save).to.have.been.calledWithExactly(sinon.match.func);
-        expect(doneMock).to.have.not.been.called;
-        expect(populateMock).to.have.been.calledWithExactly(resultMock, defaultPopulateMock, doneMock);
-    });
-
-    it('should _save fail', function () {
-        var objMock = sandbox.stub();
-        objMock.save = sandbox.stub();
-        objMock.save.callsArgWith(0, null, null);
-        var doneMock = sandbox.stub();
-
-        controllerHelpers._save(objMock, null, doneMock);
-
-        expect(objMock.save).to.have.been.calledWithExactly(sinon.match.func);
-        expect(doneMock).to.have.been.calledWithExactly({status: 500, message: 'Saved result was null'});
-    });
-
-    it('should _save error', function () {
-        var objMock = sandbox.stub();
-        objMock.save = sandbox.stub();
-        var errorMock = sandbox.stub();
-        objMock.save.callsArgWith(0, errorMock);
-        var doneMock = sandbox.stub();
-
-        controllerHelpers._save(objMock, null, doneMock);
-
-        expect(objMock.save).to.have.been.calledWithExactly(sinon.match.func);
-        expect(doneMock).to.have.been.calledWithExactly(errorMock);
-    });
-
-    it('should _save error', function () {
-        var objMock = sandbox.stub();
-        objMock.defaultPopulate = sandbox.stub();
-        objMock.defaultPopulate.returns(objMock);
-        objMock.execPopulate = sandbox.stub();
-        objMock.execPopulate.returns(objMock);
-        objMock.then = sandbox.stub();
-
-        var resultMock = sandbox.stub();
-        resultMock.toObject = sandbox.stub();
-        var jsonMock = sandbox.stub();
-        resultMock.toObject.returns(jsonMock);
-        objMock.then.callsArgWith(0, resultMock);
-
-        var doneMock = sandbox.stub();
-
-        controllerHelpers._populate(objMock, objMock.defaultPopulate, doneMock);
-
-        expect(objMock.defaultPopulate).to.have.been.calledWithExactly();
-        expect(objMock.execPopulate).to.have.been.calledWithExactly();
-        expect(objMock.then).to.have.been.calledWithExactly(sinon.match.func, sinon.match.func);
-        expect(doneMock).to.have.been.calledWithExactly(null, jsonMock);
-    });
-
-    it('should _save fail', function () {
-        var objMock = sandbox.stub();
-        objMock.defaultPopulate = sandbox.stub();
-        objMock.defaultPopulate.returns(objMock);
-        objMock.execPopulate = sandbox.stub();
-        objMock.execPopulate.returns(objMock);
-        objMock.then = sandbox.stub();
-        objMock.then.callsArgWith(0, null);
-        var doneMock = sandbox.stub();
-
-        controllerHelpers._populate(objMock, objMock.defaultPopulate, doneMock);
-
-        expect(objMock.defaultPopulate).to.have.been.calledWithExactly();
-        expect(objMock.execPopulate).to.have.been.calledWithExactly();
-        expect(objMock.then).to.have.been.calledWithExactly(sinon.match.func, sinon.match.func);
-        expect(doneMock).to.have.been.calledWithExactly({status: 500, message: 'Populated result was null'});
-    });
-
-    it('should _save error', function () {
-        var objMock = sandbox.stub();
-        objMock.defaultPopulate = sandbox.stub();
-        objMock.defaultPopulate.returns(objMock);
-        objMock.execPopulate = sandbox.stub();
-        objMock.execPopulate.returns(objMock);
-        objMock.then = sandbox.stub();
-        var errorMock = sandbox.stub();
-        objMock.then.callsArgWith(1, errorMock);
-        var doneMock = sandbox.stub();
-
-        controllerHelpers._populate(objMock, objMock.defaultPopulate, doneMock);
-
-        expect(objMock.defaultPopulate).to.have.been.calledWithExactly();
-        expect(objMock.execPopulate).to.have.been.calledWithExactly();
-        expect(objMock.then).to.have.been.calledWithExactly(sinon.match.func, sinon.match.func);
-        expect(doneMock).to.have.been.calledWithExactly(errorMock);
-    });
-
-    it('should _updateFields', function () {
+    it('should updateFields', function () {
         var conditionMock = sandbox.stub();
         var originalMock = {
             _id: 'default__id',
@@ -252,16 +280,15 @@ describe('The controllerHelpers module', function() {
             field1: 'value1',
             field2: 'value2'
         };
-        var defaultPopulateMock = sandbox.stub();
+        var populateConditionMock = sandbox.stub();
         var execMock = sandbox.stub(controllerHelpers, 'exec');
         execMock.callsArgWith(2, originalMock);
-        var saveMock = sandbox.stub(controllerHelpers, '_save');
-        var doneMock = sandbox.stub();
+        var saveMock = sandbox.stub(controllerHelpers, 'save');
 
-        controllerHelpers._updateFields(conditionMock, updatedMock, defaultPopulateMock, doneMock);
+        controllerHelpers.updateFields(conditionMock, updatedMock, populateConditionMock, doneMock, callbackMock);
 
         expect(execMock).to.have.been.calledWithExactly(conditionMock, doneMock, sinon.match.func);
-        expect(saveMock).to.have.been.calledWithExactly(originalMock, defaultPopulateMock, doneMock);
+        expect(saveMock).to.have.been.calledWithExactly(originalMock, populateConditionMock, doneMock, callbackMock);
         expect(originalMock).to.eql({
             _id: 'default__id',
             __v: 'default___v',
@@ -270,142 +297,127 @@ describe('The controllerHelpers module', function() {
             field3: 'default3'
         });
     });
+    
+    describe('get', function () {
+        var conditionMock,
+            execMock;
+        
+        beforeEach(function () {
+            conditionMock = sandbox.stub();
+            execMock = sandbox.stub(controllerHelpers, 'exec');
+        });
 
-    it('should _get', function () {
-        var conditionMock = sandbox.stub();
-        conditionMock.defaultPopulate = sandbox.stub();
-        conditionMock.defaultPopulate.returns(conditionMock);
-        var resultMock = sandbox.stub();
-        var execMock = sandbox.stub(controllerHelpers, 'exec');
-        execMock.callsArgWith(2, resultMock);
-        var resultHandlerMock = sandbox.stub();
-        var doneMock = sandbox.stub();
+        it('should add defaultPopulate', function () {
+            conditionMock.defaultPopulate = sandbox.stub();
+            conditionMock.defaultPopulate.returns(conditionMock);
+            execMock.callsArgWith(2, resultMock);
 
-        controllerHelpers._get(conditionMock, conditionMock.defaultPopulate, resultHandlerMock, doneMock);
+            controllerHelpers.get(conditionMock, conditionMock.defaultPopulate, doneMock, callbackMock);
 
-        expect(conditionMock.defaultPopulate).to.have.been.calledWithExactly();
-        expect(execMock).to.have.been.calledWithExactly(conditionMock, doneMock, sinon.match.func);
-        expect(resultHandlerMock).to.have.been.calledWithExactly(resultMock);
-    });
+            expect(conditionMock.defaultPopulate).to.have.been.calledWithExactly();
+            expect(execMock).to.have.been.calledWithExactly(conditionMock, doneMock, callbackMock);
+        });
 
-    it('should _get skip defaultPopulate', function () {
-        var conditionMock = sandbox.stub();
-        var execMock = sandbox.stub(controllerHelpers, 'exec');
-        var resultHandlerMock = sandbox.stub();
-        var doneMock = sandbox.stub();
+        it('should skip defaultPopulate', function () {
+            execMock.callsArgWith(2, resultMock);
 
-        controllerHelpers._get(conditionMock, null, resultHandlerMock, doneMock);
+            controllerHelpers.get(conditionMock, null, doneMock, callbackMock);
 
-        expect(execMock).to.have.been.calledWithExactly(conditionMock, doneMock, sinon.match.func);
-    });
-
-    it('should getAll', function () {
-        var conditionMock = sandbox.stub();
-        var defaultPopulateMock = sandbox.stub();
-        var obj1Mock = sandbox.stub();
-        obj1Mock.toObject = sandbox.stub();
-        obj1Mock.toObject.returns('obj1Mock');
-        var obj2Mock = sandbox.stub();
-        obj2Mock.toObject = sandbox.stub();
-        obj2Mock.toObject.returns('obj2Mock');
-        var resultMock = [obj1Mock, obj2Mock];
-        var getMock = sandbox.stub(controllerHelpers, '_get');
-        getMock.callsArgWith(2, resultMock);
-        var doneMock = sandbox.stub();
-
-        controllerHelpers.getAll(conditionMock, defaultPopulateMock, doneMock);
-
-        expect(getMock).to.have.been.calledWithExactly(conditionMock, defaultPopulateMock, sinon.match.func, doneMock);
-        expect(doneMock).to.have.been.calledWithExactly(null, ['obj1Mock', 'obj2Mock']);
+            expect(execMock).to.have.been.calledWithExactly(conditionMock, doneMock, callbackMock);
+        });
     });
 
     it('should create', function () {
         var existenceCheckConditionMock = sandbox.stub();
         var objMock = sandbox.stub();
-        var defaultPopulateMock = sandbox.stub();
-        var ensureNotExistMock = sandbox.stub(controllerHelpers, '_ensureNotExist');
-        ensureNotExistMock.callsArg(1);
-        var saveMock = sandbox.stub(controllerHelpers, '_save');
-        var doneMock = sandbox.stub();
+        var populateConditionMock = sandbox.stub();
+        var ensureNotExistMock = sandbox.stub(controllerHelpers, 'ensureNotExist');
+        ensureNotExistMock.callsArg(2);
+        var saveMock = sandbox.stub(controllerHelpers, 'save');
 
-        controllerHelpers.create(existenceCheckConditionMock, objMock, defaultPopulateMock, doneMock);
+        controllerHelpers.create(existenceCheckConditionMock, objMock, populateConditionMock, doneMock, callbackMock);
 
-        expect(ensureNotExistMock).to.have.been.calledWithExactly(existenceCheckConditionMock, sinon.match.func, doneMock);
-        expect(saveMock).to.have.been.calledWithExactly(objMock, defaultPopulateMock, doneMock);
+        expect(ensureNotExistMock).to.have.been.calledWithExactly(existenceCheckConditionMock, doneMock, sinon.match.func);
+        expect(saveMock).to.have.been.calledWithExactly(objMock, populateConditionMock, doneMock, callbackMock);
+    });
+    
+    describe('update', function () {
+        var conditionMock,
+            updatedMock,
+            populateConditionMock,
+            ensureNotExistMock,
+            updateFieldsMock;
+        
+        beforeEach(function () {
+            conditionMock = sandbox.stub();
+            updatedMock = sandbox.stub();
+            populateConditionMock = sandbox.stub();
+
+            ensureNotExistMock = sandbox.stub(controllerHelpers, 'ensureNotExist');
+            updateFieldsMock = sandbox.stub(controllerHelpers, 'updateFields');
+        });
+
+        it('should ensureNotExist', function () {
+            var keyFieldUpdateConditionMock = sandbox.stub();
+            ensureNotExistMock.callsArg(2);
+
+            controllerHelpers.update(
+                conditionMock, keyFieldUpdateConditionMock, updatedMock, populateConditionMock, doneMock, callbackMock);
+
+            expect(ensureNotExistMock).to.have.been.calledWithExactly(
+                keyFieldUpdateConditionMock, doneMock, sinon.match.func);
+            expect(updateFieldsMock).to.have.been.calledWithExactly(
+                conditionMock, updatedMock, populateConditionMock, doneMock, callbackMock);
+        });
+
+        it('should skip ensureNotExist', function () {
+            controllerHelpers.update(
+                conditionMock, null, updatedMock, populateConditionMock, doneMock, callbackMock);
+
+            expect(ensureNotExistMock).to.not.have.been.called;
+            expect(updateFieldsMock).to.have.been.calledWithExactly(
+                conditionMock, updatedMock, populateConditionMock, doneMock, callbackMock);
+        });
     });
 
-    it('should get', function () {
-        var conditionMock = sandbox.stub();
-        var defaultPopulateMock = sandbox.stub();
-        var resultMock = sandbox.stub();
-        resultMock.toObject = sandbox.stub();
-        var objMock = sandbox.stub();
-        resultMock.toObject.returns(objMock);
-        var getMock = sandbox.stub(controllerHelpers, '_get');
-        getMock.callsArgWith(2, resultMock);
-        var doneMock = sandbox.stub();
+    describe('remove', function () {
+        var conditionMock;
+        
+        beforeEach(function () {
+            conditionMock = sandbox.stub();
+            conditionMock.exec = sandbox.stub();
+        });
+        
+        var commonTests = function () {
+            expect(conditionMock.exec).to.have.been.calledWithExactly(sinon.match.func);
+        };
 
-        controllerHelpers.get(conditionMock, defaultPopulateMock, doneMock);
+        it('should callback', function () {
+            conditionMock.exec.callsArg(0);
 
-        expect(getMock).to.have.been.calledWithExactly(conditionMock, defaultPopulateMock, sinon.match.func, doneMock);
-        expect(doneMock).to.have.been.calledWithExactly(null, objMock);
-    });
+            controllerHelpers.remove(conditionMock, doneMock, callbackMock);
 
-    it('should update', function () {
-        var conditionMock = sandbox.stub();
-        var keyFieldUpdateConditionMock = sandbox.stub();
-        var updatedMock = sandbox.stub();
-        var defaultPopulateMock = sandbox.stub();
-        var doneMock = sandbox.stub();
+            commonTests();
+            expect(callbackMock).to.have.been.calledWithExactly();
+        });
 
-        var ensureNotExistMock = sandbox.stub(controllerHelpers, '_ensureNotExist');
-        ensureNotExistMock.callsArg(1);
-        var updateFieldsMock = sandbox.stub(controllerHelpers, '_updateFields');
+        it('should done', function () {
+            conditionMock.exec.callsArg(0);
 
-        controllerHelpers.update(conditionMock, keyFieldUpdateConditionMock, updatedMock, defaultPopulateMock, doneMock);
+            controllerHelpers.remove(conditionMock, doneMock);
 
-        expect(ensureNotExistMock).to.have.been.calledWithExactly(keyFieldUpdateConditionMock, sinon.match.func, doneMock);
-        expect(updateFieldsMock).to.have.been.calledWithExactly(conditionMock, updatedMock, defaultPopulateMock, doneMock);
-    });
+            commonTests();
+            expect(doneMock).to.have.been.calledWithExactly(null, {});
+        });
 
-    it('should update skip keyFieldUpdateCondition', function () {
-        var conditionMock = sandbox.stub();
-        var updatedMock = sandbox.stub();
-        var defaultPopulateMock = sandbox.stub();
-        var doneMock = sandbox.stub();
+        it('should error', function () {
+            conditionMock.exec.callsArgWith(0, errorMock);
 
-        var ensureNotExistMock = sandbox.stub(controllerHelpers, '_ensureNotExist');
-        var updateFieldsMock = sandbox.stub(controllerHelpers, '_updateFields');
+            controllerHelpers.remove(conditionMock, doneMock);
 
-        controllerHelpers.update(conditionMock, null, updatedMock, defaultPopulateMock, doneMock);
-
-        expect(ensureNotExistMock).to.not.have.been.called;
-        expect(updateFieldsMock).to.have.been.calledWithExactly(conditionMock, updatedMock, defaultPopulateMock, doneMock);
-    });
-
-    it('should remove', function () {
-        var conditionMock = sandbox.stub();
-        conditionMock.exec = sandbox.stub();
-        conditionMock.exec.callsArgWith(0, null);
-        var doneMock = sandbox.stub();
-
-        controllerHelpers.remove(conditionMock, doneMock);
-
-        expect(conditionMock.exec).to.have.been.calledWithExactly(sinon.match.func);
-        expect(doneMock).to.have.been.calledWithExactly(null, {});
-    });
-
-    it('should remove error', function () {
-        var conditionMock = sandbox.stub();
-        conditionMock.exec = sandbox.stub();
-        var errorMock = sandbox.stub();
-        conditionMock.exec.callsArgWith(0, errorMock);
-        var doneMock = sandbox.stub();
-
-        controllerHelpers.remove(conditionMock, doneMock);
-
-        expect(conditionMock.exec).to.have.been.calledWithExactly(sinon.match.func);
-        expect(doneMock).to.have.been.calledWithExactly(errorMock);
+            commonTests();
+            expect(doneMock).to.have.been.calledWithExactly(errorMock);
+        });
     });
 
 });

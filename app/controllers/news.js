@@ -4,7 +4,7 @@ module.exports = function (logger, models, controllerHelpers) {
 
     var controller = {
         getAll: function (done) {
-            controllerHelpers.getAll(News.find().sort({createDate: 'desc'}), News.defaultPopulate, done);
+            controllerHelpers.get(News.find().sort({createDate: 'desc'}), News.defaultPopulate, done);
         },
         create: function (creator, news, done) {
             var newNews = News.generateNew(news.slug, creator, news.subject, news.text);

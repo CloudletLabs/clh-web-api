@@ -26,7 +26,6 @@ describe('The user controller module', function() {
         modelsMock.user.defaultPopulate = sandbox.stub();
 
         controllerHelpersMock = sandbox.stub();
-        controllerHelpersMock.getAll = sandbox.stub();
         controllerHelpersMock.create = sandbox.stub();
         controllerHelpersMock.get = sandbox.stub();
         controllerHelpersMock.update = sandbox.stub();
@@ -73,12 +72,12 @@ describe('The user controller module', function() {
         populatedTokenMock.user = sandbox.stub();
         tokenMock.populate = sandbox.stub().callsArgWith(1, null, populatedTokenMock);
 
-        controllerHelpersMock._populate = sandbox.stub();
+        controllerHelpersMock.populate = sandbox.stub();
 
         controller.populateFromToken(tokenMock, doneMock);
 
         expect(tokenMock.populate).to.have.been.calledWithExactly('user', sinon.match.func);
-        expect(controllerHelpersMock._populate).to.have.been.calledWithExactly(
+        expect(controllerHelpersMock.populate).to.have.been.calledWithExactly(
             populatedTokenMock.user, modelsMock.user.defaultPopulate, doneMock);
     });
 
@@ -99,7 +98,7 @@ describe('The user controller module', function() {
         controller.getAll(doneMock);
 
         expect(modelsMock.user.find).to.have.been.calledWithExactly();
-        expect(controllerHelpersMock.getAll).to.have.been.calledWithExactly(
+        expect(controllerHelpersMock.get).to.have.been.calledWithExactly(
             modelsMock.user, modelsMock.user.defaultPopulate, doneMock);
     });
 
