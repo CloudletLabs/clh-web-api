@@ -9,28 +9,27 @@ describe('The news controller module', function() {
 
     var loggerMock,
         modelsMock,
-        modelHelpers,
+        controllerHelpersMock,
         doneMock,
         controller;
 
     beforeEach(function () {
         loggerMock = sandbox.stub();
-        loggerMock.info = sandbox.stub();
-        loggerMock.warn = sandbox.stub();
-        loggerMock.error = sandbox.stub();
 
         modelsMock = sandbox.stub();
-        modelsMock.user = sandbox.stub();
-        modelsMock.userAuthToken = sandbox.stub();
-        modelsMock.userRole = sandbox.stub();
         modelsMock.news = sandbox.stub();
+        modelsMock.news.defaultPopulate = sandbox.stub();
 
-        modelHelpers = sandbox.stub();
-        modelHelpers.exec = sandbox.stub();
+        controllerHelpersMock = sandbox.stub();
+        controllerHelpersMock.getAll = sandbox.stub();
+        controllerHelpersMock.create = sandbox.stub();
+        controllerHelpersMock.get = sandbox.stub();
+        controllerHelpersMock.update = sandbox.stub();
+        controllerHelpersMock.remove = sandbox.stub();
 
         doneMock = sandbox.stub();
 
-        controller = require('../../../app/controllers/news')(loggerMock, modelsMock, modelHelpers);
+        controller = require('../../../app/controllers/news')(loggerMock, modelsMock, controllerHelpersMock);
     });
 
     afterEach(function () {
@@ -46,33 +45,59 @@ describe('The news controller module', function() {
         expect(controller.remove).to.be.a('function');
     });
 
-    it('should return all news', function () {
+    it('should get all news', function () {
         modelsMock.news.find = sandbox.stub();
         modelsMock.news.find.returns(modelsMock.news);
 
         modelsMock.news.sort = sandbox.stub();
         modelsMock.news.sort.returns(modelsMock.news);
 
-        modelsMock.news.populate = sandbox.stub();
-        modelsMock.news.populate.returns(modelsMock.news);
-
-        var news1Mock = sandbox.stub();
-        news1Mock.toObject = sandbox.stub();
-        news1Mock.toObject.returns('news1Mock');
-        var news2Mock = sandbox.stub();
-        news2Mock.toObject = sandbox.stub();
-        news2Mock.toObject.returns('news2Mock');
-        var newsMock = [news1Mock, news2Mock];
-        modelHelpers.exec.callsArgWith(1, newsMock);
-
         controller.getAll(doneMock);
 
         expect(modelsMock.news.find).to.have.been.calledWithExactly();
         expect(modelsMock.news.sort).to.have.been.calledWithExactly({createDate: 'desc'});
-        expect(modelsMock.news.populate).to.have.been.calledWithExactly('creator', 'name');
-        expect(modelHelpers.exec).to.have.been.calledWithExactly(modelsMock.news, sinon.match.func, doneMock);
-        expect(news1Mock.toObject).to.have.been.calledWithExactly();
-        expect(news2Mock.toObject).to.have.been.calledWithExactly();
-        expect(doneMock).to.have.been.calledWithExactly(null, ['news1Mock', 'news2Mock']);
+        expect(controllerHelpersMock.getAll).to.have.been.calledWithExactly(
+            modelsMock.news, modelsMock.news.defaultPopulate, doneMock);
+    });
+
+    it('should create news', function () {
+        var creatorMock = sandbox.stub();
+        var newsJsonMock = sandbox.stub();
+        newsJsonMock.slug = sandbox.stub();
+
+        modelsMock.news.count = sandbox.stub();
+        modelsMock.news.count.returns(modelsMock.news);
+
+        controller.create(creatorMock, newsJsonMock, doneMock);
+
+        expect(modelsMock.news).to.have.been.calledWithNew;
+        expect(modelsMock.news.count).to.have.been.calledWithExactly({slug: newsJsonMock.slug});
+        expect(controllerHelpersMock.create).to.have.been.calledWithExactly(
+            modelsMock.news, {creator: creatorMock}, modelsMock.news.defaultPopulate, doneMock);
+    });
+
+    it('should get single news', function () {
+        var slugMock = sandbox.stub();
+
+        modelsMock.news.findOne = sandbox.stub();
+        modelsMock.news.findOne.returns(modelsMock.news);
+
+        controller.get(slugMock, doneMock);
+
+        expect(modelsMock.news.findOne).to.have.been.calledWithExactly({slug: slugMock});
+        expect(controllerHelpersMock.get).to.have.been.calledWithExactly(
+            modelsMock.news, modelsMock.news.defaultPopulate, doneMock);
+    });
+
+    it('should get single news', function () {
+        var slugMock = sandbox.stub();
+
+        modelsMock.news.findOneAndRemove = sandbox.stub();
+        modelsMock.news.findOneAndRemove.returns(modelsMock.news);
+
+        controller.remove(slugMock, doneMock);
+
+        expect(modelsMock.news.findOneAndRemove).to.have.been.calledWithExactly({slug: slugMock});
+        expect(controllerHelpersMock.remove).to.have.been.calledWithExactly(modelsMock.news, doneMock);
     });
 });
