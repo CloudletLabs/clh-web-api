@@ -2,9 +2,9 @@
 
 module.exports = function (modelHelpers, connection, mongoose, moment, uuid, expired_time) {
 
-    var Schema = mongoose.Schema;
+    let Schema = mongoose.Schema;
 
-    var userAuthTokenSchema = new Schema({
+    let userAuthTokenSchema = new Schema({
         auth_token: {type: String, index: true, unique: true, required: true, dropDups: true},
         createDate: {type: Date, required: true, default: moment().utc()},
         userAgent: String,
@@ -22,8 +22,8 @@ module.exports = function (modelHelpers, connection, mongoose, moment, uuid, exp
     };
 
     userAuthTokenSchema.statics.generateNew = function (user, ip, userAgent) {
-        var timestamp = moment().utc();
-        var token = new UserAuthToken({
+        let timestamp = moment().utc();
+        return new UserAuthToken({
             auth_token: uuid.v1(),
             createDate: timestamp,
             userAgent: userAgent,
@@ -31,7 +31,6 @@ module.exports = function (modelHelpers, connection, mongoose, moment, uuid, exp
             lastUsed: timestamp,
             user: user
         });
-        return token;
     };
 
     userAuthTokenSchema.statics.defaultPopulate = function () {
@@ -39,7 +38,7 @@ module.exports = function (modelHelpers, connection, mongoose, moment, uuid, exp
     };
 
     modelHelpers.deleteMongoFields(userAuthTokenSchema);
-    var UserAuthToken = connection.model('UserAuthToken', userAuthTokenSchema);
+    let UserAuthToken = connection.model('UserAuthToken', userAuthTokenSchema);
 
     return UserAuthToken;
 };

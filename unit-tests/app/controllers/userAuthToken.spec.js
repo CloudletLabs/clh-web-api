@@ -1,15 +1,15 @@
 'use strict';
 
-var sinon = require('sinon');
-var chai = require('chai');
-var sinonChai = require("sinon-chai");
-var expect = chai.expect;
+let sinon = require('sinon');
+let chai = require('chai');
+let sinonChai = require("sinon-chai");
+let expect = chai.expect;
 chai.use(sinonChai);
 
 describe('The userAuthToken controller module', function() {
-    var sandbox = sinon.sandbox.create();
+    let sandbox = sinon.sandbox.create();
 
-    var loggerMock,
+    let loggerMock,
         modelsMock,
         controllerHelpersMock,
         doneMock,
@@ -43,7 +43,7 @@ describe('The userAuthToken controller module', function() {
     });
 
     it('should generate new', function () {
-        var generatedResult = sandbox.stub();
+        let generatedResult = sandbox.stub();
         generatedResult.auth_token = sandbox.stub();
 
         modelsMock.userAuthToken.count = sandbox.stub();
@@ -63,16 +63,16 @@ describe('The userAuthToken controller module', function() {
     });
 
     it('should regenerate', function () {
-        var tokenMock = {
+        let tokenMock = {
             user: 'test user',
             ip: 'test ip',
             userAgent: 'test userAgent',
             remove: sandbox.stub()
         };
-        var generatedResult = sandbox.stub();
+        let generatedResult = sandbox.stub();
         generatedResult.auth_token = sandbox.stub();
-        var createdTokenMock = sandbox.stub();
-        var objectMock = sandbox.stub();
+        let createdTokenMock = sandbox.stub();
+        let objectMock = sandbox.stub();
         createdTokenMock.toObject = sandbox.stub().returns(objectMock);
 
         modelsMock.userAuthToken.count = sandbox.stub();
@@ -97,15 +97,15 @@ describe('The userAuthToken controller module', function() {
     });
 
     it('should delete', function () {
-        var userMock = {
+        let userMock = {
             username: 'test username'
         };
-        var tokenMock = sandbox.stub();
+        let tokenMock = sandbox.stub();
 
         modelsMock.userAuthToken.populate = sandbox.stub().returns(modelsMock.userAuthToken);
         modelsMock.userAuthToken.findOne = sandbox.stub().returns(modelsMock.userAuthToken);
 
-        var tokenObjectMock = {
+        let tokenObjectMock = {
             user: {
                 username: 'test username'
             },
@@ -122,15 +122,15 @@ describe('The userAuthToken controller module', function() {
     });
 
     it('should not delete if token not belongs to the user', function () {
-        var userMock = {
+        let userMock = {
             username: 'test username'
         };
-        var tokenMock = sandbox.stub();
+        let tokenMock = sandbox.stub();
 
         modelsMock.userAuthToken.populate = sandbox.stub().returns(modelsMock.userAuthToken);
         modelsMock.userAuthToken.findOne = sandbox.stub().returns(modelsMock.userAuthToken);
 
-        var tokenObjectMock = {
+        let tokenObjectMock = {
             user: {
                 username: 'test username2'
             },

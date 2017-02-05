@@ -1,6 +1,6 @@
 'use strict';
 
-var helpers = {
+let helpers = {
     exec: function (condition, done, callback) {
         condition.exec(function (err, result) {
             if (err) return done(err);
@@ -58,10 +58,10 @@ var helpers = {
     updateFields: function (condition, updated, populateCondition, done, callback) {
         helpers.exec(condition, done,
             function (original) {
-                for (var attrname in updated) {
+                for (let key of Object.keys(updated)) {
                     // TODO: Add extra fields, same as deletes in modelHelpers#deleteMongoFields
-                    if (attrname != "_id" && attrname != "__v")
-                        original[attrname] = updated[attrname];
+                    if (key != "_id" && key != "__v")
+                        original[key] = updated[key];
                 }
 
                 helpers.save(original, populateCondition, done, callback);

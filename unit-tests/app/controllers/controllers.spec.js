@@ -1,38 +1,38 @@
 'use strict';
 
-var sinon = require('sinon');
-var chai = require('chai');
-var sinonChai = require("sinon-chai");
-var expect = chai.expect;
+let sinon = require('sinon');
+let chai = require('chai');
+let sinonChai = require("sinon-chai");
+let expect = chai.expect;
 chai.use(sinonChai);
 let proxyquire = require('proxyquire');
 
 describe('The controllers module', function() {
 
     it('should perform default configuration', sinon.test(function () {
-        var loggerMock = this.stub();
-        var modelsMock = this.stub();
-        var modelHelpersMock = this.stub();
+        let loggerMock = this.stub();
+        let modelsMock = this.stub();
+        let modelHelpersMock = this.stub();
 
-        var userAuthTokenMockModule = this.stub();
-        var userAuthTokenMock = this.stub();
+        let userAuthTokenMockModule = this.stub();
+        let userAuthTokenMock = this.stub();
         userAuthTokenMockModule.withArgs(loggerMock, modelsMock).returns(userAuthTokenMock);
 
-        var userMockModule = this.stub();
-        var userMock = this.stub();
+        let userMockModule = this.stub();
+        let userMock = this.stub();
         userMockModule.withArgs(loggerMock, modelsMock).returns(userMock);
 
-        var newsMockModule = this.stub();
-        var newsMock = this.stub();
+        let newsMockModule = this.stub();
+        let newsMock = this.stub();
         newsMockModule.withArgs(loggerMock, modelsMock).returns(newsMock);
 
-        var controllersMock = {
+        let controllersMock = {
             userAuthToken: userAuthTokenMock,
             user: userMock,
             news: newsMock
         };
 
-        var controllers = proxyquire('../../../app/controllers/controllers', {
+        let controllers = proxyquire('../../../app/controllers/controllers', {
             './userAuthToken': userAuthTokenMockModule,
             './user': userMockModule,
             './news': newsMockModule

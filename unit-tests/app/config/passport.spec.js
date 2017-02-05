@@ -1,15 +1,15 @@
 'use strict';
 
-var sinon = require('sinon');
-var chai = require('chai');
-var sinonChai = require("sinon-chai");
-var expect = chai.expect;
+let sinon = require('sinon');
+let chai = require('chai');
+let sinonChai = require("sinon-chai");
+let expect = chai.expect;
 chai.use(sinonChai);
 
-var passportModule = require('../../../app/config/passport');
+let passportModule = require('../../../app/config/passport');
 
 describe('The passport module', function() {
-    var
+    let
         sandbox,
         passportMock,
         strategies,
@@ -72,7 +72,7 @@ describe('The passport module', function() {
     });
 
     it('should succeed basic auth', function () {
-        var doneMock = sandbox.stub();
+        let doneMock = sandbox.stub();
         userMock.findOne = sandbox.stub();
         userMock.findOne.callsArgWith(1, null, 'test user');
 
@@ -86,7 +86,7 @@ describe('The passport module', function() {
     });
 
     it('should fail basic auth', function () {
-        var doneMock = sandbox.stub();
+        let doneMock = sandbox.stub();
         userMock.findOne = sandbox.stub();
         userMock.findOne.callsArgWith(1, null, null);
 
@@ -100,7 +100,7 @@ describe('The passport module', function() {
     });
 
     it('should error basic auth', function () {
-        var doneMock = sandbox.stub();
+        let doneMock = sandbox.stub();
         userMock.findOne = sandbox.stub();
         userMock.findOne.callsArgWith(1, 'test error');
 

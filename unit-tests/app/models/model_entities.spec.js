@@ -1,18 +1,18 @@
 'use strict';
 
-var sinon = require('sinon');
-var chai = require('chai');
-var sinonChai = require("sinon-chai");
-var expect = chai.expect;
+let sinon = require('sinon');
+let chai = require('chai');
+let sinonChai = require("sinon-chai");
+let expect = chai.expect;
 chai.use(sinonChai);
 
-var newsModule = require('../../../app/models/news');
-var userModule = require('../../../app/models/user');
-var userAuthTokenModule = require('../../../app/models/userAuthToken');
-var userRoleModule = require('../../../app/models/userRole');
+let newsModule = require('../../../app/models/news');
+let userModule = require('../../../app/models/user');
+let userAuthTokenModule = require('../../../app/models/userAuthToken');
+let userRoleModule = require('../../../app/models/userRole');
 
 describe('The entity', function() {
-    var
+    let
         sandbox,
         modelHelpersMock,
         connectionMock,
@@ -68,12 +68,12 @@ describe('The entity', function() {
     
     function commonTests(schemaName, schema, thisModule, extraModuleArgs, extraFieldsToDelete, expectedResult, toString) {
         connectionMock.model.returns(expectedResult);
-        var result = thisModule.apply(null, [modelHelpersMock, connectionMock, mongooseMock].concat(extraModuleArgs));
+        let result = thisModule.apply(null, [modelHelpersMock, connectionMock, mongooseMock].concat(extraModuleArgs));
 
         expect(result).to.equals(expectedResult);
         expect(schemaSpy).to.have.been.calledWithExactly(schema);
         expect(modelHelpersMock.deleteMongoFields).to.have.been.called;
-        var deleteMongoFieldsArgs = [mongooseMock.SchemaInstance];
+        let deleteMongoFieldsArgs = [mongooseMock.SchemaInstance];
         if (extraFieldsToDelete && extraFieldsToDelete.length > 0) {
             deleteMongoFieldsArgs.push(extraFieldsToDelete);
         }
@@ -90,14 +90,14 @@ describe('The entity', function() {
 
     describe('news', function() {
         it('should create schema', function () {
-            var schema = {
+            let schema = {
                 slug: {type: String, index: true, unique: true, required: true, dropDups: true},
                 creator: {type: mongooseMock.Schema.Types.ObjectId, ref: 'User'},
                 createDate: {type: Date, required: true, default: utcMock},
                 subject: {type: String, required: true},
                 text: {type: String, required: true}
             };
-            var expectedResult = function (object) {
+            let expectedResult = function (object) {
               this.object = object;
             };
             expectedResult.slug = 'test slug';
@@ -106,7 +106,7 @@ describe('The entity', function() {
 
             expect(populateStub.populate).to.have.been.calledWithExactly('creator', 'name');
 
-            var generatedResult =
+            let generatedResult =
                 mongooseMock.SchemaInstance.statics.generateNew('mock uuid', 'mock creator', 'test user agent', 'test ip');
             expect(generatedResult.object).to.eql({
                 slug: 'mock uuid',
@@ -120,7 +120,7 @@ describe('The entity', function() {
 
     describe('user', function() {
         it('should create schema', function () {
-            var schema = {
+            let schema = {
                 username: {type: String, index: true, unique: true, required: true, dropDups: true},
                 password: {type: String, required: true},
                 email: {type: String, required: true},
@@ -128,7 +128,7 @@ describe('The entity', function() {
                 avatar: String,
                 roles: [{type: mongooseMock.Schema.Types.ObjectId, ref: 'UserRole'}]
             };
-            var expectedResult = function (object) {
+            let expectedResult = function (object) {
                 this.object = object;
             };
             expectedResult.username = 'test username';
@@ -137,7 +137,7 @@ describe('The entity', function() {
 
             expect(populateStub.populate).to.have.been.calledWithExactly('roles', 'roleId');
 
-            var generatedResult =
+            let generatedResult =
                 mongooseMock.SchemaInstance.statics.generateNew(
                     'test username', 'test password', 'test email', 'test name', 'test avatar', 'test defaultRole');
             expect(generatedResult.object).to.eql({
@@ -153,7 +153,7 @@ describe('The entity', function() {
 
     describe('userAuthToken', function() {
         it('should create schema', function () {
-            var schema = {
+            let schema = {
                 auth_token: {type: String, index: true, unique: true, required: true, dropDups: true},
                 createDate: {type: Date, required: true, default: utcMock},
                 userAgent: String,
@@ -161,7 +161,7 @@ describe('The entity', function() {
                 lastUsed: {type: Date, required: true, default: utcMock},
                 user: {type: mongooseMock.Schema.Types.ObjectId, ref: 'User'}
             };
-            var expectedResult = function (object) {
+            let expectedResult = function (object) {
                 this.object = object;
             };
             expectedResult.user = {
@@ -187,7 +187,7 @@ describe('The entity', function() {
             utcMock.diff.returns(1);
             expect(mongooseMock.SchemaInstance.methods.hasExpired.bind(expectedResult)()).to.be.true;
 
-            var generatedResult =
+            let generatedResult =
                 mongooseMock.SchemaInstance.statics.generateNew('test user', 'test ip', 'test user agent');
             expect(generatedResult.object).to.eql({
                 auth_token: 'mock uuid',
@@ -202,11 +202,11 @@ describe('The entity', function() {
 
     describe('userRole', function() {
         it('should create schema', function () {
-            var schema = {
+            let schema = {
                 roleId: {type: String, index: true, unique: true, required: true, dropDups: true},
                 displayName: {type: String, required: true}
             };
-            var expectedResult = { roleId: 'test role id' };
+            let expectedResult = { roleId: 'test role id' };
 
             commonTests('UserRole', schema, userRoleModule, [], null, expectedResult, 'test role id');
         });

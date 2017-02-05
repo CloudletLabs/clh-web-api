@@ -2,9 +2,9 @@
 
 module.exports = function (logger, models, controllerHelpers) {
 
-    var User = models.user;
+    let User = models.user;
 
-    var userRole;
+    let userRole;
     models.userRole.findOne({roleId: 'USER'}, function (err, role) {
         if (err) throw err;
         if (!role) throw new Error('Default USER role not found');
@@ -21,7 +21,7 @@ module.exports = function (logger, models, controllerHelpers) {
             controllerHelpers.get(User.find(), User.defaultPopulate, done);
         },
         create: function (user, done) {
-            var newUser = User.generateNew(
+            let newUser = User.generateNew(
                 user.username, user.password, user.email, user.name, 'img/mockUser2.jpg', userRole);
             controllerHelpers.create(User.count({username: user.username}), newUser, User.defaultPopulate, done);
         },

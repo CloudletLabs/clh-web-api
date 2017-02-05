@@ -1,16 +1,16 @@
 'use strict';
 
-var sinon = require('sinon');
-var chai = require('chai');
-var sinonChai = require("sinon-chai");
-var expect = chai.expect;
+let sinon = require('sinon');
+let chai = require('chai');
+let sinonChai = require("sinon-chai");
+let expect = chai.expect;
 chai.use(sinonChai);
 
-var apiModule = require('../../../../../app/routes/api/v1/api');
+let apiModule = require('../../../../../app/routes/api/v1/api');
 
 describe('The v1/api module', function() {
-    var sandbox = sinon.sandbox.create();
-    var expressMock,
+    let sandbox = sinon.sandbox.create();
+    let expressMock,
         routerMock,
         appMock,
         pJsonMock,
@@ -22,15 +22,15 @@ describe('The v1/api module', function() {
         reqMock,
         resMock,
         nextMock;
-    var defaultPassportConfig = { session: false };
-    var api;
+    let defaultPassportConfig = { session: false };
+    let api;
 
     beforeEach(function () {
         expressMock = sandbox.stub();
         expressMock.Router = sandbox.stub();
 
         routerMock = sandbox.stub();
-        var apiMethod = function(method) {
+        let apiMethod = function(method) {
             return function (url, arg1, arg2) {
                 if (!this.methodsCount) this.methodsCount = 0;
                 this.methodsCount++;
@@ -93,8 +93,8 @@ describe('The v1/api module', function() {
     });
 
     describe('methods', function () {
-        var commonApiMethodTest = function (method, url, passportName) {
-            var controllerFunc;
+        let commonApiMethodTest = function (method, url, passportName) {
+            let controllerFunc;
             if (passportName) {
                 expect(api.router[method][url].length).to.be.eql(2);
                 expect(api.router[method][url][0]).to.be.eql([passportName, defaultPassportConfig]);

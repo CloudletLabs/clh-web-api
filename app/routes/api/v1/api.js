@@ -1,12 +1,12 @@
 'use strict';
 
-var apiVersion = '1';
+let apiVersion = '1';
 
 module.exports = function (express, app, pJson, logger, apiHandlers, passport, controllers) {
 
-    var router = express.Router();
+    let router = express.Router();
 
-    var defaultPassportConfig = { session: false };
+    let defaultPassportConfig = { session: false };
 
     router.post('/auth_token',
         passport.authenticate('basic-authentication', defaultPassportConfig),

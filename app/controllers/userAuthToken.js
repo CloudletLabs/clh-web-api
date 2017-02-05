@@ -2,16 +2,16 @@
 
 module.exports = function (logger, models, controllerHelpers) {
 
-    var UserAuthToken = models.userAuthToken;
+    let UserAuthToken = models.userAuthToken;
 
     return {
         generateNew: function (user, ip, userAgent, done) {
-            var newToken = UserAuthToken.generateNew(user, ip, userAgent);
+            let newToken = UserAuthToken.generateNew(user, ip, userAgent);
             controllerHelpers.create(
                 UserAuthToken.count({auth_token: newToken.auth_token}), newToken, UserAuthToken.defaultPopulate, done);
         },
         renew: function (token, done) {
-            var newToken = UserAuthToken.generateNew(token.user, token.ip, token.userAgent);
+            let newToken = UserAuthToken.generateNew(token.user, token.ip, token.userAgent);
             controllerHelpers.create(
                 UserAuthToken.count({auth_token: newToken.auth_token}), newToken, UserAuthToken.defaultPopulate, done,
                 function (newToken) {

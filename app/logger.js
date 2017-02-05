@@ -1,6 +1,6 @@
 'use strict';
 
-var logger = {
+let logger = {
     logger: {
         info: function () {
             logger._log('info', arguments);
@@ -13,22 +13,22 @@ var logger = {
         }
     },
     _log: function (level, origArgs) {
-        var logPrefix = origArgs[0];
-        var msg = origArgs[1];
-        var template = logPrefix;
+        let logPrefix = origArgs[0];
+        let msg = origArgs[1];
+        let template = logPrefix;
         if (msg) template += " " + msg;
-        var args = [template];
+        let args = [template];
         if (origArgs.length > 2) {
-            var extraArgs = Object.keys(origArgs).map(function(key){return origArgs[key].toString()});
+            let extraArgs = Object.keys(origArgs).map(function(key){return origArgs[key].toString()});
             extraArgs = extraArgs.slice(2);
             args = args.concat(extraArgs);
         }
         console[level].apply(console, args);
     },
     logPrefixGenerator: function (req, res, next) {
-        var prefix = `[${req.method}][${req.connection.remoteAddress}][${req.path}]`;
+        let prefix = `[${req.method}][${req.connection.remoteAddress}][${req.path}]`;
         if (req.user) {
-            var user = req.user.user || req.user;
+            let user = req.user.user || req.user;
             prefix += `[${user.username}]`;
         }
         req.logPrefix = prefix;

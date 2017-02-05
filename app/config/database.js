@@ -5,9 +5,9 @@ module.exports = function(mongoose) {
     /**
      * Open mongodb connection
      */
-    var dbURI = process.env.MONGODB_URI || 'mongodb://localhost:27017/clhApp';
-    var poolSize = process.env.MONGODB_POOL_SIZE || 1;
-    var connection = mongoose.createConnection(dbURI, {server: {poolSize: poolSize}});
+    let dbURI = process.env.MONGODB_URI || 'mongodb://localhost:27017/clhApp';
+    let poolSize = process.env.MONGODB_POOL_SIZE || 1;
+    let connection = mongoose.createConnection(dbURI, {server: {poolSize: poolSize}});
 
     /**
      * Handlers

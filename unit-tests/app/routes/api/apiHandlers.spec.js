@@ -1,12 +1,12 @@
 'use strict';
 
-var sinon = require('sinon');
-var chai = require('chai');
-var sinonChai = require("sinon-chai");
-var expect = chai.expect;
+let sinon = require('sinon');
+let chai = require('chai');
+let sinonChai = require("sinon-chai");
+let expect = chai.expect;
 chai.use(sinonChai);
 
-var handlersModule = require('../../../../app/routes/api/apiHandlers');
+let handlersModule = require('../../../../app/routes/api/apiHandlers');
 
 describe('The apiHandlers module', function() {
     it('should have functions', sinon.test(function () {
@@ -20,10 +20,10 @@ describe('The apiHandlers module', function() {
 
     it('should handle 404', sinon.test(function () {
         console.warn = this.stub();
-        var req = {
+        let req = {
             logPrefix: 'test prefix'
         };
-        var respMock = this.stub();
+        let respMock = this.stub();
         respMock.status = this.stub();
         respMock.json = this.stub();
 
@@ -36,10 +36,10 @@ describe('The apiHandlers module', function() {
 
     it('should handle unknown api error', sinon.test(function () {
         console.error = this.stub();
-        var req = {
+        let req = {
             logPrefix: 'test prefix'
         };
-        var respMock = this.stub();
+        let respMock = this.stub();
         respMock.status = this.stub();
         respMock.json = this.stub();
 
@@ -52,10 +52,10 @@ describe('The apiHandlers module', function() {
 
     it('should handle api error', sinon.test(function () {
         console.error = this.stub();
-        var req = {
+        let req = {
             logPrefix: 'test prefix'
         };
-        var respMock = this.stub();
+        let respMock = this.stub();
         respMock.status = this.stub();
         respMock.json = this.stub();
 
@@ -68,10 +68,10 @@ describe('The apiHandlers module', function() {
 
     it('should handle api warning', sinon.test(function () {
         console.warn = this.stub();
-        var req = {
+        let req = {
             logPrefix: 'test prefix'
         };
-        var respMock = this.stub();
+        let respMock = this.stub();
         respMock.status = this.stub();
         respMock.json = this.stub();
 
@@ -83,29 +83,29 @@ describe('The apiHandlers module', function() {
     }));
 
     it('should handle status', sinon.test(function () {
-        var apiMock = this.stub();
+        let apiMock = this.stub();
         apiMock.pJson = { name: 'test api' };
-        var reqMock = this.stub();
-        var resMock = this.stub();
+        let reqMock = this.stub();
+        let resMock = this.stub();
         resMock.send = this.stub();
 
-        var status = handlersModule.status(apiMock);
+        let status = handlersModule.status(apiMock);
         status(reqMock, resMock);
 
         expect(resMock.send).to.have.been.calledWithExactly('test api: ok');
     }));
 
     it('should handle info', sinon.test(function () {
-        var apiMock = this.stub();
+        let apiMock = this.stub();
         apiMock.pJson = {};
         apiMock.pJson.name = this.stub();
         apiMock.pJson.version = this.stub();
         apiMock.apiVersion = this.stub();
-        var reqMock = this.stub();
-        var resMock = this.stub();
+        let reqMock = this.stub();
+        let resMock = this.stub();
         resMock.json = this.stub();
 
-        var info = handlersModule.info(apiMock);
+        let info = handlersModule.info(apiMock);
         info(reqMock, resMock);
 
         expect(resMock.json).to.have.been.calledWithExactly(
@@ -113,33 +113,32 @@ describe('The apiHandlers module', function() {
     }));
 
     it('should send response', sinon.test(function () {
-        var resMock = this.stub();
+        let resMock = this.stub();
         resMock.json = this.stub();
-        var resultMock = this.stub();
+        let resultMock = this.stub();
 
-        var handler = handlersModule.sendRes(resMock, null);
+        let handler = handlersModule.sendRes(resMock, null);
         handler(null, resultMock);
 
         expect(resMock.json).to.have.been.calledWithExactly(resultMock);
     }));
 
     it('should not send response', sinon.test(function () {
-        var nextMock = this.stub();
-        var resultMock = this.stub();
+        let nextMock = this.stub();
 
-        var handler = handlersModule.sendRes(null, nextMock);
+        let handler = handlersModule.sendRes(null, nextMock);
         handler();
 
         expect(nextMock).to.have.been.calledWithExactly();
     }));
 
     it('should send error', sinon.test(function () {
-        var resMock = this.stub();
+        let resMock = this.stub();
         resMock.json = this.stub();
-        var nextMock = this.stub();
-        var errMock = this.stub();
+        let nextMock = this.stub();
+        let errMock = this.stub();
 
-        var handler = handlersModule.sendRes(null, nextMock);
+        let handler = handlersModule.sendRes(null, nextMock);
         handler(errMock);
 
         expect(nextMock).to.have.been.calledWithExactly(errMock);

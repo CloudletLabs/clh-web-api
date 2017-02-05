@@ -2,9 +2,9 @@
 
 module.exports = function (modelHelpers, connection, mongoose) {
 
-    var Schema = mongoose.Schema;
+    let Schema = mongoose.Schema;
 
-    var userSchema = new Schema({
+    let userSchema = new Schema({
         username: {type: String, index: true, unique: true, required: true, dropDups: true},
         password: {type: String, required: true},
         email: {type: String, required: true},
@@ -18,7 +18,7 @@ module.exports = function (modelHelpers, connection, mongoose) {
     };
 
     userSchema.statics.generateNew = function (username, password, email, name, avatar, defaultRole) {
-        var token = new User({
+        return new User({
             username: username,
             password: password,
             email: email,
@@ -26,7 +26,6 @@ module.exports = function (modelHelpers, connection, mongoose) {
             avatar: avatar,
             roles: [defaultRole]
         });
-        return token;
     };
 
     userSchema.statics.defaultPopulate = function () {
@@ -35,7 +34,7 @@ module.exports = function (modelHelpers, connection, mongoose) {
 
     modelHelpers.deleteMongoFields(userSchema, ['password']);
 
-    var User = connection.model('User', userSchema);
+    let User = connection.model('User', userSchema);
 
     return User;
 };

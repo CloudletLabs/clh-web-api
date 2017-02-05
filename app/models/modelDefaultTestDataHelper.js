@@ -1,8 +1,7 @@
 'use strict';
 
-module.exports = {
+let helper = {
     check: function (models) {
-        var helper = this;
         helper._check(helper, models.userRole, {}, helper._createDefaultUserRoles, function (results) {
             helper._check(helper, models.user, results, helper._createDefaultUsers, function (results) {
                 helper._check(helper, models.news, results, helper._createDefaultNews, function (results) {
@@ -23,7 +22,7 @@ module.exports = {
         model.count(function (err, count) {
             if (err) throw (err);
             if (count <= 0) {
-                var data = createDefaultCallback(results);
+                let data = createDefaultCallback(results);
                 helper._createDefaultData(helper, model, results, data, next);
             } else {
                 helper._getExisting(helper, model, results, next);
@@ -33,17 +32,17 @@ module.exports = {
     _getExisting: function (helper, model, results, next) {
         model.find(function (err, result) {
             if (err) throw err;
-            var modelName = helper._getResultsName(model.modelName);
+            let modelName = helper._getResultsName(model.modelName);
             results[modelName] = result;
             next(results);
         });
     },
     _createDefaultData: function (helper, model, results, data, next) {
-        var modelName = helper._getResultsName(model.modelName);
+        let modelName = helper._getResultsName(model.modelName);
         console.warn('Creating default %s', modelName);
         results[modelName] = [];
         data.forEach(function (entry, i, entries) {
-            var newEntry = new model(entry);
+            let newEntry = new model(entry);
             newEntry.save(function (err, entry) {
                 if (err) throw err;
 
@@ -56,7 +55,7 @@ module.exports = {
             });
         });
     },
-    _createDefaultUserRoles: function (results) {
+    _createDefaultUserRoles: function () {
         return [
             {roleId: "ADMIN", displayName: "Administrator"},
             {roleId: "USER", displayName: "User"}
@@ -101,3 +100,5 @@ module.exports = {
         ];
     }
 };
+
+module.exports = helper;

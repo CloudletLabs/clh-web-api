@@ -1,12 +1,12 @@
 'use strict';
 
-var sinon = require('sinon');
-var chai = require('chai');
-var sinonChai = require("sinon-chai");
-var expect = chai.expect;
+let sinon = require('sinon');
+let chai = require('chai');
+let sinonChai = require("sinon-chai");
+let expect = chai.expect;
 chai.use(sinonChai);
 
-var logger = require('../../app/logger');
+let logger = require('../../app/logger');
 
 describe('The logger module', function() {
     it('should have functions', sinon.test(function () {
@@ -23,7 +23,7 @@ describe('The logger module', function() {
     describe('_log', function () {
         it('should info', sinon.test(function () {
             console.info = this.stub();
-            var id = 'test id';
+            let id = 'test id';
 
             logger._log('info', [id]);
 
@@ -32,7 +32,7 @@ describe('The logger module', function() {
 
         it('should warn', sinon.test(function () {
             console.warn = this.stub();
-            var id = 'test id';
+            let id = 'test id';
 
             logger._log('warn', [id]);
 
@@ -41,7 +41,7 @@ describe('The logger module', function() {
 
         it('should error with additional data', sinon.test(function () {
             console.error = this.stub();
-            var id = 'test id';
+            let id = 'test id';
 
             logger._log('error', [id, '%s:%s', 'arg1', 'arg2']);
 
@@ -53,16 +53,16 @@ describe('The logger module', function() {
         it('should be a wrapper', sinon.test(function () {
             logger._log = this.stub();
 
-            var log = logger.logger;
+            let log = logger.logger;
             expect(Object.keys(log).length).to.be.equal(3);
             expect(log.info).to.be.a('function');
             expect(log.warn).to.be.a('function');
             expect(log.error).to.be.a('function');
 
-            var idMock = this.stub();
-            var msgMock = this.stub();
-            var msgArg1 = this.stub();
-            var msgArg2 = this.stub();
+            let idMock = this.stub();
+            let msgMock = this.stub();
+            let msgArg1 = this.stub();
+            let msgArg2 = this.stub();
 
             log.info(idMock, msgMock, msgArg1, msgArg2);
             expect(logger._log).to.have.been.calledWith('info');
@@ -89,14 +89,14 @@ describe('The logger module', function() {
     
     describe('logPrefixGenerator', function () {
         it('should generate anonymous log prefix', sinon.test(function () {
-            var req = {
+            let req = {
                 method: 'test method',
                 connection: {
                     remoteAddress: 'test address'
                 },
                 path: 'test path'
             };
-            var nextMock = this.stub();
+            let nextMock = this.stub();
 
             logger.logPrefixGenerator(req, null, nextMock);
             expect(req.logPrefix).to.eql('[test method][test address][test path]');
@@ -104,7 +104,7 @@ describe('The logger module', function() {
         }));
 
         it('should generate log prefix with user', sinon.test(function () {
-            var req = {
+            let req = {
                 method: 'test method',
                 connection: {
                     remoteAddress: 'test address'
@@ -114,7 +114,7 @@ describe('The logger module', function() {
                     username: 'test username'
                 }
             };
-            var nextMock = this.stub();
+            let nextMock = this.stub();
 
             logger.logPrefixGenerator(req, null, nextMock);
             expect(req.logPrefix).to.eql('[test method][test address][test path][test username]');
@@ -122,7 +122,7 @@ describe('The logger module', function() {
         }));
 
         it('should generate log prefix with token', sinon.test(function () {
-            var req = {
+            let req = {
                 method: 'test method',
                 connection: {
                     remoteAddress: 'test address'
@@ -134,7 +134,7 @@ describe('The logger module', function() {
                     }
                 }
             };
-            var nextMock = this.stub();
+            let nextMock = this.stub();
 
             logger.logPrefixGenerator(req, null, nextMock);
             expect(req.logPrefix).to.eql('[test method][test address][test path][test username]');
@@ -147,9 +147,9 @@ describe('The logger module', function() {
             logger.logger = this.stub();
             logger.logger.info = this.stub();
 
-            var reqMock = this.stub();
+            let reqMock = this.stub();
             reqMock.logPrefix = this.stub();
-            var nextMock = this.stub();
+            let nextMock = this.stub();
 
             logger.reqLogger(reqMock, null, nextMock);
 

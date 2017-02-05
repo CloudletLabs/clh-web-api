@@ -1,12 +1,12 @@
 'use strict';
 
-var sinon = require('sinon');
-var chai = require('chai');
-var sinonChai = require("sinon-chai");
-var expect = chai.expect;
+let sinon = require('sinon');
+let chai = require('chai');
+let sinonChai = require("sinon-chai");
+let expect = chai.expect;
 chai.use(sinonChai);
 
-var modelHelpers = require('../../../app/models/modelHelpers');
+let modelHelpers = require('../../../app/models/modelHelpers');
 
 describe('The modelHelpers module', function() {
 
@@ -16,7 +16,7 @@ describe('The modelHelpers module', function() {
     }));
 
     it('should delete default mongo fields', sinon.test(function () {
-        var schema = {
+        let schema = {
             options: {}
         };
 
@@ -24,7 +24,7 @@ describe('The modelHelpers module', function() {
 
         expect(schema.options.toObject).to.respondTo('transform');
 
-        var object = schema.options.toObject.transform(null, {
+        let object = schema.options.toObject.transform(null, {
             _id: 'id',
             __v: 'v',
             field1: 'value1',

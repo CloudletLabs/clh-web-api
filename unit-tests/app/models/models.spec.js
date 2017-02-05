@@ -1,46 +1,46 @@
 'use strict';
 
-var sinon = require('sinon');
-var chai = require('chai');
-var sinonChai = require("sinon-chai");
-var expect = chai.expect;
+let sinon = require('sinon');
+let chai = require('chai');
+let sinonChai = require("sinon-chai");
+let expect = chai.expect;
 chai.use(sinonChai);
 let proxyquire = require('proxyquire');
 
 describe('The models module', function() {
 
     it('should perform default configuration', sinon.test(function () {
-        var modelHelpersMock = this.stub();
-        var connectionMock = this.stub();
-        var mongooseMock = this.stub();
-        var momentMock = this.stub();
-        var uuidMock = this.stub();
+        let modelHelpersMock = this.stub();
+        let connectionMock = this.stub();
+        let mongooseMock = this.stub();
+        let momentMock = this.stub();
+        let uuidMock = this.stub();
 
-        var userMockModule = this.stub();
-        var userMock = this.stub();
+        let userMockModule = this.stub();
+        let userMock = this.stub();
         userMockModule.withArgs(modelHelpersMock, connectionMock, mongooseMock).returns(userMock);
 
-        var userAuthTokenMockModule = this.stub();
-        var userAuthTokenMock = this.stub();
+        let userAuthTokenMockModule = this.stub();
+        let userAuthTokenMock = this.stub();
         userAuthTokenMockModule.withArgs(
             modelHelpersMock, connectionMock, mongooseMock, momentMock, uuidMock, 30).returns(userAuthTokenMock);
 
-        var userRoleMockModule = this.stub();
-        var userRoleMock = this.stub();
+        let userRoleMockModule = this.stub();
+        let userRoleMock = this.stub();
         userRoleMockModule.withArgs(modelHelpersMock, connectionMock, mongooseMock).returns(userRoleMock);
 
-        var newsMockModule = this.stub();
-        var newsMock = this.stub();
+        let newsMockModule = this.stub();
+        let newsMock = this.stub();
         newsMockModule.withArgs(modelHelpersMock, connectionMock, mongooseMock, momentMock).returns(newsMock);
 
-        var modelsMock = {
+        let modelsMock = {
             user: userMock,
             userAuthToken: userAuthTokenMock,
             userRole: userRoleMock,
             news: newsMock
         };
 
-        var models = proxyquire('../../../app/models/models', {
+        let models = proxyquire('../../../app/models/models', {
             './user': userMockModule,
             './userAuthToken': userAuthTokenMockModule,
             './userRole': userRoleMockModule,

@@ -1,16 +1,16 @@
 'use strict';
 
-var sinon = require('sinon');
-var chai = require('chai');
-var sinonChai = require("sinon-chai");
-var expect = chai.expect;
+let sinon = require('sinon');
+let chai = require('chai');
+let sinonChai = require("sinon-chai");
+let expect = chai.expect;
 chai.use(sinonChai);
 
-var controllerHelpers = require('../../../app/controllers/controllerHelpers');
+let controllerHelpers = require('../../../app/controllers/controllerHelpers');
 
 describe('The controllerHelpers module', function() {
-    var sandbox = sinon.sandbox.create();
-    var doneMock,
+    let sandbox = sinon.sandbox.create();
+    let doneMock,
         callbackMock,
         resultMock,
         errorMock;
@@ -42,14 +42,14 @@ describe('The controllerHelpers module', function() {
     });
     
     describe('exec', function () {
-        var conditionMock;
+        let conditionMock;
         
         beforeEach(function () {
             conditionMock = sandbox.stub();
             conditionMock.exec = sandbox.stub();
         });
 
-        var commonTests = function () {
+        let commonTests = function () {
             expect(conditionMock.exec).to.have.been.calledWithExactly(sinon.match.func);
         };
 
@@ -109,7 +109,7 @@ describe('The controllerHelpers module', function() {
     });
     
     describe('ensureNotExist', function () {
-        var conditionMock,
+        let conditionMock,
             execMock;
         
         beforeEach(function () {
@@ -117,7 +117,7 @@ describe('The controllerHelpers module', function() {
             execMock = sandbox.stub(controllerHelpers, 'exec');
         });
 
-        var commonTests = function () {
+        let commonTests = function () {
             expect(execMock).to.have.been.calledWithExactly(conditionMock, doneMock, sinon.match.func);
         };
 
@@ -150,7 +150,7 @@ describe('The controllerHelpers module', function() {
     });
     
     describe('save', function () {
-        var objMock,
+        let objMock,
             populateConditionMock,
             populateMock;
         
@@ -161,7 +161,7 @@ describe('The controllerHelpers module', function() {
             populateMock = sandbox.stub(controllerHelpers, 'populate');
         });
 
-        var commonTests = function () {
+        let commonTests = function () {
             expect(objMock.save).to.have.been.calledWithExactly(sinon.match.func);
         };
 
@@ -212,7 +212,7 @@ describe('The controllerHelpers module', function() {
     });
 
     describe('populate', function () {
-        var objMock,
+        let objMock,
             populateConditionMock,
             promiseMock;
 
@@ -226,7 +226,7 @@ describe('The controllerHelpers module', function() {
             promiseMock.then = sandbox.stub();
         });
 
-        var commonTests = function () {
+        let commonTests = function () {
             expect(populateConditionMock.apply).to.have.been.calledWithExactly(objMock);
             expect(populateConditionMock.execPopulate).to.have.been.calledWithExactly();
         };
@@ -269,23 +269,23 @@ describe('The controllerHelpers module', function() {
     });
 
     it('should updateFields', function () {
-        var conditionMock = sandbox.stub();
-        var originalMock = {
+        let conditionMock = sandbox.stub();
+        let originalMock = {
             _id: 'default__id',
             __v: 'default___v',
             field1: 'default1',
             field3: 'default3'
         };
-        var updatedMock = {
+        let updatedMock = {
             _id: 'new__id',
             __v: 'new___v',
             field1: 'value1',
             field2: 'value2'
         };
-        var populateConditionMock = sandbox.stub();
-        var execMock = sandbox.stub(controllerHelpers, 'exec');
+        let populateConditionMock = sandbox.stub();
+        let execMock = sandbox.stub(controllerHelpers, 'exec');
         execMock.callsArgWith(2, originalMock);
-        var saveMock = sandbox.stub(controllerHelpers, 'save');
+        let saveMock = sandbox.stub(controllerHelpers, 'save');
 
         controllerHelpers.updateFields(conditionMock, updatedMock, populateConditionMock, doneMock, callbackMock);
 
@@ -301,7 +301,7 @@ describe('The controllerHelpers module', function() {
     });
     
     describe('get', function () {
-        var conditionMock,
+        let conditionMock,
             execMock;
         
         beforeEach(function () {
@@ -330,12 +330,12 @@ describe('The controllerHelpers module', function() {
     });
 
     it('should create', function () {
-        var existenceCheckConditionMock = sandbox.stub();
-        var objMock = sandbox.stub();
-        var populateConditionMock = sandbox.stub();
-        var ensureNotExistMock = sandbox.stub(controllerHelpers, 'ensureNotExist');
+        let existenceCheckConditionMock = sandbox.stub();
+        let objMock = sandbox.stub();
+        let populateConditionMock = sandbox.stub();
+        let ensureNotExistMock = sandbox.stub(controllerHelpers, 'ensureNotExist');
         ensureNotExistMock.callsArg(2);
-        var saveMock = sandbox.stub(controllerHelpers, 'save');
+        let saveMock = sandbox.stub(controllerHelpers, 'save');
 
         controllerHelpers.create(existenceCheckConditionMock, objMock, populateConditionMock, doneMock, callbackMock);
 
@@ -344,7 +344,7 @@ describe('The controllerHelpers module', function() {
     });
     
     describe('update', function () {
-        var conditionMock,
+        let conditionMock,
             updatedMock,
             populateConditionMock,
             ensureNotExistMock,
@@ -360,7 +360,7 @@ describe('The controllerHelpers module', function() {
         });
 
         it('should ensureNotExist', function () {
-            var keyFieldUpdateConditionMock = sandbox.stub();
+            let keyFieldUpdateConditionMock = sandbox.stub();
             ensureNotExistMock.callsArg(2);
 
             controllerHelpers.update(
@@ -383,14 +383,13 @@ describe('The controllerHelpers module', function() {
     });
 
     describe('remove', function () {
-        var conditionMock;
+        let conditionMock;
         
         beforeEach(function () {
             conditionMock = sandbox.stub();
-            conditionMock = sandbox.stub();
         });
         
-        var commonTests = function () {
+        let commonTests = function () {
             expect(conditionMock).to.have.been.calledWithExactly(sinon.match.func);
         };
 

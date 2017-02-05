@@ -7,7 +7,7 @@ module.exports = {
     morgan: function(app, morgan) {
         if (app.get('env') === 'development') {
             //noinspection JSUnusedGlobalSymbols
-            var morganDevConfig = {
+            let morganDevConfig = {
                 skip: function (req, res) {
                     return res.statusCode < 400
                 }
@@ -48,7 +48,7 @@ module.exports = {
         app.use(express.static(path.join(__dirname, '../public')));
 
         // API v1 router
-        var v1 = v1Api(express, app, pJson, logger, apiHandlers, passport, controllers);
+        let v1 = v1Api(express, app, pJson, logger, apiHandlers, passport, controllers);
         v1.router.get('/status', apiHandlers.status(v1));
         v1.router.get('/info', apiHandlers.info(v1));
 

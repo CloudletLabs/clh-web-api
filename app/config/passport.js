@@ -2,8 +2,8 @@
 
 module.exports = function (passport, passportHelpers, models, moment, BasicStrategy, BearerStrategy) {
 
-    var UserAuthToken = models.userAuthToken;
-    var User = models.user;
+    let UserAuthToken = models.userAuthToken;
+    let User = models.user;
 
     /**
      * Strategy for username+password auth

@@ -1,12 +1,12 @@
 'use strict';
 
-var sinon = require('sinon');
-var chai = require('chai');
-var sinonChai = require("sinon-chai");
-var expect = chai.expect;
+let sinon = require('sinon');
+let chai = require('chai');
+let sinonChai = require("sinon-chai");
+let expect = chai.expect;
 chai.use(sinonChai);
 
-var appConfig = require('../../app/config');
+let appConfig = require('../../app/config');
 
 describe('The config module', function() {
     it('should have functions', sinon.test(function () {
@@ -21,24 +21,24 @@ describe('The config module', function() {
     }));
 
     it('should create app', sinon.test(function () {
-        var expressMock = this.stub();
-        var appMock = this.stub();
+        let expressMock = this.stub();
+        let appMock = this.stub();
         expressMock.returns(appMock);
 
-        var app = appConfig.createApp(expressMock);
+        let app = appConfig.createApp(expressMock);
 
         expect(app).to.be.equal(appMock);
     }));
 
     it('should configure morgan for dev', sinon.test(function () {
-        var appMock = this.stub();
+        let appMock = this.stub();
         appMock.get = this.stub();
         appMock.get.withArgs('env').returns('development');
         appMock.use = this.stub();
-        var morganMock = this.stub();
-        var config;
-        var morganFunctionSpy = this.spy();
-        var morganFunctionMock = function (env, actualConfig) {
+        let morganMock = this.stub();
+        let config = null;
+        let morganFunctionSpy = this.spy();
+        let morganFunctionMock = function (env, actualConfig) {
             morganFunctionSpy(env, actualConfig);
             config = actualConfig;
             return morganMock;
@@ -55,12 +55,12 @@ describe('The config module', function() {
     }));
 
     it('should configure morgan for non dev', sinon.test(function () {
-        var appMock = this.stub();
+        let appMock = this.stub();
         appMock.get = this.stub();
         appMock.get.withArgs('env').returns('foo');
         appMock.use = this.stub();
-        var morganMock = this.stub();
-        var morganFunctionMock = this.stub();
+        let morganMock = this.stub();
+        let morganFunctionMock = this.stub();
         morganFunctionMock.returns(morganMock);
 
         appConfig.morgan(appMock, morganFunctionMock);
@@ -71,21 +71,21 @@ describe('The config module', function() {
     }));
 
     it('should configure origin headers for OPTIONS request', sinon.test(function () {
-        var appMock = this.stub();
+        let appMock = this.stub();
 
-        var appMockUseSpy = this.spy();
-        var thisSinon = this;
+        let appMockUseSpy = this.spy();
+        let thisSinon = this;
         appMock.use = function (configurator) {
             appMockUseSpy();
 
-            var reqMock = thisSinon.stub();
+            let reqMock = thisSinon.stub();
             reqMock.method = 'OPTIONS';
-            var resMock = thisSinon.stub();
+            let resMock = thisSinon.stub();
             resMock.setHeader = thisSinon.spy();
             resMock.status = thisSinon.stub();
             resMock.status.returns(resMock);
             resMock.send = thisSinon.spy();
-            var nextMock = thisSinon.spy();
+            let nextMock = thisSinon.spy();
 
             configurator(reqMock, resMock, nextMock);
 
@@ -103,18 +103,18 @@ describe('The config module', function() {
     }));
 
     it('should configure origin headers for non-OPTIONS requests', sinon.test(function () {
-        var appMock = this.stub();
+        let appMock = this.stub();
 
-        var appMockUseSpy = this.spy();
-        var thisSinon = this;
+        let appMockUseSpy = this.spy();
+        let thisSinon = this;
         appMock.use = function (configurator) {
             appMockUseSpy();
 
-            var reqMock = thisSinon.stub();
+            let reqMock = thisSinon.stub();
             reqMock.method = 'foo';
-            var resMock = thisSinon.stub();
+            let resMock = thisSinon.stub();
             resMock.setHeader = thisSinon.spy();
-            var nextMock = thisSinon.spy();
+            let nextMock = thisSinon.spy();
 
             configurator(reqMock, resMock, nextMock);
 
@@ -128,17 +128,17 @@ describe('The config module', function() {
     }));
 
     it('should configure parsing middleware', sinon.test(function () {
-        var appMock = this.stub();
+        let appMock = this.stub();
         appMock.use = this.stub();
-        var cookieParserFunctionMock = this.stub();
-        var cookieParserMock = this.stub();
+        let cookieParserFunctionMock = this.stub();
+        let cookieParserMock = this.stub();
         cookieParserFunctionMock.returns(cookieParserMock);
-        var bodyParserMock = this.stub();
+        let bodyParserMock = this.stub();
         bodyParserMock.json = this.stub();
-        var bodyParserJsonMock = this.stub();
+        let bodyParserJsonMock = this.stub();
         bodyParserMock.json.returns(bodyParserJsonMock);
         bodyParserMock.urlencoded = this.stub();
-        var bodyParserUrlEncodedMock = this.stub();
+        let bodyParserUrlEncodedMock = this.stub();
         bodyParserMock.urlencoded.returns(bodyParserUrlEncodedMock);
 
         appConfig.parsingMiddleware(appMock, cookieParserFunctionMock, bodyParserMock);
@@ -152,9 +152,9 @@ describe('The config module', function() {
     }));
 
     it('should configure logging middleware', sinon.test(function () {
-        var appMock = this.stub();
+        let appMock = this.stub();
         appMock.use = this.stub();
-        var loggerModuleMock = this.stub();
+        let loggerModuleMock = this.stub();
         loggerModuleMock.logPrefixGenerator = this.stub();
         loggerModuleMock.reqLogger = this.stub();
 
@@ -165,22 +165,22 @@ describe('The config module', function() {
     }));
 
     it('should configure routes', sinon.test(function () {
-        var appMock = this.stub();
+        let appMock = this.stub();
         appMock.use = this.stub();
 
-        var pJsonMock = this.stub();
+        let pJsonMock = this.stub();
 
-        var expressMock = this.stub();
+        let expressMock = this.stub();
         expressMock.static = this.stub();
         expressMock.static.returns('test static');
 
-        var pathMock = this.stub();
+        let pathMock = this.stub();
         pathMock.join = this.stub();
         pathMock.join.returns('test path');
 
-        var loggerMock = this.stub();
+        let loggerMock = this.stub();
 
-        var apiHandlersMock = this.stub();
+        let apiHandlersMock = this.stub();
         apiHandlersMock.notFoundHandler = this.stub();
         apiHandlersMock.errorHandler = this.stub();
         apiHandlersMock.status = this.stub();
@@ -188,7 +188,7 @@ describe('The config module', function() {
         apiHandlersMock.info = this.stub();
         apiHandlersMock.info.returns(apiHandlersMock.info);
 
-        var v1ApiMock = this.stub();
+        let v1ApiMock = this.stub();
         v1ApiMock.apiVersion = '1';
         v1ApiMock.pJson = pJsonMock;
         v1ApiMock.router = this.stub();
@@ -196,8 +196,8 @@ describe('The config module', function() {
         v1ApiMock.log = this.stub();
         v1ApiMock.returns(v1ApiMock);
 
-        var passportMock = this.stub();
-        var controllersMock = this.stub();
+        let passportMock = this.stub();
+        let controllersMock = this.stub();
 
         appConfig.routes(appMock, pJsonMock, expressMock, pathMock, loggerMock,
             apiHandlersMock, v1ApiMock, passportMock, controllersMock);
@@ -219,25 +219,25 @@ describe('The config module', function() {
     }));
 
     it('should configure error handlers', sinon.test(function () {
-        var appMock = this.stub();
-        var appUseSpy = this.spy();
-        var handlers = [];
+        let appMock = this.stub();
+        let appUseSpy = this.spy();
+        let handlers = [];
         appMock.use = function (handler) {
             appUseSpy();
             handlers.push(handler);
         };
-        var reqMock = {};
+        let reqMock = {};
         reqMock.method = 'test method';
         reqMock.connection = {};
         reqMock.connection.remoteAddress = 'test address';
         reqMock.path = 'test path';
-        var resMock = this.stub();
+        let resMock = this.stub();
         resMock.status = this.stub();
         resMock.status.returns(resMock);
         resMock.send = this.stub();
 
-        var consoleWarnMock = this.stub(console, 'warn');
-        var consoleErrorMock = this.stub(console, 'error');
+        let consoleWarnMock = this.stub(console, 'warn');
+        let consoleErrorMock = this.stub(console, 'error');
 
         appConfig.errors(appMock);
 

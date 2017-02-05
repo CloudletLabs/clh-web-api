@@ -1,16 +1,16 @@
 'use strict';
 
-var sinon = require('sinon');
-var chai = require('chai');
-var sinonChai = require("sinon-chai");
-var expect = chai.expect;
+let sinon = require('sinon');
+let chai = require('chai');
+let sinonChai = require("sinon-chai");
+let expect = chai.expect;
 chai.use(sinonChai);
 
-var helper = require('../../../app/config/passportHelpers');
+let helper = require('../../../app/config/passportHelpers');
 
 describe('The passportHelpers module', function() {
     describe('authByRole', function () {
-        var sandbox = sinon.sandbox.create();
+        let sandbox = sinon.sandbox.create();
         afterEach(function () {
             sandbox.restore();
         });
@@ -19,9 +19,9 @@ describe('The passportHelpers module', function() {
             helper.authByToken = sandbox.stub(helper, 'authByToken');
             helper.authByToken.callsArgWith(5, null, { user: 'user object' });
             helper._checkRole = sandbox.stub(helper, '_checkRole');
-            var UserAuthTokenMock = sandbox.stub();
-            var momentMock = sandbox.stub();
-            var reqMock = sandbox.stub();
+            let UserAuthTokenMock = sandbox.stub();
+            let momentMock = sandbox.stub();
+            let reqMock = sandbox.stub();
 
             helper.authByRole(UserAuthTokenMock, momentMock, reqMock, 'token', 'role', 'done');
 
@@ -33,7 +33,7 @@ describe('The passportHelpers module', function() {
         it('should fail at error in auth by role auth', function () {
             helper.authByToken = sandbox.stub(helper, 'authByToken');
             helper.authByToken.callsArgWith(5, 'test error');
-            var doneMock = sandbox.stub();
+            let doneMock = sandbox.stub();
 
             helper.authByRole(null, null, null, null, null, doneMock);
 
@@ -43,7 +43,7 @@ describe('The passportHelpers module', function() {
         it('should refuse auth by role for token', function () {
             helper.authByToken = sandbox.stub(helper, 'authByToken');
             helper.authByToken.callsArgWith(5, null, false);
-            var doneMock = sandbox.stub();
+            let doneMock = sandbox.stub();
 
             helper.authByRole(null, null, null, null, null, doneMock);
 
@@ -53,14 +53,14 @@ describe('The passportHelpers module', function() {
 
     describe('_checkRole', function () {
         it('should accept role', sinon.test(function () {
-            var user = {
+            let user = {
                 roles: [
                     {
                         roleId: 'fake role'
                     }
                 ]
             };
-            var doneMock = this.stub();
+            let doneMock = this.stub();
 
             helper._checkRole(user, 'fake role', doneMock);
 
@@ -74,14 +74,14 @@ describe('The passportHelpers module', function() {
         }));
 
         it('should refuse role', sinon.test(function () {
-            var user = {
+            let user = {
                 roles: [
                     {
                         roleId: 'another fake role'
                     }
                 ]
             };
-            var doneMock = this.stub();
+            let doneMock = this.stub();
 
             helper._checkRole(user, 'fake role', doneMock);
 
@@ -90,12 +90,12 @@ describe('The passportHelpers module', function() {
     });
 
     describe('authByToken', function () {
-        var sandbox = sinon.sandbox.create();
+        let sandbox = sinon.sandbox.create();
         afterEach(function () {
             sandbox.restore();
         });
 
-        var
+        let
             UserAuthTokenMock,
             momentMock,
             reqMock,
@@ -156,12 +156,12 @@ describe('The passportHelpers module', function() {
     });
 
     describe('_checkToken', function () {
-        var sandbox = sinon.sandbox.create();
+        let sandbox = sinon.sandbox.create();
         afterEach(function () {
             sandbox.restore();
         });
 
-        var
+        let
             userAuthTokenMock,
             momentMock,
             reqMock,

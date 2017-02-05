@@ -1,12 +1,12 @@
 'use strict';
 
-var sinon = require('sinon');
-var chai = require('chai');
-var sinonChai = require("sinon-chai");
-var expect = chai.expect;
+let sinon = require('sinon');
+let chai = require('chai');
+let sinonChai = require("sinon-chai");
+let expect = chai.expect;
 chai.use(sinonChai);
 
-var helper = require('../../../app/models/modelDefaultTestDataHelper');
+let helper = require('../../../app/models/modelDefaultTestDataHelper');
 
 describe('The modelDefaultTestDataHelper module', function() {
 
@@ -23,7 +23,7 @@ describe('The modelDefaultTestDataHelper module', function() {
     }));
 
     it('should check default test data', sinon.test(function () {
-        var modelsMock = {
+        let modelsMock = {
             user: this.stub(),
             userAuthToken: this.stub(),
             userRole: this.stub(),
@@ -33,7 +33,7 @@ describe('The modelDefaultTestDataHelper module', function() {
         modelsMock.userRole.modelName = 'userRoles';
         modelsMock.news.modelName = 'newss';
 
-        var checkSpy = this.stub(helper, '_check', function (helper, model, results, createDefaultCallback, next) {
+        let checkSpy = this.stub(helper, '_check', function (helper, model, results, createDefaultCallback, next) {
             results[model.modelName] = [model.modelName];
             next(results);
         });
@@ -71,23 +71,23 @@ describe('The modelDefaultTestDataHelper module', function() {
 
 
     it('should get results name', sinon.test(function () {
-        var name = helper._getResultsName('MyModelName');
+        let name = helper._getResultsName('MyModelName');
         expect(name).to.be.eql('myModelNames');
     }));
 
 
     it('should create default model data', sinon.test(function () {
-        var modelMock = {
+        let modelMock = {
             count: function (next) {
                 next(null, 0);
             }
         };
-        var resultsMock = this.stub();
-        var createDefaultCallbackMock = this.stub();
+        let resultsMock = this.stub();
+        let createDefaultCallbackMock = this.stub();
         createDefaultCallbackMock.returns('data to create');
-        var nextMock = this.stub();
-        var createDefaultDataMock = this.stub(helper, '_createDefaultData');
-        var getExistingMock = this.stub(helper, '_getExisting');
+        let nextMock = this.stub();
+        let createDefaultDataMock = this.stub(helper, '_createDefaultData');
+        let getExistingMock = this.stub(helper, '_getExisting');
 
         helper._check(helper, modelMock, resultsMock, createDefaultCallbackMock, nextMock);
 
@@ -98,17 +98,17 @@ describe('The modelDefaultTestDataHelper module', function() {
 
 
     it('should fetch existing model data', sinon.test(function () {
-        var modelMock = {
+        let modelMock = {
             count: function (next) {
                 next(null, 1);
             }
         };
-        var createDefaultCallbackMock = this.stub();
-        var results = {
+        let createDefaultCallbackMock = this.stub();
+        let results = {
             'already existing data': 'test data'
         };
-        var nextMock = this.stub();
-        var getExistingMock = this.stub(helper, '_getExisting');
+        let nextMock = this.stub();
+        let getExistingMock = this.stub(helper, '_getExisting');
 
         helper._check(helper, modelMock, results, null, nextMock);
 
@@ -117,13 +117,13 @@ describe('The modelDefaultTestDataHelper module', function() {
     }));
 
     it('should throw error on checking model data', sinon.test(function () {
-        var modelMock = {
+        let modelMock = {
             count: function (next) {
                 next('test error');
             }
         };
-        var createDefaultCallbackMock = this.stub();
-        var getExistingMock = this.stub(helper, '_getExisting');
+        let createDefaultCallbackMock = this.stub();
+        let getExistingMock = this.stub(helper, '_getExisting');
 
         expect(helper._check.bind(helper, helper, modelMock, null, null, null)).to.throw('test error');
         expect(createDefaultCallbackMock).not.to.have.been.called;
@@ -131,18 +131,18 @@ describe('The modelDefaultTestDataHelper module', function() {
     }));
 
     it('should fetch model data', sinon.test(function () {
-        var result = this.stub();
-        var modelMock = {
+        let result = this.stub();
+        let modelMock = {
             find: function (next) {
                 next(null, result);
             },
             modelName: 'test model name'
         };
-        var getResultsName = this.stub(helper, '_getResultsName').returns('test name');
-        var results = {
+        let getResultsName = this.stub(helper, '_getResultsName').returns('test name');
+        let results = {
             'already existing data': 'test data'
         };
-        var next = this.stub();
+        let next = this.stub();
 
         helper._getExisting(helper, modelMock, results, next);
 
@@ -154,7 +154,7 @@ describe('The modelDefaultTestDataHelper module', function() {
     }));
 
     it('should throw error on fetching model data', sinon.test(function () {
-        var modelMock = {
+        let modelMock = {
             find: function (next) {
                 next('test error');
             }
@@ -164,8 +164,8 @@ describe('The modelDefaultTestDataHelper module', function() {
     }));
 
     it('should create default data', sinon.test(function () {
-        var getResultsNameMock = this.stub(helper, '_getResultsName').returns('results name');
-        var data = [
+        let getResultsNameMock = this.stub(helper, '_getResultsName').returns('results name');
+        let data = [
             'data1',
             'data2'
         ];
@@ -175,13 +175,13 @@ describe('The modelDefaultTestDataHelper module', function() {
         exports.MyModule.prototype.save = function (next) {
             next(null, this);
         };
-        var modelMock = this.spy(exports, 'MyModule');
-        var modelSave = this.spy(exports.MyModule.prototype, 'save');
+        let modelMock = this.spy(exports, 'MyModule');
+        let modelSave = this.spy(exports.MyModule.prototype, 'save');
         modelMock.modelName = 'model name';
-        var results = {
+        let results = {
             'already existing data': 'test data'
         };
-        var nextMock = this.stub();
+        let nextMock = this.stub();
         console.warn = this.stub();
 
         helper._createDefaultData(helper, exports.MyModule, results, data, nextMock);
@@ -204,18 +204,18 @@ describe('The modelDefaultTestDataHelper module', function() {
     }));
 
     it('should throw error on creating default data', sinon.test(function () {
-        var getResultsNameMock = this.stub(helper, '_getResultsName').returns('results name');
-        var data = [ 'data1' ];
+        let getResultsNameMock = this.stub(helper, '_getResultsName').returns('results name');
+        let data = [ 'data1' ];
         exports.MyModule = function(data) {
             this.data = data;
         };
         exports.MyModule.prototype.save = function (next) {
             next('test error', this);
         };
-        var modelMock = this.spy(exports, 'MyModule');
-        var modelSave = this.spy(exports.MyModule.prototype, 'save');
+        let modelMock = this.spy(exports, 'MyModule');
+        let modelSave = this.spy(exports.MyModule.prototype, 'save');
         modelMock.modelName = 'model name';
-        var results = {
+        let results = {
             'already existing data': 'test data'
         };
         console.warn = this.stub();
@@ -230,7 +230,7 @@ describe('The modelDefaultTestDataHelper module', function() {
     }));
 
     it('should create default user roles', sinon.test(function () {
-        var userRoles = helper._createDefaultUserRoles(null);
+        let userRoles = helper._createDefaultUserRoles(null);
         expect(userRoles).to.eql([
             {roleId: "ADMIN", displayName: "Administrator"},
             {roleId: "USER", displayName: "User"}
@@ -238,13 +238,13 @@ describe('The modelDefaultTestDataHelper module', function() {
     }));
 
     it('should create default users', sinon.test(function () {
-        var results = {
+        let results = {
             userRoles: [
                 'role1',
                 'role2'
             ]
         };
-        var users = helper._createDefaultUsers(results);
+        let users = helper._createDefaultUsers(results);
         expect(users).to.eql([
             {
                 username: 'admin',
@@ -266,13 +266,13 @@ describe('The modelDefaultTestDataHelper module', function() {
     }));
 
     it('should create default news', sinon.test(function () {
-        var results = {
+        let results = {
             users: [
                 'user1',
                 'user2'
             ]
         };
-        var users = helper._createDefaultNews(results);
+        let users = helper._createDefaultNews(results);
         expect(users).to.eql([
             {
                 slug: 'hello-world',

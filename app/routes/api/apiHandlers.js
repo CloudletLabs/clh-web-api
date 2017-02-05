@@ -6,9 +6,9 @@ module.exports = {
         res.status(404);
         res.json({message: 'Not found'});
     },
-    errorHandler: function (err, req, res, next) {
-        var status = err.status || 500;
-        var message = err.message || 'Unknown API error';
+    errorHandler: function (err, req, res) {
+        let status = err.status || 500;
+        let message = err.message || 'Unknown API error';
         if (status < 500) {
             console.warn('%s API WARN %s: %s', req.logPrefix, status, message);
         } else {
@@ -18,12 +18,12 @@ module.exports = {
         res.json({message: message});
     },
     status: function (api) {
-        return function (req, res, next) {
+        return function (req, res) {
             res.send(api.pJson.name + ': ok');
         }
     },
     info: function (api) {
-        return function (req, res, next) {
+        return function (req, res) {
             res.json({name: api.pJson.name, version: api.pJson.version, apiVersion: api.apiVersion});
         }
     },

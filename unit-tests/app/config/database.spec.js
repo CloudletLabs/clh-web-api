@@ -1,40 +1,40 @@
 'use strict';
 
-var sinon = require('sinon');
-var chai = require('chai');
-var sinonChai = require("sinon-chai");
-var expect = chai.expect;
+let sinon = require('sinon');
+let chai = require('chai');
+let sinonChai = require("sinon-chai");
+let expect = chai.expect;
 chai.use(sinonChai);
 
 describe('The database module', function() {
 
     it('should perform default configuration', sinon.test(function () {
-        var mongooseMock = this.stub();
-        var connectionMock = this.stub();
+        let mongooseMock = this.stub();
+        let connectionMock = this.stub();
         mongooseMock.createConnection = this.stub();
         mongooseMock.createConnection.returns(connectionMock);
-        var handlers = {};
+        let handlers = {};
         connectionMock.on = function (event, handler) {
             handlers[event] = handler;
         };
-        var connectionCloseSpy = this.spy();
-        var connectionCloseCallback;
+        let connectionCloseSpy = this.spy();
+        let connectionCloseCallback;
         connectionMock.close = function (callback) {
             connectionCloseSpy();
             connectionCloseCallback = callback;
         };
 
-        var processOnCallbackMock;
-        var processOnFunctionMock = function (signal, callback) {
+        let processOnCallbackMock;
+        let processOnFunctionMock = function (signal, callback) {
             processOnCallbackMock = callback;
         };
-        var processOnMock = this.stub(process, 'on', processOnFunctionMock);
-        var processExitMock = this.stub(process, 'exit');
-        var consoleInfoMock = this.stub(console, 'info');
-        var consoleWarnMock = this.stub(console, 'warn');
-        var consoleErrorMock = this.stub(console, 'error');
+        let processOnMock = this.stub(process, 'on', processOnFunctionMock);
+        let processExitMock = this.stub(process, 'exit');
+        let consoleInfoMock = this.stub(console, 'info');
+        let consoleWarnMock = this.stub(console, 'warn');
+        let consoleErrorMock = this.stub(console, 'error');
 
-        var connection = require('../../../app/config/database')(mongooseMock);
+        let connection = require('../../../app/config/database')(mongooseMock);
 
         expect(connection).to.be.equal(connectionMock);
         expect(mongooseMock.createConnection).to.have.been.calledWithExactly('mongodb://localhost:27017/clhApp',

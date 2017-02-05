@@ -1,15 +1,15 @@
 'use strict';
 
-var sinon = require('sinon');
-var chai = require('chai');
-var sinonChai = require("sinon-chai");
-var expect = chai.expect;
+let sinon = require('sinon');
+let chai = require('chai');
+let sinonChai = require("sinon-chai");
+let expect = chai.expect;
 chai.use(sinonChai);
 
 describe('The news controller module', function() {
-    var sandbox = sinon.sandbox.create();
+    let sandbox = sinon.sandbox.create();
 
-    var loggerMock,
+    let loggerMock,
         modelsMock,
         controllerHelpersMock,
         doneMock,
@@ -62,13 +62,13 @@ describe('The news controller module', function() {
     });
 
     it('should create news', function () {
-        var creatorMock = sandbox.stub();
-        var newsJsonMock = {
+        let creatorMock = sandbox.stub();
+        let newsJsonMock = {
             slug: 'test slug',
             subject: 'test subject',
             text: 'test text'
         };
-        var savedNews = sandbox.stub();
+        let savedNews = sandbox.stub();
 
         modelsMock.news.generateNew = sandbox.stub();
         modelsMock.news.generateNew.returns(savedNews);
@@ -86,7 +86,7 @@ describe('The news controller module', function() {
     });
 
     it('should get single news', function () {
-        var slugMock = sandbox.stub();
+        let slugMock = sandbox.stub();
 
         modelsMock.news.findOne = sandbox.stub();
         modelsMock.news.findOne.returns(modelsMock.news);
@@ -99,7 +99,7 @@ describe('The news controller module', function() {
     });
 
     it('should remove single news', function () {
-        var slugMock = sandbox.stub();
+        let slugMock = sandbox.stub();
 
         modelsMock.news.findOneAndRemove = sandbox.stub();
         modelsMock.news.findOneAndRemove.returns(modelsMock.news);

@@ -1,15 +1,15 @@
 'use strict';
 
-var sinon = require('sinon');
-var chai = require('chai');
-var sinonChai = require("sinon-chai");
-var expect = chai.expect;
+let sinon = require('sinon');
+let chai = require('chai');
+let sinonChai = require("sinon-chai");
+let expect = chai.expect;
 chai.use(sinonChai);
 
 describe('The user controller module', function() {
-    var sandbox = sinon.sandbox.create();
+    let sandbox = sinon.sandbox.create();
 
-    var loggerMock,
+    let loggerMock,
         defaultRoleMock,
         modelsMock,
         controllerHelpersMock,
@@ -55,7 +55,7 @@ describe('The user controller module', function() {
 
     it('should error on getting default role', function () {
         modelsMock.userRole.findOne.callsArgWith(1, new Error('test error'));
-        var fn = function () {
+        let fn = function () {
             require('../../../app/controllers/user')(loggerMock, modelsMock, controllerHelpersMock);
         };
         expect(fn).to.throw(Error, /test error/);
@@ -63,17 +63,17 @@ describe('The user controller module', function() {
 
     it('should error on not getting default role', function () {
         modelsMock.userRole.findOne.callsArgWith(1, null, null);
-        var fn = function () {
+        let fn = function () {
             require('../../../app/controllers/user')(loggerMock, modelsMock, controllerHelpersMock);
         };
         expect(fn).to.throw(Error, /Default USER role not found/);
     });
 
     it('should populate user from token', function () {
-        var tokenMock = sandbox.stub();
-        var populateConditionMock = sandbox.stub();
+        let tokenMock = sandbox.stub();
+        let populateConditionMock = sandbox.stub();
         tokenMock.populate = sandbox.stub().returns(populateConditionMock);
-        var populatedTokenMock = sandbox.stub();
+        let populatedTokenMock = sandbox.stub();
         populatedTokenMock.user = sandbox.stub();
         controllerHelpersMock.populate.onFirstCall().callsArgWith(3, populatedTokenMock);
 
@@ -98,14 +98,14 @@ describe('The user controller module', function() {
     });
 
     it('should create user', function () {
-        var userJsonMock = {
+        let userJsonMock = {
             username: 'test username',
             password: 'test password',
             email: 'test email',
             name: 'test name',
             roles: ['test defaultRole']
         };
-        var generatedResult = sandbox.stub();
+        let generatedResult = sandbox.stub();
 
         modelsMock.user.generateNew = sandbox.stub();
         modelsMock.user.generateNew.returns(generatedResult);
@@ -130,7 +130,7 @@ describe('The user controller module', function() {
     });
 
     it('should get single user', function () {
-        var usernameMock = sandbox.stub();
+        let usernameMock = sandbox.stub();
 
         modelsMock.user.findOne = sandbox.stub();
         modelsMock.user.findOne.returns(modelsMock.user);
@@ -143,7 +143,7 @@ describe('The user controller module', function() {
     });
 
     it('should remove single user', function () {
-        var usernameMock = sandbox.stub();
+        let usernameMock = sandbox.stub();
 
         modelsMock.user.findOneAndRemove = sandbox.stub();
         modelsMock.user.findOneAndRemove.returns(modelsMock.user);
