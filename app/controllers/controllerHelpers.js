@@ -1,18 +1,28 @@
 var helpers = {
-    _exec: function (condition, resultHandler, done) {
+    exec: function (condition, done, callback) {
         condition.exec(function (err, result) {
             if (err) return done(err);
             if (result === null || result === undefined) return done();
-            resultHandler(result);
+            if (callback) {
+                callback(result);
+            } else {
+                if (Array.isArray(result)) {
+                    done(null, result.map(function (entry) {
+                        return entry.toObject();
+                    }));
+                } else {
+                    done(null, result.toObject());
+                }
+            }
         });
     },
     _ensureNotExist: function (condition, callback, done) {
-        helpers._exec(condition, function (count) {
+        helpers.exec(condition, done, function (count) {
             if (count > 0) {
                 return done({status: 400, message: "Already exist"});
             }
             callback();
-        }, done);
+        });
     },
     _save: function (obj, defaultPopulate, done) {
         obj.save(function (err, result) {
@@ -34,7 +44,7 @@ var helpers = {
         });
     },
     _updateFields: function (condition, updated, defaultPopulate, done) {
-        helpers._exec(condition,
+        helpers.exec(condition, done,
             function (original) {
                 for (var attrname in updated) {
                     // TODO: Add extra fields, same as deletes in modelHelpers#deleteMongoFields
@@ -43,16 +53,16 @@ var helpers = {
                 }
 
                 helpers._save(original, defaultPopulate, done);
-            }, done);
+            });
     },
     _get: function (condition, defaultPopulate, resultHandler, done) {
         if (defaultPopulate) {
             condition = defaultPopulate.apply(condition);
         }
-        helpers._exec(condition,
+        helpers.exec(condition, done,
             function (result) {
                 resultHandler(result);
-            }, done);
+            });
     },
     getAll: function (condition, defaultPopulate, done) {
         helpers._get(condition, defaultPopulate, function (result) {
