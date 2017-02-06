@@ -2,6 +2,8 @@
 
 module.exports = function(mongoose) {
 
+    mongoose.Promise = global.Promise;
+
     /**
      * Open mongodb connection
      */

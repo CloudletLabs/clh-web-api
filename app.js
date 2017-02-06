@@ -30,7 +30,7 @@ let connection = require('./app/config/database')(mongoose);
 let modelHelpers = require('./app/models/modelHelpers');
 let models = require('./app/models/models')(modelHelpers, connection, mongoose, moment, uuid);
 let modelDefaultTestDataHelper = require('./app/models/modelDefaultTestDataHelper');
-modelDefaultTestDataHelper.check(models, moment);
+modelDefaultTestDataHelper.check(models);
 
 /**
  * Controllers

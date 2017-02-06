@@ -36,6 +36,7 @@ describe('The database module', function() {
 
         let connection = require('../../../app/config/database')(mongooseMock);
 
+        expect(mongooseMock.Promise).to.equals(global.Promise);
         expect(connection).to.be.equal(connectionMock);
         expect(mongooseMock.createConnection).to.have.been.calledWithExactly('mongodb://localhost:27017/clhApp',
             {server: {poolSize: 1}});

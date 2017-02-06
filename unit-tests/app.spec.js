@@ -94,7 +94,7 @@ describe('The app module', function() {
         expect(databaseModuleMock).to.have.been.calledWithExactly(mongooseMock);
         expect(modelsModuleMock).to.have.been.calledWithExactly(
             modelHelpersMock, connectionMock, mongooseMock, momentMock, uuidMock);
-        expect(modelDefaultTestDataHelperMock.check).to.have.been.calledWithExactly(modelsMock, momentMock);
+        expect(modelDefaultTestDataHelperMock.check).to.have.been.calledWithExactly(modelsMock);
 
         expect(controllersModuleMock).to.have.been.calledWithExactly(
             loggerModuleMock.logger, modelsMock, controllerHelpersMock);
