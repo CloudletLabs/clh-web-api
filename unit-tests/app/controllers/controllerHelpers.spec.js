@@ -29,11 +29,12 @@ describe('The controllerHelpers module', function() {
     });
 
     it('should have functions', function () {
-        expect(Object.keys(controllerHelpers).length).to.be.equal(9);
+        expect(Object.keys(controllerHelpers).length).to.be.equal(10);
         expect(controllerHelpers.exec).to.be.a('function');
         expect(controllerHelpers.ensureNotExist).to.be.a('function');
         expect(controllerHelpers.save).to.be.a('function');
         expect(controllerHelpers.populate).to.be.a('function');
+        expect(controllerHelpers.populateExec).to.be.a('function');
         expect(controllerHelpers.updateFields).to.be.a('function');
         expect(controllerHelpers.get).to.be.a('function');
         expect(controllerHelpers.create).to.be.a('function');
@@ -211,30 +212,22 @@ describe('The controllerHelpers module', function() {
         });
     });
 
-    describe('populate', function () {
-        let objMock,
-            populateConditionMock,
-            promiseMock;
+    describe('populateExec', function () {
+        let promiseMock;
 
         beforeEach(function () {
-            objMock = sandbox.stub();
-            populateConditionMock = sandbox.stub();
             promiseMock = sandbox.stub();
-
-            populateConditionMock.apply = sandbox.stub().returns(populateConditionMock);
-            populateConditionMock.execPopulate = sandbox.stub().returns(promiseMock);
             promiseMock.then = sandbox.stub();
         });
 
         let commonTests = function () {
-            expect(populateConditionMock.apply).to.have.been.calledWithExactly(objMock);
-            expect(populateConditionMock.execPopulate).to.have.been.calledWithExactly();
+            expect(promiseMock.then).to.have.been.calledWithExactly(sinon.match.func, sinon.match.func);
         };
 
         it('should callback', function () {
             promiseMock.then.callsArgWith(0, resultMock);
 
-            controllerHelpers.populate(objMock, populateConditionMock, doneMock, callbackMock);
+            controllerHelpers.populateExec(promiseMock, doneMock, callbackMock);
 
             commonTests();
             expect(callbackMock).to.have.been.calledWithExactly(resultMock);
@@ -243,7 +236,7 @@ describe('The controllerHelpers module', function() {
         it('should done', function () {
             promiseMock.then.callsArgWith(0, resultMock);
 
-            controllerHelpers.populate(objMock, populateConditionMock, doneMock);
+            controllerHelpers.populateExec(promiseMock, doneMock);
 
             commonTests();
             expect(doneMock).to.have.been.calledWithExactly(null, resultMock.toObject);
@@ -252,7 +245,7 @@ describe('The controllerHelpers module', function() {
         it('should fail', function () {
             promiseMock.then.callsArg(0);
 
-            controllerHelpers.populate(objMock, populateConditionMock, doneMock);
+            controllerHelpers.populateExec(promiseMock, doneMock);
 
             commonTests();
             expect(doneMock).to.have.been.calledWithExactly({status: 500, message: 'Populated result was null'});
@@ -261,11 +254,27 @@ describe('The controllerHelpers module', function() {
         it('should error', function () {
             promiseMock.then.callsArgWith(1, errorMock);
 
-            controllerHelpers.populate(objMock, populateConditionMock, doneMock);
+            controllerHelpers.populateExec(promiseMock, doneMock);
 
             commonTests();
             expect(doneMock).to.have.been.calledWithExactly(errorMock);
         });
+    });
+
+    it('should populate', function () {
+        let objMock = sandbox.stub();
+        let populateConditionMock = sandbox.stub();
+        let conditionMock = sandbox.stub();
+        populateConditionMock.apply = sandbox.stub().returns(conditionMock);
+        let execMock = sandbox.stub();
+        conditionMock.execPopulate = sandbox.stub().returns(execMock);
+        let populateExecMock = sandbox.stub(controllerHelpers, 'populateExec');
+
+        controllerHelpers.populate(objMock, populateConditionMock, doneMock, callbackMock);
+
+        expect(populateConditionMock.apply).to.have.been.calledWithExactly(objMock);
+        expect(conditionMock.execPopulate).to.have.been.calledWithExactly();
+        expect(populateExecMock).to.have.been.calledWithExactly(execMock, doneMock, callbackMock);
     });
 
     it('should updateFields', function () {

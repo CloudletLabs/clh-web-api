@@ -25,6 +25,7 @@ describe('The user controller module', function() {
 
         controllerHelpersMock = sandbox.stub();
         controllerHelpersMock.populate = sandbox.stub();
+        controllerHelpersMock.populateExec = sandbox.stub();
         controllerHelpersMock.create = sandbox.stub();
         controllerHelpersMock.get = sandbox.stub();
         controllerHelpersMock.update = sandbox.stub();
@@ -51,17 +52,18 @@ describe('The user controller module', function() {
 
     it('should populate user from token', function () {
         let tokenMock = sandbox.stub();
-        let populateConditionMock = sandbox.stub();
-        tokenMock.populate = sandbox.stub().returns(populateConditionMock);
+        tokenMock.populate = sandbox.stub().returns(tokenMock);
+        let execMock = sandbox.stub();
+        tokenMock.execPopulate = sandbox.stub().returns(execMock);
         let populatedTokenMock = sandbox.stub();
         populatedTokenMock.user = sandbox.stub();
-        controllerHelpersMock.populate.onFirstCall().callsArgWith(3, populatedTokenMock);
+        controllerHelpersMock.populateExec.callsArgWith(2, populatedTokenMock);
 
         controller.populateFromToken(tokenMock, doneMock);
 
         expect(tokenMock.populate).to.have.been.calledWithExactly('user');
-        expect(controllerHelpersMock.populate).to.have.been.calledWithExactly(
-            tokenMock, populateConditionMock, doneMock, sinon.match.func);
+        expect(tokenMock.execPopulate).to.have.been.calledWithExactly();
+        expect(controllerHelpersMock.populateExec).to.have.been.calledWithExactly(execMock, doneMock, sinon.match.func);
         expect(controllerHelpersMock.populate).to.have.been.calledWithExactly(
             populatedTokenMock.user, modelsMock.user.defaultPopulate, doneMock);
     });

@@ -44,7 +44,10 @@ let helpers = {
         });
     },
     populate: function (obj, populateCondition, done, callback) {
-        populateCondition.apply(obj).execPopulate().then(function (populated) {
+        helpers.populateExec(populateCondition.apply(obj).execPopulate(), done, callback);
+    },
+    populateExec: function (promise, done, callback) {
+        promise.then(function (populated) {
             if (!populated) return done({status: 500, message: 'Populated result was null'});
             if (callback) {
                 callback(populated);

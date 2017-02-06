@@ -7,7 +7,7 @@ module.exports = function (logger, models, controllerHelpers) {
 
     return {
         populateFromToken: function (token, done) {
-            controllerHelpers.populate(token, token.populate('user'), done, function (token) {
+            controllerHelpers.populateExec(token.populate('user').execPopulate(), done, function (token) {
                 controllerHelpers.populate(token.user, User.defaultPopulate, done);
             });
         },
