@@ -15,7 +15,7 @@ module.exports = function (logger, models, controllerHelpers) {
             controllerHelpers.create(
                 UserAuthToken.count({auth_token: newToken.auth_token}), newToken, UserAuthToken.defaultPopulate, done,
                 function (newToken) {
-                    controllerHelpers.remove(token.remove, done, function () {
+                    controllerHelpers.remove(token.remove(), done, function () {
                         done(null, newToken.toObject());
                     });
                 });
@@ -25,7 +25,7 @@ module.exports = function (logger, models, controllerHelpers) {
                 function (tokenObject) {
                     if (user.username != tokenObject.user.username) return done();
 
-                    controllerHelpers.remove(tokenObject.remove, done);
+                    controllerHelpers.remove(tokenObject.remove(), done);
                 });
         }
     }

@@ -63,11 +63,12 @@ describe('The userAuthToken controller module', function() {
     });
 
     it('should regenerate', function () {
+        let promiseMock = sandbox.stub();
         let tokenMock = {
             user: 'test user',
             ip: 'test ip',
             userAgent: 'test userAgent',
-            remove: sandbox.stub()
+            remove: sandbox.stub().returns(promiseMock)
         };
         let generatedResult = sandbox.stub();
         generatedResult.auth_token = sandbox.stub();
@@ -92,7 +93,7 @@ describe('The userAuthToken controller module', function() {
             modelsMock.userAuthToken,
             generatedResult,
             modelsMock.userAuthToken.defaultPopulate, doneMock, sinon.match.func);
-        expect(controllerHelpersMock.remove).to.have.been.calledWithExactly(tokenMock.remove, doneMock, sinon.match.func);
+        expect(controllerHelpersMock.remove).to.have.been.calledWithExactly(promiseMock, doneMock, sinon.match.func);
         expect(doneMock).to.have.been.calledWithExactly(null, objectMock);
     });
 
@@ -105,11 +106,12 @@ describe('The userAuthToken controller module', function() {
         modelsMock.userAuthToken.populate = sandbox.stub().returns(modelsMock.userAuthToken);
         modelsMock.userAuthToken.findOne = sandbox.stub().returns(modelsMock.userAuthToken);
 
+        let promiseMock = sandbox.stub();
         let tokenObjectMock = {
             user: {
                 username: 'test username'
             },
-            remove: sandbox.stub()
+            remove: sandbox.stub().returns(promiseMock)
         };
         controllerHelpersMock.exec.callsArgWith(2, tokenObjectMock);
 
@@ -118,7 +120,7 @@ describe('The userAuthToken controller module', function() {
         expect(modelsMock.userAuthToken.findOne).to.have.been.calledWithExactly({auth_token: tokenMock});
         expect(modelsMock.userAuthToken.populate).to.have.been.calledWithExactly('user', 'username');
         expect(controllerHelpersMock.exec).to.have.been.calledWithExactly(modelsMock.userAuthToken, doneMock, sinon.match.func);
-        expect(controllerHelpersMock.remove).to.have.been.calledWithExactly(tokenObjectMock.remove, doneMock);
+        expect(controllerHelpersMock.remove).to.have.been.calledWithExactly(promiseMock, doneMock);
     });
 
     it('should not delete if token not belongs to the user', function () {

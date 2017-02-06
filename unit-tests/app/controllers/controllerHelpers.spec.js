@@ -383,41 +383,51 @@ describe('The controllerHelpers module', function() {
     });
 
     describe('remove', function () {
-        let conditionMock;
+        let promiseMock;
         
         beforeEach(function () {
-            conditionMock = sandbox.stub();
+            promiseMock = sandbox.stub();
+            promiseMock.then = sandbox.stub();
         });
         
         let commonTests = function () {
-            expect(conditionMock).to.have.been.calledWithExactly(sinon.match.func);
+            expect(promiseMock.then).to.have.been.calledWithExactly(sinon.match.func, sinon.match.func);
         };
 
         it('should callback', function () {
-            conditionMock.callsArg(0);
+            promiseMock.then.callsArg(0);
 
-            controllerHelpers.remove(conditionMock, doneMock, callbackMock);
+            controllerHelpers.remove(promiseMock, doneMock, callbackMock);
 
             commonTests();
             expect(callbackMock).to.have.been.calledWithExactly();
         });
 
         it('should done', function () {
-            conditionMock.callsArg(0);
+            promiseMock.then.callsArg(0);
 
-            controllerHelpers.remove(conditionMock, doneMock);
+            controllerHelpers.remove(promiseMock, doneMock);
 
             commonTests();
             expect(doneMock).to.have.been.calledWithExactly(null, {});
         });
 
         it('should error', function () {
-            conditionMock.callsArgWith(0, errorMock);
+            promiseMock.then.callsArgWith(1, errorMock);
 
-            controllerHelpers.remove(conditionMock, doneMock);
+            controllerHelpers.remove(promiseMock, doneMock);
 
             commonTests();
             expect(doneMock).to.have.been.calledWithExactly(errorMock);
+        });
+
+        it('should unknown error', function () {
+            promiseMock.then.callsArgWith(1);
+
+            controllerHelpers.remove(promiseMock, doneMock);
+
+            commonTests();
+            expect(doneMock).to.have.been.calledWithExactly({status: 500, message: 'Unknown error when removing object'});
         });
     });
 

@@ -87,14 +87,16 @@ let helpers = {
             helpers.updateFields(condition, updated, populateCondition, done, callback);
         }
     },
-    remove: function (condition, done, callback) {
-        condition(function (err) {
-            if (err) return done(err);
+    remove: function (promise, done, callback) {
+        promise.then(function () {
             if (callback) {
                 callback();
             } else {
                 done(null, {});
             }
+        }, function (err) {
+            if (err) return done(err);
+            done({status: 500, message: 'Unknown error when removing object'});
         });
     }
 };

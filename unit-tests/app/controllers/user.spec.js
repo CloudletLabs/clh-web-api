@@ -131,14 +131,15 @@ describe('The user controller module', function() {
 
     it('should remove single user', function () {
         let usernameMock = sandbox.stub();
+        let promiseMock = sandbox.stub();
 
         modelsMock.user.findOneAndRemove = sandbox.stub();
         modelsMock.user.findOneAndRemove.returns(modelsMock.user);
-        modelsMock.user.exec = sandbox.stub();
+        modelsMock.user.exec = sandbox.stub().returns(promiseMock);
 
         controller.remove(usernameMock, doneMock);
 
         expect(modelsMock.user.findOneAndRemove).to.have.been.calledWithExactly({username: usernameMock});
-        expect(controllerHelpersMock.remove).to.have.been.calledWithExactly(modelsMock.user.exec, doneMock);
+        expect(controllerHelpersMock.remove).to.have.been.calledWithExactly(promiseMock, doneMock);
     });
 });

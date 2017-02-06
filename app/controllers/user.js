@@ -30,7 +30,7 @@ module.exports = function (logger, models, controllerHelpers) {
                 updatedUser, User.defaultPopulate, done);
         },
         remove: function (username, done) {
-            controllerHelpers.remove(User.findOneAndRemove({username: username}).exec, done);
+            controllerHelpers.remove(User.findOneAndRemove({username: username}).exec(), done);
         }
     }
 };
