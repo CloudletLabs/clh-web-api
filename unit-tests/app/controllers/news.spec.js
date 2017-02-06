@@ -91,6 +91,30 @@ describe('The news controller module', function() {
             modelsMock.news, modelsMock.news.defaultPopulate, doneMock);
     });
 
+    it('should update news with slug change', function () {
+        let slugMock = sandbox.stub();
+        let updatedNewsMock = sandbox.stub();
+        updatedNewsMock.slug = sandbox.stub();
+
+        controller.update(slugMock, updatedNewsMock, doneMock);
+
+        expect(modelsMock.news.findOne).to.have.been.calledWithExactly({slug: slugMock});
+        expect(modelsMock.news.count).to.have.been.calledWithExactly({slug: updatedNewsMock.slug});
+        expect(controllerHelpersMock.update).to.have.been.calledWithExactly(
+            modelsMock.news, modelsMock.news, updatedNewsMock, modelsMock.news.defaultPopulate, doneMock);
+    });
+
+    it('should update news without slug change', function () {
+        let slugMock = sandbox.stub();
+        let updatedNewsMock = sandbox.stub();
+
+        controller.update(slugMock, updatedNewsMock, doneMock);
+
+        expect(modelsMock.news.findOne).to.have.been.calledWithExactly({slug: slugMock});
+        expect(controllerHelpersMock.update).to.have.been.calledWithExactly(
+            modelsMock.news, null, updatedNewsMock, modelsMock.news.defaultPopulate, doneMock);
+    });
+
     it('should remove single news', function () {
         let slugMock = sandbox.stub();
         let promiseMock = sandbox.stub();

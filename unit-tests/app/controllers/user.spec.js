@@ -125,6 +125,30 @@ describe('The user controller module', function() {
             modelsMock.user, modelsMock.user.defaultPopulate, doneMock);
     });
 
+    it('should update user with username change', function () {
+        let usernameMock = sandbox.stub();
+        let updatedUserMock = sandbox.stub();
+        updatedUserMock.username = sandbox.stub();
+
+        controller.update(usernameMock, updatedUserMock, doneMock);
+
+        expect(modelsMock.user.findOne).to.have.been.calledWithExactly({username: usernameMock});
+        expect(modelsMock.user.count).to.have.been.calledWithExactly({username: updatedUserMock.username});
+        expect(controllerHelpersMock.update).to.have.been.calledWithExactly(
+            modelsMock.user, modelsMock.user, updatedUserMock, modelsMock.user.defaultPopulate, doneMock);
+    });
+
+    it('should update user without username change', function () {
+        let usernameMock = sandbox.stub();
+        let updatedUserMock = sandbox.stub();
+
+        controller.update(usernameMock, updatedUserMock, doneMock);
+
+        expect(modelsMock.user.findOne).to.have.been.calledWithExactly({username: usernameMock});
+        expect(controllerHelpersMock.update).to.have.been.calledWithExactly(
+            modelsMock.user, null, updatedUserMock, modelsMock.user.defaultPopulate, doneMock);
+    });
+
     it('should remove single user', function () {
         let usernameMock = sandbox.stub();
         let promiseMock = sandbox.stub();
