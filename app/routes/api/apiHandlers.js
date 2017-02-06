@@ -1,12 +1,12 @@
 'use strict';
 
 module.exports = {
-    notFoundHandler: function (req, res) {
+    notFoundHandler: function (req, res, next) {
         console.warn('%s API 404: Not Found', req.logPrefix);
         res.status(404);
         res.json({message: 'Not found'});
     },
-    errorHandler: function (err, req, res) {
+    errorHandler: function (err, req, res, next) {
         let status = err.status || 500;
         let message = err.message || 'Unknown API error';
         if (status < 500) {
