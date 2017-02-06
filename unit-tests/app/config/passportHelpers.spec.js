@@ -9,31 +9,42 @@ chai.use(sinonChai);
 let helper = require('../../../app/config/passportHelpers');
 
 describe('The passportHelpers module', function() {
+    let sandbox = sinon.sandbox.create();
+    
+    let doneMock;
+    
+    beforeEach(function () {
+        doneMock = sandbox.stub();
+    });
+
+    afterEach(function () {
+        sandbox.restore();
+    });
+
     describe('authByRole', function () {
-        let sandbox = sinon.sandbox.create();
-        afterEach(function () {
-            sandbox.restore();
+        let authByTokenMock,
+            checkRoleMock;
+
+        beforeEach(function () {
+            authByTokenMock = sandbox.stub(helper, 'authByToken');
+            checkRoleMock = sandbox.stub(helper, '_checkRole');
         });
 
-        it('should auth by role for token', function () {
-            helper.authByToken = sandbox.stub(helper, 'authByToken');
-            helper.authByToken.callsArgWith(5, null, { user: 'user object' });
-            helper._checkRole = sandbox.stub(helper, '_checkRole');
+        it('should auth token', function () {
+            authByTokenMock.callsArgWith(5, null, { user: 'user object' });
             let UserAuthTokenMock = sandbox.stub();
             let momentMock = sandbox.stub();
             let reqMock = sandbox.stub();
 
             helper.authByRole(UserAuthTokenMock, momentMock, reqMock, 'token', 'role', 'done');
 
-            expect(helper.authByToken).to.have.been.calledWithExactly(
+            expect(authByTokenMock).to.have.been.calledWithExactly(
                 UserAuthTokenMock, momentMock, reqMock, 'token', true, sinon.match.func);
-            expect(helper._checkRole).to.have.been.calledWithExactly('user object', 'role', 'done');
+            expect(checkRoleMock).to.have.been.calledWithExactly('user object', 'role', 'done');
         });
 
         it('should fail at error in auth by role auth', function () {
-            helper.authByToken = sandbox.stub(helper, 'authByToken');
-            helper.authByToken.callsArgWith(5, 'test error');
-            let doneMock = sandbox.stub();
+            authByTokenMock.callsArgWith(5, 'test error');
 
             helper.authByRole(null, null, null, null, null, doneMock);
 
@@ -41,9 +52,7 @@ describe('The passportHelpers module', function() {
         });
 
         it('should refuse auth by role for token', function () {
-            helper.authByToken = sandbox.stub(helper, 'authByToken');
-            helper.authByToken.callsArgWith(5, null, false);
-            let doneMock = sandbox.stub();
+            authByTokenMock.callsArgWith(5, null, false);
 
             helper.authByRole(null, null, null, null, null, doneMock);
 
@@ -60,7 +69,6 @@ describe('The passportHelpers module', function() {
                     }
                 ]
             };
-            let doneMock = this.stub();
 
             helper._checkRole(user, 'fake role', doneMock);
 
@@ -81,7 +89,6 @@ describe('The passportHelpers module', function() {
                     }
                 ]
             };
-            let doneMock = this.stub();
 
             helper._checkRole(user, 'fake role', doneMock);
 
@@ -90,18 +97,13 @@ describe('The passportHelpers module', function() {
     });
 
     describe('authByToken', function () {
-        let sandbox = sinon.sandbox.create();
-        afterEach(function () {
-            sandbox.restore();
-        });
-
         let
             UserAuthTokenMock,
             momentMock,
             reqMock,
             tokenMock,
             checkExpireMock,
-            doneMock;
+            checkTokenMock;
 
         beforeEach(function () {
             UserAuthTokenMock = sandbox.stub();
@@ -111,13 +113,12 @@ describe('The passportHelpers module', function() {
             UserAuthTokenMock.populate.returns(UserAuthTokenMock);
             UserAuthTokenMock.exec = sandbox.stub();
 
-            helper._checkToken = sandbox.stub(helper, '_checkToken');
+            checkTokenMock = sandbox.stub(helper, '_checkToken');
 
             momentMock = sandbox.stub();
             reqMock = sandbox.stub();
             tokenMock = sandbox.stub();
             checkExpireMock = sandbox.stub();
-            doneMock = sandbox.stub();
         });
 
         function commonTest() {
@@ -132,7 +133,7 @@ describe('The passportHelpers module', function() {
             helper.authByToken(UserAuthTokenMock, momentMock, reqMock, tokenMock, checkExpireMock, doneMock);
 
             commonTest();
-            expect(helper._checkToken).to.have.been.calledWithExactly(
+            expect(checkTokenMock).to.have.been.calledWithExactly(
                 momentMock, reqMock, 'token object', checkExpireMock, doneMock);
         });
 
@@ -156,16 +157,10 @@ describe('The passportHelpers module', function() {
     });
 
     describe('_checkToken', function () {
-        let sandbox = sinon.sandbox.create();
-        afterEach(function () {
-            sandbox.restore();
-        });
-
         let
             userAuthTokenMock,
             momentMock,
-            reqMock,
-            doneMock;
+            reqMock;
         
         beforeEach(function () {
             userAuthTokenMock = sandbox.stub();
@@ -182,7 +177,6 @@ describe('The passportHelpers module', function() {
             reqMock.header.withArgs('user-agent').returns('test user agent');
             reqMock.connection = sandbox.stub();
             reqMock.connection.remoteAddress = sandbox.stub();
-            doneMock = sandbox.stub();
         });
 
         it('should accept not expired token', function () {

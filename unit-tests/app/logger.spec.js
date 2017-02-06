@@ -9,7 +9,13 @@ chai.use(sinonChai);
 let logger = require('../../app/logger');
 
 describe('The logger module', function() {
-    it('should have functions', sinon.test(function () {
+    let sandbox = sinon.sandbox.create();
+
+    afterEach(function () {
+        sandbox.restore();
+    });
+
+    it('should have functions', function () {
         expect(Object.keys(logger).length).to.be.equal(4);
         expect(logger.logger).to.be.an('object');
         expect(logger.logger.info).to.be.an('function');
@@ -18,143 +24,155 @@ describe('The logger module', function() {
         expect(logger._log).to.be.a('function');
         expect(logger.logPrefixGenerator).to.be.a('function');
         expect(logger.reqLogger).to.be.a('function');
-    }));
+    });
 
     describe('_log', function () {
-        it('should info', sinon.test(function () {
-            console.info = this.stub();
-            let id = 'test id';
+        let idMock,
+            consoleInfoMock,
+            consoleWarnMock,
+            consoleErrorMock;
+        
+        beforeEach(function () {
+            idMock = 'test id';
+            consoleInfoMock = sandbox.stub(console, 'info');
+            consoleWarnMock = sandbox.stub(console, 'warn');
+            consoleErrorMock = sandbox.stub(console, 'error');
+        });
+        
+        it('should info', function () {
+            logger._log('info', [idMock]);
 
-            logger._log('info', [id]);
+            expect(consoleInfoMock).to.have.been.calledWithExactly('test id');
+        });
 
-            expect(console.info).to.have.been.calledWithExactly('test id');
-        }));
+        it('should warn', function () {
+            logger._log('warn', [idMock]);
 
-        it('should warn', sinon.test(function () {
-            console.warn = this.stub();
-            let id = 'test id';
+            expect(consoleWarnMock).to.have.been.calledWithExactly('test id');
+        });
 
-            logger._log('warn', [id]);
+        it('should error with additional data', function () {
+            logger._log('error', [idMock, '%s:%s', 'arg1', 'arg2']);
 
-            expect(console.warn).to.have.been.calledWithExactly('test id');
-        }));
-
-        it('should error with additional data', sinon.test(function () {
-            console.error = this.stub();
-            let id = 'test id';
-
-            logger._log('error', [id, '%s:%s', 'arg1', 'arg2']);
-
-            expect(console.error).to.have.been.calledWithExactly('test id %s:%s', 'arg1', 'arg2');
-        }));
+            expect(consoleErrorMock).to.have.been.calledWithExactly('test id %s:%s', 'arg1', 'arg2');
+        });
     });
 
     describe('log', function () {
-        it('should be a wrapper', sinon.test(function () {
-            logger._log = this.stub();
+        let idMock,
+            msgMock,
+            msgArg1,
+            msgArg2,
+            logMock,
+            log;
+        
+        beforeEach(function () {
+            logMock = sandbox.stub(logger, '_log');
+            log = logger.logger;
 
-            let log = logger.logger;
+            idMock = sandbox.stub();
+            msgMock = sandbox.stub();
+            msgArg1 = sandbox.stub();
+            msgArg2 = sandbox.stub();
+        });
+        
+        it('should be a wrapper', function () {
             expect(Object.keys(log).length).to.be.equal(3);
             expect(log.info).to.be.a('function');
             expect(log.warn).to.be.a('function');
             expect(log.error).to.be.a('function');
+        });
+        
+        let commonTests = function () {
+            expect(logMock.args[0][1][0]).to.eql(idMock);
+            expect(logMock.args[0][1][1]).to.eql(msgMock);
+            expect(logMock.args[0][1][2]).to.eql(msgArg1);
+            expect(logMock.args[0][1][3]).to.eql(msgArg2);
+        };
 
-            let idMock = this.stub();
-            let msgMock = this.stub();
-            let msgArg1 = this.stub();
-            let msgArg2 = this.stub();
-
+        it('should info', function () {
             log.info(idMock, msgMock, msgArg1, msgArg2);
-            expect(logger._log).to.have.been.calledWith('info');
-            expect(logger._log.args[0][1][0]).to.eql(idMock);
-            expect(logger._log.args[0][1][1]).to.eql(msgMock);
-            expect(logger._log.args[0][1][2]).to.eql(msgArg1);
-            expect(logger._log.args[0][1][3]).to.eql(msgArg2);
+            expect(logMock).to.have.been.calledWith('info');
+            commonTests();
+        });
 
+        it('should warn', function () {
             log.warn(idMock, msgMock, msgArg1, msgArg2);
-            expect(logger._log).to.have.been.calledWith('warn');
-            expect(logger._log.args[1][1][0]).to.eql(idMock);
-            expect(logger._log.args[1][1][1]).to.eql(msgMock);
-            expect(logger._log.args[1][1][2]).to.eql(msgArg1);
-            expect(logger._log.args[1][1][3]).to.eql(msgArg2);
+            expect(logMock).to.have.been.calledWith('warn');
+            commonTests();
+        });
 
+        it('should error', function () {
             log.error(idMock, msgMock, msgArg1, msgArg2);
-            expect(logger._log).to.have.been.calledWith('error');
-            expect(logger._log.args[2][1][0]).to.eql(idMock);
-            expect(logger._log.args[2][1][1]).to.eql(msgMock);
-            expect(logger._log.args[2][1][2]).to.eql(msgArg1);
-            expect(logger._log.args[2][1][3]).to.eql(msgArg2);
-        }));
+            expect(logMock).to.have.been.calledWith('error');
+            commonTests();
+        });
     });
     
     describe('logPrefixGenerator', function () {
-        it('should generate anonymous log prefix', sinon.test(function () {
-            let req = {
+        let nextMock,
+            reqMock;
+
+        beforeEach(function () {
+            nextMock = sandbox.stub();
+            reqMock = {
                 method: 'test method',
                 connection: {
                     remoteAddress: 'test address'
                 },
                 path: 'test path'
             };
-            let nextMock = this.stub();
+        });
 
-            logger.logPrefixGenerator(req, null, nextMock);
-            expect(req.logPrefix).to.eql('[test method][test address][test path]');
+        var commonTests = function () {
             expect(nextMock).to.have.been.called;
+        };
+
+        it('should generate anonymous log prefix', sinon.test(function () {
+            logger.logPrefixGenerator(reqMock, null, nextMock);
+
+            expect(reqMock.logPrefix).to.eql('[test method][test address][test path]');
+            commonTests();
         }));
 
         it('should generate log prefix with user', sinon.test(function () {
-            let req = {
-                method: 'test method',
-                connection: {
-                    remoteAddress: 'test address'
-                },
-                path: 'test path',
+            reqMock.user = {
+                username: 'test username'
+            };
+
+            logger.logPrefixGenerator(reqMock, null, nextMock);
+
+            expect(reqMock.logPrefix).to.eql('[test method][test address][test path][test username]');
+            commonTests();
+        }));
+
+        it('should generate log prefix with token', sinon.test(function () {
+            reqMock.user = {
                 user: {
                     username: 'test username'
                 }
             };
-            let nextMock = this.stub();
 
-            logger.logPrefixGenerator(req, null, nextMock);
-            expect(req.logPrefix).to.eql('[test method][test address][test path][test username]');
-            expect(nextMock).to.have.been.called;
-        }));
+            logger.logPrefixGenerator(reqMock, null, nextMock);
 
-        it('should generate log prefix with token', sinon.test(function () {
-            let req = {
-                method: 'test method',
-                connection: {
-                    remoteAddress: 'test address'
-                },
-                path: 'test path',
-                user: {
-                    user: {
-                        username: 'test username'
-                    }
-                }
-            };
-            let nextMock = this.stub();
-
-            logger.logPrefixGenerator(req, null, nextMock);
-            expect(req.logPrefix).to.eql('[test method][test address][test path][test username]');
-            expect(nextMock).to.have.been.called;
+            expect(reqMock.logPrefix).to.eql('[test method][test address][test path][test username]');
+            commonTests();
         }));
     });
     
     describe('reqLogger', function () {
-        it('should log requests', sinon.test(function () {
-            logger.logger = this.stub();
-            logger.logger.info = this.stub();
+        it('should log requests', function () {
+            logger.logger = sandbox.stub();
+            logger.logger.info = sandbox.stub();
 
-            let reqMock = this.stub();
-            reqMock.logPrefix = this.stub();
-            let nextMock = this.stub();
+            let reqMock = sandbox.stub();
+            reqMock.logPrefix = sandbox.stub();
+            let nextMock = sandbox.stub();
 
             logger.reqLogger(reqMock, null, nextMock);
 
             expect(logger.logger.info).to.have.been.calledWithExactly(reqMock.logPrefix);
             expect(nextMock).to.have.been.called;
-        }));
+        });
     });
 });

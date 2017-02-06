@@ -8,59 +8,64 @@ chai.use(sinonChai);
 let proxyquire = require('proxyquire');
 
 describe('The app module', function() {
+    let sandbox = sinon.sandbox.create();
 
-    it('should configure app', sinon.test(function() {
-        let expressMock = this.stub();
+    afterEach(function () {
+        sandbox.restore();
+    });
 
-        let pJsonMock = this.stub();
-        let appConfigMock = this.stub();
-        let loggerModuleMock = this.stub();
-        loggerModuleMock.logger = this.stub();
-        let appMock = this.stub();
-        appConfigMock.createApp = this.stub().returns(appMock);
+    it('should configure app', function() {
+        let expressMock = sandbox.stub();
+
+        let pJsonMock = sandbox.stub();
+        let appConfigMock = sandbox.stub();
+        let loggerModuleMock = sandbox.stub();
+        loggerModuleMock.logger = sandbox.stub();
+        let appMock = sandbox.stub();
+        appConfigMock.createApp = sandbox.stub().returns(appMock);
         appConfigMock.createApp.returns(appMock);
-        appConfigMock.morgan = this.stub();
-        appConfigMock.originHeaders = this.stub();
-        appConfigMock.parsingMiddleware = this.stub();
-        appConfigMock.loggingMiddleware = this.stub();
-        appConfigMock.routes = this.stub();
-        appConfigMock.errors = this.stub();
+        appConfigMock.morgan = sandbox.stub();
+        appConfigMock.originHeaders = sandbox.stub();
+        appConfigMock.parsingMiddleware = sandbox.stub();
+        appConfigMock.loggingMiddleware = sandbox.stub();
+        appConfigMock.routes = sandbox.stub();
+        appConfigMock.errors = sandbox.stub();
 
-        let pathMock = this.stub();
-        let momentMock = this.stub();
-        let uuidMock = this.stub();
+        let pathMock = sandbox.stub();
+        let momentMock = sandbox.stub();
+        let uuidMock = sandbox.stub();
 
-        let mongooseMock = this.stub();
-        let databaseModuleMock = this.stub();
-        let connectionMock = this.stub();
+        let mongooseMock = sandbox.stub();
+        let databaseModuleMock = sandbox.stub();
+        let connectionMock = sandbox.stub();
         databaseModuleMock.returns(connectionMock);
-        let modelHelpersMock = this.stub();
-        let modelsModuleMock = this.stub();
-        let modelsMock = this.stub();
+        let modelHelpersMock = sandbox.stub();
+        let modelsModuleMock = sandbox.stub();
+        let modelsMock = sandbox.stub();
         modelsModuleMock.returns(modelsMock);
-        let modelDefaultTestDataHelperMock = this.stub();
-        modelDefaultTestDataHelperMock.check = this.stub();
+        let modelDefaultTestDataHelperMock = sandbox.stub();
+        modelDefaultTestDataHelperMock.check = sandbox.stub();
 
-        let controllerHelpersMock = this.stub();
-        let controllersModuleMock = this.stub();
-        let controllersMock = this.stub();
+        let controllerHelpersMock = sandbox.stub();
+        let controllersModuleMock = sandbox.stub();
+        let controllersMock = sandbox.stub();
         controllersModuleMock.returns(controllersMock);
 
-        let morganMock = this.stub();
+        let morganMock = sandbox.stub();
 
-        let passportMock = this.stub();
-        let passportHttpMock = this.stub();
-        passportHttpMock.BasicStrategy = this.stub();
-        let passportHttpBearerMock = this.stub();
-        passportHttpBearerMock.Strategy = this.stub();
-        let passportHelpersMock = this.stub();
-        let passportConfigMock = this.stub();
+        let passportMock = sandbox.stub();
+        let passportHttpMock = sandbox.stub();
+        passportHttpMock.BasicStrategy = sandbox.stub();
+        let passportHttpBearerMock = sandbox.stub();
+        passportHttpBearerMock.Strategy = sandbox.stub();
+        let passportHelpersMock = sandbox.stub();
+        let passportConfigMock = sandbox.stub();
 
-        let cookieParserMock = this.stub();
-        let bodyParserMock = this.stub();
+        let cookieParserMock = sandbox.stub();
+        let bodyParserMock = sandbox.stub();
 
-        let apiHandlersMock = this.stub();
-        let v1ApiMock = this.stub();
+        let apiHandlersMock = sandbox.stub();
+        let v1ApiMock = sandbox.stub();
 
         let app = proxyquire('../app', {
             'express': expressMock,
@@ -123,5 +128,5 @@ describe('The app module', function() {
         expect(appConfigMock.errors).to.have.been.calledWithExactly(appMock);
 
         expect(app).to.equal(appMock);
-    }));
+    });
 });

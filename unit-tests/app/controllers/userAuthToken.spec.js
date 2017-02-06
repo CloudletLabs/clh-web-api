@@ -20,6 +20,10 @@ describe('The userAuthToken controller module', function() {
 
         modelsMock = sandbox.stub();
         modelsMock.userAuthToken = sandbox.stub();
+        modelsMock.userAuthToken.generateNew = sandbox.stub();
+        modelsMock.userAuthToken.count = sandbox.stub().returns(modelsMock.userAuthToken);
+        modelsMock.userAuthToken.populate = sandbox.stub().returns(modelsMock.userAuthToken);
+        modelsMock.userAuthToken.findOne = sandbox.stub().returns(modelsMock.userAuthToken);
 
         controllerHelpersMock = sandbox.stub();
         controllerHelpersMock.exec = sandbox.stub();
@@ -45,11 +49,6 @@ describe('The userAuthToken controller module', function() {
     it('should generate new', function () {
         let generatedResult = sandbox.stub();
         generatedResult.auth_token = sandbox.stub();
-
-        modelsMock.userAuthToken.count = sandbox.stub();
-        modelsMock.userAuthToken.count.returns(modelsMock.userAuthToken);
-
-        modelsMock.userAuthToken.generateNew = sandbox.stub();
         modelsMock.userAuthToken.generateNew.returns(generatedResult);
 
         controller.generateNew('test user', 'test ip', 'test userAgent', doneMock);
@@ -72,15 +71,10 @@ describe('The userAuthToken controller module', function() {
         };
         let generatedResult = sandbox.stub();
         generatedResult.auth_token = sandbox.stub();
+        modelsMock.userAuthToken.generateNew.returns(generatedResult);
         let createdTokenMock = sandbox.stub();
         let objectMock = sandbox.stub();
         createdTokenMock.toObject = sandbox.stub().returns(objectMock);
-
-        modelsMock.userAuthToken.count = sandbox.stub();
-        modelsMock.userAuthToken.count.returns(modelsMock.userAuthToken);
-
-        modelsMock.userAuthToken.generateNew = sandbox.stub();
-        modelsMock.userAuthToken.generateNew.returns(generatedResult);
 
         controllerHelpersMock.create.callsArgWith(4, createdTokenMock);
         controllerHelpersMock.remove.callsArg(2);
@@ -102,9 +96,6 @@ describe('The userAuthToken controller module', function() {
             username: 'test username'
         };
         let tokenMock = sandbox.stub();
-
-        modelsMock.userAuthToken.populate = sandbox.stub().returns(modelsMock.userAuthToken);
-        modelsMock.userAuthToken.findOne = sandbox.stub().returns(modelsMock.userAuthToken);
 
         let promiseMock = sandbox.stub();
         let tokenObjectMock = {
@@ -128,9 +119,6 @@ describe('The userAuthToken controller module', function() {
             username: 'test username'
         };
         let tokenMock = sandbox.stub();
-
-        modelsMock.userAuthToken.populate = sandbox.stub().returns(modelsMock.userAuthToken);
-        modelsMock.userAuthToken.findOne = sandbox.stub().returns(modelsMock.userAuthToken);
 
         let tokenObjectMock = {
             user: {

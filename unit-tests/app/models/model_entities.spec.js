@@ -12,9 +12,9 @@ let userAuthTokenModule = require('../../../app/models/userAuthToken');
 let userRoleModule = require('../../../app/models/userRole');
 
 describe('The entity', function() {
-    let
-        sandbox,
-        modelHelpersMock,
+    let sandbox = sinon.sandbox.create();
+
+    let modelHelpersMock,
         connectionMock,
         mongooseMock,
         schemaSpy,
@@ -22,11 +22,10 @@ describe('The entity', function() {
         momentMock,
         utcMock,
         uuidMock,
-        populateStub;
+        populateStub,
+        expectedResult;
 
     beforeEach(function () {
-        sandbox = sinon.sandbox.create();
-
         modelHelpersMock = sandbox.stub();
         modelHelpersMock.deleteMongoFields = sandbox.stub();
 
@@ -60,6 +59,10 @@ describe('The entity', function() {
 
         populateStub = sandbox.stub();
         populateStub.populate = sandbox.stub();
+
+        expectedResult = function (object) {
+            this.object = object;
+        };
     });
     
     afterEach(function () {
@@ -97,9 +100,6 @@ describe('The entity', function() {
                 subject: {type: String, required: true},
                 text: {type: String, required: true}
             };
-            let expectedResult = function (object) {
-              this.object = object;
-            };
             expectedResult.slug = 'test slug';
 
             commonTests('News', schema, newsModule, [momentModuleMock], null, expectedResult, 'test slug');
@@ -127,9 +127,6 @@ describe('The entity', function() {
                 name: {type: String, required: true},
                 avatar: String,
                 roles: [{type: mongooseMock.Schema.Types.ObjectId, ref: 'UserRole'}]
-            };
-            let expectedResult = function (object) {
-                this.object = object;
             };
             expectedResult.username = 'test username';
 
@@ -160,9 +157,6 @@ describe('The entity', function() {
                 ip: String,
                 lastUsed: {type: Date, required: true, default: utcMock},
                 user: {type: mongooseMock.Schema.Types.ObjectId, ref: 'User'}
-            };
-            let expectedResult = function (object) {
-                this.object = object;
             };
             expectedResult.user = {
                 toString: function () {
@@ -206,7 +200,7 @@ describe('The entity', function() {
                 roleId: {type: String, index: true, unique: true, required: true, dropDups: true},
                 displayName: {type: String, required: true}
             };
-            let expectedResult = { roleId: 'test role id' };
+            expectedResult.roleId = 'test role id';
 
             commonTests('UserRole', schema, userRoleModule, [], null, expectedResult, 'test role id');
         });

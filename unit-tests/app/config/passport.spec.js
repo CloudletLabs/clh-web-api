@@ -9,9 +9,9 @@ chai.use(sinonChai);
 let passportModule = require('../../../app/config/passport');
 
 describe('The passport module', function() {
-    let
-        sandbox,
-        passportMock,
+    let sandbox = sinon.sandbox.create();
+
+    let passportMock,
         strategies,
         passportHelpersMock,
         userAuthTokenMock,
@@ -19,11 +19,10 @@ describe('The passport module', function() {
         modelsMock,
         momentMock,
         BasicStrategyMock,
-        BearerStrategy;
+        BearerStrategyMock,
+        doneMock;
     
     beforeEach(function () {
-        sandbox = sinon.sandbox.create();
-
         passportMock = sandbox.stub();
         strategies = {};
         passportMock.use = function (name, strategy) {
@@ -35,6 +34,7 @@ describe('The passport module', function() {
         passportHelpersMock.authByToken = sandbox.stub();
         userAuthTokenMock = sandbox.stub();
         userMock = sandbox.stub();
+        userMock.findOne = sandbox.stub();
         modelsMock = sandbox.stub();
         modelsMock.userAuthToken = userAuthTokenMock;
         modelsMock.user = userMock;
@@ -42,12 +42,14 @@ describe('The passport module', function() {
         BasicStrategyMock = function (strategy) {
             this.strategy = strategy;
         };
-        BearerStrategy = function (config, strategy) {
+        BearerStrategyMock = function (config, strategy) {
             this.config = config;
             this.strategy = strategy;
         };
 
-        passportModule(passportMock, passportHelpersMock, modelsMock, momentMock, BasicStrategyMock, BearerStrategy);
+        doneMock = sandbox.stub();
+
+        passportModule(passportMock, passportHelpersMock, modelsMock, momentMock, BasicStrategyMock, BearerStrategyMock);
     });
 
     afterEach(function () {
@@ -70,47 +72,41 @@ describe('The passport module', function() {
         expect(strategies['admin-authorization'].config).to.eql({passReqToCallback: true});
         expect(strategies['admin-authorization'].strategy).to.be.a.function;
     });
+    
+    describe('basic-authentication', function () {
+        var commonTests = function () {
+            expect(userMock.findOne).to.have.been.calledWithExactly({
+                username: 'test username',
+                password: 'test password'
+            }, sinon.match.func);
+        };
 
-    it('should succeed basic auth', function () {
-        let doneMock = sandbox.stub();
-        userMock.findOne = sandbox.stub();
-        userMock.findOne.callsArgWith(1, null, 'test user');
+        it('should succeed', function () {
+            userMock.findOne.callsArgWith(1, null, 'test user');
 
-        strategies['basic-authentication'].strategy('test username', 'test password', doneMock);
+            strategies['basic-authentication'].strategy('test username', 'test password', doneMock);
 
-        expect(userMock.findOne).to.have.been.calledWithExactly({
-            username: 'test username',
-            password: 'test password'
-        }, sinon.match.func);
-        expect(doneMock).to.have.been.calledWithExactly(null, 'test user');
-    });
+            commonTests();
+            expect(doneMock).to.have.been.calledWithExactly(null, 'test user');
+        });
 
-    it('should fail basic auth', function () {
-        let doneMock = sandbox.stub();
-        userMock.findOne = sandbox.stub();
-        userMock.findOne.callsArgWith(1, null, null);
+        it('should fail', function () {
+            userMock.findOne.callsArgWith(1, null, null);
 
-        strategies['basic-authentication'].strategy('test username', 'test password', doneMock);
+            strategies['basic-authentication'].strategy('test username', 'test password', doneMock);
 
-        expect(userMock.findOne).to.have.been.calledWithExactly({
-            username: 'test username',
-            password: 'test password'
-        }, sinon.match.func);
-        expect(doneMock).to.have.been.calledWithExactly(null, false);
-    });
+            commonTests();
+            expect(doneMock).to.have.been.calledWithExactly(null, false);
+        });
 
-    it('should error basic auth', function () {
-        let doneMock = sandbox.stub();
-        userMock.findOne = sandbox.stub();
-        userMock.findOne.callsArgWith(1, 'test error');
+        it('should error', function () {
+            userMock.findOne.callsArgWith(1, 'test error');
 
-        strategies['basic-authentication'].strategy('test username', 'test password', doneMock);
+            strategies['basic-authentication'].strategy('test username', 'test password', doneMock);
 
-        expect(userMock.findOne).to.have.been.calledWithExactly({
-            username: 'test username',
-            password: 'test password'
-        }, sinon.match.func);
-        expect(doneMock).to.have.been.calledWithExactly('test error');
+            commonTests();
+            expect(doneMock).to.have.been.calledWithExactly('test error');
+        });
     });
 
     it('should perform bearer-authentication', function () {

@@ -20,7 +20,14 @@ describe('The news controller module', function() {
 
         modelsMock = sandbox.stub();
         modelsMock.news = sandbox.stub();
+        modelsMock.news.generateNew = sandbox.stub();
         modelsMock.news.defaultPopulate = sandbox.stub();
+        modelsMock.news.find = sandbox.stub().returns(modelsMock.news);
+        modelsMock.news.findOne = sandbox.stub().returns(modelsMock.news);
+        modelsMock.news.sort = sandbox.stub().returns(modelsMock.news);
+        modelsMock.news.count = sandbox.stub().returns(modelsMock.news);
+        modelsMock.news.findOneAndRemove = sandbox.stub().returns(modelsMock.news);
+        modelsMock.news.exec = sandbox.stub();
 
         controllerHelpersMock = sandbox.stub();
         controllerHelpersMock.create = sandbox.stub();
@@ -47,12 +54,6 @@ describe('The news controller module', function() {
     });
 
     it('should get all news', function () {
-        modelsMock.news.find = sandbox.stub();
-        modelsMock.news.find.returns(modelsMock.news);
-
-        modelsMock.news.sort = sandbox.stub();
-        modelsMock.news.sort.returns(modelsMock.news);
-
         controller.getAll(doneMock);
 
         expect(modelsMock.news.find).to.have.been.calledWithExactly();
@@ -69,12 +70,7 @@ describe('The news controller module', function() {
             text: 'test text'
         };
         let savedNews = sandbox.stub();
-
-        modelsMock.news.generateNew = sandbox.stub();
         modelsMock.news.generateNew.returns(savedNews);
-
-        modelsMock.news.count = sandbox.stub();
-        modelsMock.news.count.returns(modelsMock.news);
 
         controller.create(creatorMock, newsJsonMock, doneMock);
 
@@ -88,9 +84,6 @@ describe('The news controller module', function() {
     it('should get single news', function () {
         let slugMock = sandbox.stub();
 
-        modelsMock.news.findOne = sandbox.stub();
-        modelsMock.news.findOne.returns(modelsMock.news);
-
         controller.get(slugMock, doneMock);
 
         expect(modelsMock.news.findOne).to.have.been.calledWithExactly({slug: slugMock});
@@ -102,9 +95,7 @@ describe('The news controller module', function() {
         let slugMock = sandbox.stub();
         let promiseMock = sandbox.stub();
 
-        modelsMock.news.findOneAndRemove = sandbox.stub();
-        modelsMock.news.findOneAndRemove.returns(modelsMock.news);
-        modelsMock.news.exec = sandbox.stub().returns(promiseMock);
+        modelsMock.news.exec.returns(promiseMock);
 
         controller.remove(slugMock, doneMock);
 

@@ -9,6 +9,16 @@ chai.use(sinonChai);
 let helper = require('../../../app/models/modelDefaultTestDataHelper');
 
 describe('The modelDefaultTestDataHelper module', function() {
+    let sandbox = sinon.sandbox.create();
+    let consoleWarnMock;
+    
+    beforeEach(function () {
+        consoleWarnMock = sandbox.stub(console, 'warn');
+    });
+
+    afterEach(function () {
+        sandbox.restore();
+    });
 
     it('should have functions', sinon.test(function () {
         expect(Object.keys(helper).length).to.be.equal(8);
@@ -37,7 +47,6 @@ describe('The modelDefaultTestDataHelper module', function() {
             results[model.modelName] = [model.modelName];
             next(results);
         });
-        console.warn = this.stub();
 
         helper.check(modelsMock);
 
@@ -65,7 +74,7 @@ describe('The modelDefaultTestDataHelper module', function() {
             }),
             helper._createDefaultNews,
             sinon.match.func);
-        expect(console.warn).to.have.been.calledWithExactly('Default test data has been created: %s',
+        expect(consoleWarnMock).to.have.been.calledWithExactly('Default test data has been created: %s',
             ["userRoles:1", "users:1", "newss:1"]);
     }));
 
@@ -182,18 +191,17 @@ describe('The modelDefaultTestDataHelper module', function() {
             'already existing data': 'test data'
         };
         let nextMock = this.stub();
-        console.warn = this.stub();
 
         helper._createDefaultData(helper, exports.MyModule, results, data, nextMock);
 
         expect(getResultsNameMock).to.have.been.calledWithExactly('model name');
-        expect(console.warn).to.have.been.calledWithExactly('Creating default %s', 'results name');
+        expect(consoleWarnMock).to.have.been.calledWithExactly('Creating default %s', 'results name');
         expect(modelMock).to.have.been.calledTwice;
         expect(modelMock).to.have.been.calledWithExactly('data1');
         expect(modelMock).to.have.been.calledWithExactly('data2');
         expect(modelSave).to.have.been.calledTwice;
-        expect(console.warn).to.have.been.calledWithExactly('New %s %s created', 'model name', { data: "data1" });
-        expect(console.warn).to.have.been.calledWithExactly('New %s %s created', 'model name', { data: "data2" });
+        expect(consoleWarnMock).to.have.been.calledWithExactly('New %s %s created', 'model name', { data: "data1" });
+        expect(consoleWarnMock).to.have.been.calledWithExactly('New %s %s created', 'model name', { data: "data2" });
         expect(nextMock).to.have.been.calledWithExactly({
             'already existing data': 'test data',
             'results name': [
@@ -218,12 +226,11 @@ describe('The modelDefaultTestDataHelper module', function() {
         let results = {
             'already existing data': 'test data'
         };
-        console.warn = this.stub();
 
         expect(helper._createDefaultData.bind(helper, helper, exports.MyModule, results, data, null)).to.throw('test error');
 
         expect(getResultsNameMock).to.have.been.calledWithExactly('model name');
-        expect(console.warn).to.have.been.calledWithExactly('Creating default %s', 'results name');
+        expect(consoleWarnMock).to.have.been.calledWithExactly('Creating default %s', 'results name');
         expect(modelMock).to.have.been.called;
         expect(modelMock).to.have.been.calledWithExactly('data1');
         expect(modelSave).to.have.been.called;
