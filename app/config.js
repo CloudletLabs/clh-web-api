@@ -1,3 +1,5 @@
+'use strict';
+
 module.exports = {
     createApp: function(express) {
         return express();
@@ -5,7 +7,7 @@ module.exports = {
     morgan: function(app, morgan) {
         if (app.get('env') === 'development') {
             //noinspection JSUnusedGlobalSymbols
-            var morganDevConfig = {
+            let morganDevConfig = {
                 skip: function (req, res) {
                     return res.statusCode < 400
                 }
@@ -28,19 +30,36 @@ module.exports = {
         });
     },
     parsingMiddleware: function (app, cookieParser, bodyParser) {
+        // parse json when application/json
+        app.use(bodyParser.json());
         // parse params in URL
         app.use(bodyParser.urlencoded({extended: false}));
         // Parse and populate cookies
         app.use(cookieParser());
     },
-    routes: function (app, pJson, express, path, apiHandlers, v1Api, passport, models) {
+    loggingMiddleware: function (app, loggerModule) {
+        // generate logging prefix
+        app.use(loggerModule.logPrefixGenerator);
+        // log current request
+        app.use(loggerModule.reqLogger);
+    },
+    routes: function (app, pJson, express, path, logger, apiHandlers, v1Api, passport, controllers) {
         // Publish our public folder
         app.use(express.static(path.join(__dirname, '../public')));
+
         // API v1 router
-        var v1 = v1Api(express, app, pJson, apiHandlers, passport, models);
+        let v1 = v1Api(express, app, pJson, logger, apiHandlers, passport, controllers);
+        v1.router.get('/status', apiHandlers.status(v1));
+        v1.router.get('/info', apiHandlers.info(v1));
+
+        // Assign v1 router to specific path
         app.use('/api/v' + v1.apiVersion, v1.router);
+        app.use('/api/v' + v1.apiVersion, apiHandlers.notFoundHandler);
         app.use('/api/v' + v1.apiVersion, apiHandlers.errorHandler);
+
+        // Assign 'current' router
         app.use('/api/current', v1.router);
+        app.use('/api/current', apiHandlers.notFoundHandler);
         app.use('/api/current', apiHandlers.errorHandler);
     },
     errors: function (app) {

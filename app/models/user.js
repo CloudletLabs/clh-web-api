@@ -1,8 +1,10 @@
-module.exports = function (connection, mongoose, deleteMongoFields) {
+'use strict';
 
-    var Schema = mongoose.Schema;
+module.exports = function (modelHelpers, connection, mongoose) {
 
-    var userSchema = new Schema({
+    let Schema = mongoose.Schema;
+
+    let userSchema = new Schema({
         username: {type: String, index: true, unique: true, required: true, dropDups: true},
         password: {type: String, required: true},
         email: {type: String, required: true},
@@ -11,9 +13,28 @@ module.exports = function (connection, mongoose, deleteMongoFields) {
         roles: [{type: mongoose.Schema.Types.ObjectId, ref: 'UserRole'}]
     });
 
-    deleteMongoFields(userSchema, ['password']);
+    userSchema.methods.toString = function () {
+        return this.username;
+    };
 
-    var User = connection.model('User', userSchema);
+    userSchema.statics.generateNew = function (username, password, email, name, avatar, defaultRole) {
+        return new User({
+            username: username,
+            password: password,
+            email: email,
+            name: name,
+            avatar: avatar,
+            roles: [defaultRole]
+        });
+    };
+
+    userSchema.statics.defaultPopulate = function () {
+        return this.populate('roles', 'roleId');
+    };
+
+    modelHelpers.deleteMongoFields(userSchema, ['password']);
+
+    let User = connection.model('User', userSchema);
 
     return User;
 };

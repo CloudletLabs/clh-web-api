@@ -1,42 +1,37 @@
+'use strict';
+
 module.exports = {
-    log: function (req, msg, args) {
-        var user;
-        if (req.user) {
-            user = req.user.user || req.user;
-        }
-        var arr = [req.method, req.connection.remoteAddress, req.path];
-        var template;
-        if (!user) {
-            template = "[%s][%s][%s]";
+    notFoundHandler: function (req, res, next) {
+        console.warn('%s API 404: Not Found', req.logPrefix);
+        res.status(404);
+        res.json({message: 'Not found'});
+    },
+    errorHandler: function (err, req, res, next) {
+        let status = err.status || 500;
+        let message = err.message || 'Unknown API error';
+        if (status < 500) {
+            console.warn('%s API WARN %s: %s', req.logPrefix, status, message);
         } else {
-            template = "[%s][%s][%s][%s]";
-            arr.push(user.username);
+            console.error('%s API ERROR %s: %s', req.logPrefix, status, message);
         }
-        if (msg) template += " " + msg;
-        arr.unshift(template);
-        if (args) arr = arr.concat(args);
-        console.info.apply(console, arr);
+        res.status(status);
+        res.json({message: message});
     },
-    errorHandler: function (err, req, res) {
-        console.error("[%s][%s] API ERROR: %s", req.method, req.connection.remoteAddress, err);
-        res.status(err.status || 500);
-        delete err.status;
-        if (err.length === 0) {
-            res.send();
-        } else {
-            res.json(err);
+    status: function (api) {
+        return function (req, res) {
+            res.send(api.pJson.name + ': ok');
         }
     },
-    status: function (log) {
-        return function (req, res, next) {
-            log(req);
-            res.send('ok');
+    info: function (api) {
+        return function (req, res) {
+            res.json({name: api.pJson.name, version: api.pJson.version, apiVersion: api.apiVersion});
         }
     },
-    info: function (pJson, apiVersion, log) {
-        return function (req, res, next) {
-            log(req);
-            res.json({name: pJson.name, version: pJson.version, apiVersion: apiVersion});
+    sendRes: function (res, next) {
+        return function (err, result) {
+            if (err) return next(err);
+            if (!result) return next();
+            res.json(result);
         }
     }
 };

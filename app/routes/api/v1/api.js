@@ -1,339 +1,90 @@
-var apiVersion = '1';
+'use strict';
 
-module.exports = function (express, app, pJson, apiHandlers, passport, models) {
+let apiVersion = '1';
 
-    /**
-     * Create new router for api
-     */
-    var router = express.Router();
+module.exports = function (express, app, pJson, logger, apiHandlers, passport, controllers) {
 
-    var log = apiHandlers.log;
+    let router = express.Router();
 
-    var User = models.user;
-    var UserAuthToken = models.userAuthToken;
-    var UserRole = models.userRole;
-    var News = models.news;
+    let defaultPassportConfig = { session: false };
 
-    /**
-     * Service calls
-     */
-
-    /* GET status. */
-    router.get('/status', apiHandlers.status(log));
-
-    /* GET info. */
-    router.get('/info', apiHandlers.info(pJson, apiVersion, log));
-
-    /**
-     * Auth
-     */
-
-    /* POST auth token. */
     router.post('/auth_token',
-        passport.authenticate('basic-authentication', { session: false }),
+        passport.authenticate('basic-authentication', defaultPassportConfig),
         function (req, res, next) {
-            log(req);
-
-            var user = req.user;
-            UserAuthToken.tokenGenerate(user, req.connection.remoteAddress, req.header('user-agent'), function (err, token) {
-                if (err) return next(err);
-                // Should be better way to 'depopulate' user object
-                var responseObject = token.toObject();
-                responseObject.user = { username: user.username };
-                res.json(responseObject);
-            });
+            controllers.userAuthToken.generateNew(req.account, req.connection.remoteAddress, req.header('user-agent'),
+                apiHandlers.sendRes(res, next));
         });
-
-    /* PUT auth token. */
     router.put('/auth_token',
-        passport.authenticate('bearer-renew-authentication', {session: false}),
+        passport.authenticate('bearer-renew-authentication', defaultPassportConfig),
         function (req, res, next) {
-            log(req);
-
-            var token = req.user;
-            var user = token.user;
-            UserAuthToken.tokenGenerate(user, req.connection.remoteAddress, req.header('user-agent'), function (err, newToken) {
-                token.remove(function (err) {
-                    if (err) return next(err);
-                    res.json(newToken.toObject());
-                });
-            });
+            controllers.userAuthToken.renew(req.account, apiHandlers.sendRes(res, next));
         });
-
-    /* DELETE auth token. */
     router.delete('/auth_token/:token',
-        passport.authenticate('bearer-authentication', {
-            session: false
-        }), function (req, res, next) {
-            log(req);
-
-            var token = req.user;
-            var user = token.user;
-            UserAuthToken.findOne({auth_token: req.params.token}).populate('user', 'username').exec(function (err, tokenToDelete) {
-                if (err) return next(err);
-
-                if (!tokenToDelete) {
-                    log(req, "token not found");
-                    return next({status: 404});
-                }
-
-                if (user.username != tokenToDelete.user.username) {
-                    log(req, "cheating on %s", [tokenToDelete.user.username]);
-                    return next({status: 401});
-                }
-
-                tokenToDelete.remove(function (err) {
-                    if (err) return next(err);
-                    res.send();
-                });
-            });
+        passport.authenticate('bearer-authentication', defaultPassportConfig),
+        function (req, res, next) {
+            controllers.userAuthToken.delete(req.account.user, req.params.token,
+                apiHandlers.sendRes(res, next));
         });
 
-    /**
-     * User CRUD
-     */
-
-    /* GET current user for this token. */
     router.get('/user',
-        passport.authenticate('bearer-authentication', { session: false }),
+        passport.authenticate('bearer-authentication', defaultPassportConfig),
         function (req, res, next) {
-            var token = req.user;
-            var user = token.user;
-            log(req);
-
-            token.populate("user", function (err, token) {
-                if (err) return next(err);
-                token.user.populate("roles", "roleId", function (err, user) {
-                    if (err) return next(err);
-                    res.json(user.toObject());
-                });
-            });
+            controllers.user.populateFromToken(req.account, apiHandlers.sendRes(res, next));
         });
 
-    /* GET users. */
     router.get('/users',
-        passport.authorize('admin-authorization', { session: false }),
+        passport.authorize('admin-authorization', defaultPassportConfig),
         function (req, res, next) {
-            log(req);
-
-            User.find().populate("roles", "roleId").exec(function (err, users) {
-                if (err) return next(err);
-                res.json(users.map(function (user) { return user.toObject() }));
-            });
+            controllers.user.getAll(apiHandlers.sendRes(res, next));
+        });
+    router.post('/users',
+        function (req, res, next) {
+            controllers.user.create(req.body, apiHandlers.sendRes(res, next));
         });
 
-    /* GET user by username. */
     router.get('/users/:username',
-        passport.authorize('admin-authorization', { session: false }),
+        passport.authorize('admin-authorization', defaultPassportConfig),
         function (req, res, next) {
-            log(req);
-
-            User.findOne({username: req.params.username}).populate("roles", "roleId").exec(function (err, user) {
-                if (err) return next(err);
-
-                if (!user) {
-                    log(req, "user not found");
-                    return next({status: 404, message: "User not found"});
-                }
-
-                res.json(user.toObject());
-            });
+            controllers.user.get(req.params.username, apiHandlers.sendRes(res, next));
         });
-
-    /* POST user */
-    router.post('/users', function (req, res, next) {
-        log(req, "%s", [req.body.username]);
-
-        User.count({username: req.body.username}, function (err, count) {
-            if (err) return next(err);
-
-            if (count > 0) {
-                log(req, "user %s already exists", [req.body.username]);
-                return next({status: 400, message: "User already exist"});
-            }
-
-            UserRole.findOne({roleId: 'USER'}, function (err, role) {
-                if (err) return next(err);
-
-                var newUser = new User(req.body);
-                newUser.avatar = 'img/mockUser2.jpg';
-                newUser.roles.push(role);
-                newUser.save(function (err, user) {
-                    if (err) return next(err);
-
-                    user.populate("roles", "roleId", function (err, user) {
-                        if (err) return next(err);
-                        res.json(user.toObject());
-                    });
-                });
-            });
-        });
-    });
-
-    /* PUT user */
     router.put('/users/:username',
-        passport.authorize('admin-authorization', { session: false }),
+        passport.authorize('admin-authorization', defaultPassportConfig),
         function (req, res, next) {
-            log(req);
-
-            User.findOne({username: req.params.username}).populate("roles", "roleId").exec(function (err, user) {
-                if (err) return next(err);
-
-                if (!user) {
-                    log(req, "user not found");
-                    return next({status: 404, message: "User not found"});
-                }
-
-                for (var attrname in req.body) {
-                    if (attrname != "_id" && attrname != "__v")
-                        user[attrname] = req.body[attrname];
-                }
-
-                user.save(function (err, user) {
-                    if (err) return next(err);
-                    res.json(user.toObject());
-                });
-            });
+            controllers.user.update(req.params.username, req.body, apiHandlers.sendRes(res, next));
         });
-
-    /* DELETE user */
     router.delete('/users/:username',
-        passport.authorize('admin-authorization', { session: false }),
+        passport.authorize('admin-authorization', defaultPassportConfig),
         function (req, res, next) {
-            log(req);
-
-            User.findOneAndRemove({username: req.params.username}, function (err) {
-                if (err) return next(err);
-                res.send();
-            });
+            controllers.user.remove(req.params.username, apiHandlers.sendRes(res, next));
         });
 
-    /**
-     * News CRUD
-     */
-
-    /* GET news. */
-    router.get('/news', function (req, res, next) {
-        log(req);
-
-        News.find().populate("creator", "name").sort({createDate: 'desc'}).exec(function (err, news) {
-            if (err) return next(err);
-            res.json(news.map(function (news) { return news.toObject(); }));
+    router.get('/news',
+        function (req, res, next) {
+            controllers.news.getAll(apiHandlers.sendRes(res, next));
         });
-    });
-
-    /* GET news by friendly url. */
-    router.get('/news/:slug', function (req, res, next) {
-        log(req);
-
-        News.findOne({slug: req.params.slug}).populate("creator", "name").exec(function (err, news) {
-            if (err) return next(err);
-
-            if (!news) {
-                log(req, "slug not found");
-                return next({status: 404, message: "News with thus slug not found"});
-            }
-
-            res.json(news.toObject());
-        });
-    });
-
-    /* POST news */
     router.post('/news',
-        passport.authorize('admin-authorization', { session: false }),
+        passport.authorize('admin-authorization', defaultPassportConfig),
         function (req, res, next) {
-            log(req);
-
-            var token = req.user;
-            var user = token.user;
-            News.count({slug: req.body.slug}, function (err, count) {
-                if (err) return next(err);
-
-                if (count > 0) {
-                    log(req, "slug %s already exists", [req.body.slug]);
-                    return next({status: 400, message: "News with thus slug already exist"});
-                }
-
-                var newNews = new News(req.body);
-                newNews.creator = user;
-                newNews.save(function (err, news) {
-                    if (err) return next(err);
-
-                    news.populate("creator", "name", function (err, news) {
-                        if (err) return next(err);
-                        res.json(news.toObject());
-                    });
-                });
-            });
+            controllers.news.create(req.account, req.body, apiHandlers.sendRes(res, next));
         });
 
-    /* PUT news */
+    router.get('/news/:slug',
+        function (req, res, next) {
+            controllers.news.get(req.params.slug, apiHandlers.sendRes(res, next));
+        });
     router.put('/news/:slug',
-        passport.authorize('admin-authorization', { session: false }),
+        passport.authorize('admin-authorization', defaultPassportConfig),
         function (req, res, next) {
-            log(req);
-
-            News.findOne({slug: req.params.slug}, function (err, news) {
-                if (err) return next(err);
-
-                if (!news) {
-                    log(req, "slug not found");
-                    return next({status: 404, message: "News with this slug not found"});
-                }
-
-                if (req.body.slug && req.params.slug != req.body.slug) {
-                    News.count({slug: req.body.slug}, function (err, count) {
-                        if (err) return next(err);
-                        if (count > 0) {
-                            log(req, "slug %s already exists", [req.body.slug]);
-                            return next({status: 400, message: "News with thus slug already exist"});
-                        }
-                        updateNews();
-                    });
-                } else {
-                    updateNews();
-                }
-                
-                function updateNews() {
-                    for (var attrname in req.body) {
-                        if (attrname != "_id" && attrname != "__v")
-                            news[attrname] = req.body[attrname];
-                    }
-
-                    news.save(function (err, news) {
-                        if (err) return next(err);
-
-                        news.populate("creator", "name", function (err, news) {
-                            if (err) return next(err);
-                            res.json(news.toObject());
-                        });
-                    });
-                }
-            });
+            controllers.news.update(req.params.slug, req.body, apiHandlers.sendRes(res, next));
         });
-
-    /* DELETE news */
     router.delete('/news/:slug',
-        passport.authorize('admin-authorization', { session: false }),
+        passport.authorize('admin-authorization', defaultPassportConfig),
         function (req, res, next) {
-            log(req);
-
-            News.findOneAndRemove({slug: req.params.slug}, function (err) {
-                if (err) return next(err);
-                res.send();
-            });
+            controllers.news.remove(req.params.slug, apiHandlers.sendRes(res, next));
         });
-
-    /**
-     * 404
-     */
-    router.use(function (req, res, next) {
-        console.warn("[%s][%s] 404: %s", req.method, req.connection.remoteAddress, req.path);
-        res.status(404);
-        res.json({message: 'Not found'});
-    });
 
     return {
+        pJson: pJson,
         apiVersion: apiVersion,
         router: router
     };

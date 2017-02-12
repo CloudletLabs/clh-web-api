@@ -1,125 +1,131 @@
-var sinon = require('sinon');
-var chai = require('chai');
-var sinonChai = require("sinon-chai");
-var expect = chai.expect;
+'use strict';
+
+let sinon = require('sinon');
+let chai = require('chai');
+let sinonChai = require("sinon-chai");
+let expect = chai.expect;
 chai.use(sinonChai);
+let proxyquire = require('proxyquire');
 
 describe('The app module', function() {
+    let sandbox = sinon.sandbox.create();
+
+    afterEach(function () {
+        sandbox.restore();
+    });
 
     it('should configure app', function() {
-        var requireMock = sinon.stub();
-        requireMock.throws();
+        let expressMock = sandbox.stub();
 
-        var pJsonMock = sinon.stub();
-        requireMock.withArgs('../package.json').returns(pJsonMock);
+        let pJsonMock = sandbox.stub();
+        let appConfigMock = sandbox.stub();
+        let loggerModuleMock = sandbox.stub();
+        loggerModuleMock.logger = sandbox.stub();
+        let appMock = sandbox.stub();
+        appConfigMock.createApp = sandbox.stub().returns(appMock);
+        appConfigMock.createApp.returns(appMock);
+        appConfigMock.morgan = sandbox.stub();
+        appConfigMock.originHeaders = sandbox.stub();
+        appConfigMock.parsingMiddleware = sandbox.stub();
+        appConfigMock.loggingMiddleware = sandbox.stub();
+        appConfigMock.routes = sandbox.stub();
+        appConfigMock.errors = sandbox.stub();
 
-        var appConfigMock = sinon.stub();
-        requireMock.withArgs('../app/config').returns(appConfigMock);
+        let pathMock = sandbox.stub();
+        let momentMock = sandbox.stub();
+        let uuidMock = sandbox.stub();
 
-        var pathMock = sinon.stub();
-        requireMock.withArgs('path').returns(pathMock);
+        let mongooseMock = sandbox.stub();
+        let databaseModuleMock = sandbox.stub();
+        let connectionMock = sandbox.stub();
+        databaseModuleMock.returns(connectionMock);
+        let modelHelpersMock = sandbox.stub();
+        let modelsModuleMock = sandbox.stub();
+        let modelsMock = sandbox.stub();
+        modelsModuleMock.returns(modelsMock);
+        let modelDefaultTestDataHelperMock = sandbox.stub();
+        modelDefaultTestDataHelperMock.check = sandbox.stub();
 
-        var momentMock = sinon.stub();
-        requireMock.withArgs('moment').returns(momentMock);
+        let controllerHelpersMock = sandbox.stub();
+        let controllersModuleMock = sandbox.stub();
+        let controllersMock = sandbox.stub();
+        controllersModuleMock.returns(controllersMock);
 
-        var uuidMock = sinon.stub();
-        requireMock.withArgs('node-uuid').returns(uuidMock);
+        let morganMock = sandbox.stub();
 
-        var mongooseMock = sinon.stub();
-        requireMock.withArgs('mongoose').returns(mongooseMock);
+        let passportMock = sandbox.stub();
+        let passportHttpMock = sandbox.stub();
+        passportHttpMock.BasicStrategy = sandbox.stub();
+        let passportHttpBearerMock = sandbox.stub();
+        passportHttpBearerMock.Strategy = sandbox.stub();
+        let passportHelpersMock = sandbox.stub();
+        let passportConfigMock = sandbox.stub();
 
-        var connectionConfigMock = sinon.stub();
-        requireMock.withArgs('../app/config/database').returns(connectionConfigMock);
-        var connectionMock = sinon.stub();
-        connectionConfigMock.withArgs(mongooseMock).returns(connectionMock);
+        let cookieParserMock = sandbox.stub();
+        let bodyParserMock = sandbox.stub();
 
-        var modelsConfigMock = sinon.stub();
-        requireMock.withArgs('../app/models/models').returns(modelsConfigMock);
-        var modelsMock = sinon.stub();
-        modelsConfigMock.withArgs(requireMock, connectionMock, mongooseMock, momentMock, uuidMock).returns(modelsMock);
+        let apiHandlersMock = sandbox.stub();
+        let v1ApiMock = sandbox.stub();
 
-        var expressMock = sinon.stub();
-        requireMock.withArgs('express').returns(expressMock);
+        let app = proxyquire('../app', {
+            'express': expressMock,
+            './package.json': pJsonMock,
+            './app/config': appConfigMock,
+            './app/logger': loggerModuleMock,
+            'path': pathMock,
+            'moment/moment': momentMock,
+            'uuid': uuidMock,
+            'mongoose': mongooseMock,
+            './app/config/database': databaseModuleMock,
+            './app/models/modelHelpers': modelHelpersMock,
+            './app/models/models': modelsModuleMock,
+            './app/models/modelDefaultTestDataHelper': modelDefaultTestDataHelperMock,
+            './app/controllers/controllerHelpers': controllerHelpersMock,
+            './app/controllers/controllers': controllersModuleMock,
+            'morgan': morganMock,
+            'passport': passportMock,
+            'passport-http': passportHttpMock,
+            'passport-http-bearer': passportHttpBearerMock,
+            './app/config/passportHelpers': passportHelpersMock,
+            './app/config/passport': passportConfigMock,
+            'cookie-parser': cookieParserMock,
+            'body-parser': bodyParserMock,
+            './app/routes/api/apiHandlers': apiHandlersMock,
+            './app/routes/api/v1/api': v1ApiMock
+        });
 
-        var morganMock = sinon.stub();
-        requireMock.withArgs('morgan').returns(morganMock);
+        expect(appConfigMock.createApp).to.have.been.calledWithExactly(expressMock);
 
-        var passportMock = sinon.stub();
-        requireMock.withArgs('passport').returns(passportMock);
+        expect(databaseModuleMock).to.have.been.calledWithExactly(mongooseMock);
+        expect(modelsModuleMock).to.have.been.calledWithExactly(
+            modelHelpersMock, connectionMock, mongooseMock, momentMock, uuidMock);
+        expect(modelDefaultTestDataHelperMock.check).to.have.been.calledWithExactly(modelsMock);
 
-        var passportHttpMock = sinon.stub();
-        var BasicStrategyMock = sinon.stub();
-        passportHttpMock.BasicStrategy = BasicStrategyMock;
-        requireMock.withArgs('passport-http').returns(passportHttpMock);
+        expect(controllersModuleMock).to.have.been.calledWithExactly(
+            loggerModuleMock.logger, modelsMock, controllerHelpersMock);
 
-        var passportHttpBearerMock = sinon.stub();
-        var BearerStrategyMock = sinon.stub();
-        passportHttpBearerMock.Strategy = BearerStrategyMock;
-        requireMock.withArgs('passport-http-bearer').returns(passportHttpBearerMock);
+        expect(appConfigMock.morgan).to.have.been.calledWithExactly(appMock, morganMock);
 
-        var passportConfigMock = sinon.stub();
-        requireMock.withArgs('../app/config/passport').returns(passportConfigMock);
+        expect(appConfigMock.originHeaders).to.have.been.calledWithExactly(appMock);
 
-        var cookieParserMock = sinon.stub();
-        requireMock.withArgs('cookie-parser').returns(cookieParserMock);
+        expect(passportConfigMock).to.have.been.calledWithExactly(
+            passportMock,
+            passportHelpersMock,
+            modelsMock,
+            momentMock,
+            passportHttpMock.BasicStrategy,
+            passportHttpBearerMock.Strategy);
 
-        var bodyParserMock = sinon.stub();
-        requireMock.withArgs('body-parser').returns(bodyParserMock);
+        expect(appConfigMock.parsingMiddleware).to.have.been.calledWithExactly(
+            appMock, cookieParserMock, bodyParserMock);
 
-        var apiHandlersMock = sinon.stub();
-        requireMock.withArgs('../app/routes/api/apiHandlers').returns(apiHandlersMock);
+        expect(appConfigMock.loggingMiddleware).to.have.been.calledWithExactly(appMock, loggerModuleMock);
 
-        var v1ApiMock = sinon.stub();
-        requireMock.withArgs('../app/routes/api/v1/api').returns(v1ApiMock);
+        expect(appConfigMock.routes).to.have.been.calledWithExactly(
+            appMock, pJsonMock, expressMock, pathMock, loggerModuleMock.logger,
+            apiHandlersMock, v1ApiMock, passportMock, controllersMock);
 
-        var appMock = sinon.stub();
-
-        appConfigMock.createApp = sinon.stub().returns(appMock);
-        appConfigMock.createApp.withArgs(expressMock).returns(appMock);
-        appConfigMock.morgan = sinon.stub();
-        appConfigMock.originHeaders = sinon.stub();
-        appConfigMock.parsingMiddleware = sinon.stub();
-        appConfigMock.routes = sinon.stub();
-        appConfigMock.errors = sinon.stub();
-
-        var app = require('../app')(requireMock);
-
-        expect(requireMock).to.have.been.calledWith('../package.json');
-        expect(requireMock).to.have.been.calledWith('../app/config');
-
-        expect(requireMock).to.have.been.calledWith('path');
-        expect(requireMock).to.have.been.calledWith('moment');
-        expect(requireMock).to.have.been.calledWith('node-uuid');
-
-        expect(requireMock).to.have.been.calledWith('mongoose');
-        expect(requireMock).to.have.been.calledWith('../app/config/database');
-        expect(connectionConfigMock).to.have.been.calledWith(mongooseMock);
-        expect(requireMock).to.have.been.calledWith('../app/models/models');
-        expect(modelsConfigMock).to.have.been.calledWith(requireMock, connectionMock, mongooseMock, momentMock, uuidMock);
-
-        expect(requireMock).to.have.been.calledWith('express');
-        expect(appConfigMock.createApp).to.have.been.calledWith(expressMock);
-
-        expect(requireMock).to.have.been.calledWith('morgan');
-        expect(appConfigMock.morgan).to.have.been.calledWith(appMock, morganMock);
-
-        expect(appConfigMock.originHeaders).to.have.been.calledWith(appMock);
-
-        expect(requireMock).to.have.been.calledWith('passport');
-        expect(requireMock).to.have.been.calledWith('../app/config/passport');
-        expect(passportConfigMock).to.have.been.calledWith(
-            passportMock, modelsMock, momentMock, BasicStrategyMock, BearerStrategyMock);
-
-        expect(requireMock).to.have.been.calledWith('cookie-parser');
-        expect(requireMock).to.have.been.calledWith('body-parser');
-        expect(appConfigMock.parsingMiddleware).to.have.been.calledWith(appMock, cookieParserMock, bodyParserMock);
-
-        expect(requireMock).to.have.been.calledWith('../app/routes/api/apiHandlers');
-        expect(requireMock).to.have.been.calledWith('../app/routes/api/v1/api');
-        expect(appConfigMock.routes).to.have.been.calledWith(
-            appMock, pJsonMock, expressMock, pathMock, apiHandlersMock, v1ApiMock, passportMock, modelsMock);
-
-        expect(appConfigMock.errors).to.have.been.calledWith(appMock);
+        expect(appConfigMock.errors).to.have.been.calledWithExactly(appMock);
 
         expect(app).to.equal(appMock);
     });

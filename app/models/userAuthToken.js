@@ -1,8 +1,10 @@
-module.exports = function (connection, mongoose, moment, uuid, expired_time, deleteMongoFields) {
+'use strict';
 
-    var Schema = mongoose.Schema;
+module.exports = function (modelHelpers, connection, mongoose, moment, uuid, expired_time) {
 
-    var userAuthTokenSchema = new Schema({
+    let Schema = mongoose.Schema;
+
+    let userAuthTokenSchema = new Schema({
         auth_token: {type: String, index: true, unique: true, required: true, dropDups: true},
         createDate: {type: Date, required: true, default: moment().utc()},
         userAgent: String,
@@ -11,15 +13,17 @@ module.exports = function (connection, mongoose, moment, uuid, expired_time, del
         user: {type: mongoose.Schema.Types.ObjectId, ref: 'User'}
     });
 
-    deleteMongoFields(userAuthTokenSchema);
+    userAuthTokenSchema.methods.toString = function () {
+        return this.user.toString();
+    };
 
     userAuthTokenSchema.methods.hasExpired = function () {
         return (moment().utc().diff(this.createDate, 'days')) > expired_time;
     };
 
-    userAuthTokenSchema.statics.tokenGenerate = function (user, ip, userAgent, done) {
-        var timestamp = moment().utc();
-        var token = new UserAuthToken({
+    userAuthTokenSchema.statics.generateNew = function (user, ip, userAgent) {
+        let timestamp = moment().utc();
+        return new UserAuthToken({
             auth_token: uuid.v1(),
             createDate: timestamp,
             userAgent: userAgent,
@@ -27,12 +31,14 @@ module.exports = function (connection, mongoose, moment, uuid, expired_time, del
             lastUsed: timestamp,
             user: user
         });
-        token.save(function (err, token) {
-            done(err, token);
-        });
     };
 
-    var UserAuthToken = connection.model('UserAuthToken', userAuthTokenSchema);
+    userAuthTokenSchema.statics.defaultPopulate = function () {
+        return this.populate('user', 'username');
+    };
+
+    modelHelpers.deleteMongoFields(userAuthTokenSchema);
+    let UserAuthToken = connection.model('UserAuthToken', userAuthTokenSchema);
 
     return UserAuthToken;
 };

@@ -1,15 +1,19 @@
-module.exports = function (connection, mongoose, deleteMongoFields) {
+'use strict';
 
-    var Schema = mongoose.Schema;
+module.exports = function (modelHelpers, connection, mongoose) {
 
-    var userRoleSchema = new Schema({
+    let Schema = mongoose.Schema;
+
+    let userRoleSchema = new Schema({
         roleId: {type: String, index: true, unique: true, required: true, dropDups: true},
         displayName: {type: String, required: true}
     });
 
-    deleteMongoFields(userRoleSchema);
+    userRoleSchema.methods.toString = function () {
+        return this.roleId;
+    };
 
-    var UserRole = connection.model('UserRole', userRoleSchema);
+    modelHelpers.deleteMongoFields(userRoleSchema);
 
-    return UserRole;
+    return connection.model('UserRole', userRoleSchema);
 };

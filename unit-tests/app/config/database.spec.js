@@ -1,72 +1,142 @@
-var sinon = require('sinon');
-var chai = require('chai');
-var sinonChai = require("sinon-chai");
-var expect = chai.expect;
+'use strict';
+
+let sinon = require('sinon');
+let chai = require('chai');
+let sinonChai = require("sinon-chai");
+let expect = chai.expect;
 chai.use(sinonChai);
 
+let database = require('../../../app/config/database');
+
 describe('The database module', function() {
-    var processOnMock, processExitMock, processOnCallbackMock, consoleInfoMock, consoleWarnMock, consoleErrorMock;
+    let sandbox = sinon.sandbox.create();
 
-    var processOnFunctionMock = function (signal, callback) {
-        processOnCallbackMock = callback;
-    };
-    
+    let mongooseMock,
+        connectionMock,
+        processMock,
+        processHandlerMock,
+        consoleInfoMock,
+        consoleWarnMock,
+        consoleErrorMock;
+
     beforeEach(function () {
-        processOnMock = sinon.stub(process, 'on', processOnFunctionMock);
-        processExitMock = sinon.stub(process, 'exit');
-        consoleInfoMock = sinon.stub(console, 'info');
-        consoleWarnMock = sinon.stub(console, 'warn');
-        consoleErrorMock = sinon.stub(console, 'error');
-    });
-    
-    var mongooseMock = sinon.stub();
-    var connectionMock = sinon.stub();
-    mongooseMock.createConnection = sinon.stub();
-    mongooseMock.createConnection.returns(connectionMock);
-
-    it('should perform default configuration', function () {
-        var handlers = {};
-        connectionMock.on = function (event, handler) {
-            handlers[event] = handler;
+        mongooseMock = sandbox.stub();
+        connectionMock = sandbox.stub();
+        connectionMock.on = function () {};
+        connectionMock.handlers = {};
+        mongooseMock.createConnection = sandbox.stub().returns(connectionMock);
+        var onMock = function(obj) {
+            obj.handlers = {};
+            return function (name, handler) {
+                obj.handlers[name] = handler;
+            };
         };
-        var connectionCloseSpy = sinon.spy();
-        var connectionCloseCallback;
-        connectionMock.close = function (callback) {
-            connectionCloseSpy();
-            connectionCloseCallback = callback;
-        };
-
-        var connection = require('../../../app/config/database')(mongooseMock);
-
-        expect(connection).to.be.equal(connectionMock);
-        expect(mongooseMock.createConnection).to.have.been.calledWith('mongodb://localhost:27017/clhApp',
-            {server: {poolSize: 1}});
-        expect(Object.keys(handlers).length).to.be.equal(5);
-        handlers['connected']();
-        expect(consoleInfoMock).to.have.been.calledWith('Mongoose connection open to mongodb://localhost:27017/clhApp');
-        handlers['error']('test error');
-        expect(consoleErrorMock).to.have.been.calledWith('Mongoose connection error: test error');
-        handlers['open']();
-        expect(consoleInfoMock).to.have.been.calledWith('Mongoose connection opened!');
-        handlers['reconnected']();
-        expect(consoleInfoMock).to.have.been.calledWith('Mongoose reconnected!');
-        handlers['disconnected']();
-        expect(consoleWarnMock).to.have.been.calledWith('Mongoose disconnected!');
-        expect(processOnMock).to.have.been.calledWith('SIGINT', sinon.match.func);
-        expect(processOnCallbackMock).to.be.a('function');
-        processOnCallbackMock();
-        expect(connectionCloseSpy).to.have.been.called;
-        expect(connectionCloseCallback).to.be.a('function');
-        connectionCloseCallback();
-        expect(consoleErrorMock).to.have.been.calledWith('Mongoose connection disconnected through app termination');
-        expect(processExitMock).to.have.been.calledWith(0);
+        sandbox.stub(connectionMock, 'on', onMock(connectionMock));
+        processMock = sandbox.stub();
+        processHandlerMock = sandbox.stub(process, 'on', onMock(processMock));
+        consoleInfoMock = sandbox.stub(console, 'info');
+        consoleWarnMock = sandbox.stub(console, 'warn');
+        consoleErrorMock = sandbox.stub(console, 'error');
     });
 
     afterEach(function () {
-        console.info.restore();
-        console.warn.restore();
-        console.error.restore();
-        process.on.restore();
-        process.exit.restore();
+        sandbox.restore();
+    });
+
+    let commonTests = function (connection) {
+        expect(connection).to.equals(connectionMock);
+        expect(mongooseMock.Promise).to.equals(global.Promise);
+        expect(Object.keys(connectionMock.handlers)).to.be.eql([
+            'connected', 'error', 'open', 'reconnected', 'disconnected'
+        ]);
+        expect(connectionMock.handlers['connected']).to.be.a('function');
+        expect(connectionMock.handlers['error']).to.be.a('function');
+        expect(connectionMock.handlers['open']).to.be.a('function');
+        expect(connectionMock.handlers['reconnected']).to.be.a('function');
+        expect(connectionMock.handlers['disconnected']).to.be.a('function');
+        expect(Object.keys(processMock.handlers)).to.be.eql(['SIGINT']);
+        expect(processMock.handlers['SIGINT']).to.be.a('function');
+    };
+
+    it('should perform default configuration', function () {
+        let connection = database(mongooseMock);
+
+        commonTests(connection);
+        expect(mongooseMock.createConnection).to.have.been.calledWithExactly(
+            'mongodb://localhost:27017/clhApp', {server: {poolSize: 1}});
+    });
+
+    it('should perform configuration', function () {
+        sandbox.stub(process, 'env', {
+            MONGODB_URI: 'test uri',
+            MONGODB_POOL_SIZE: '2'
+        });
+
+        let connection = database(mongooseMock);
+
+        commonTests(connection);
+        expect(mongooseMock.createConnection).to.have.been.calledWithExactly(
+            'test uri', {server: {poolSize: '2'}});
+    });
+
+    describe('handlers', function () {
+        let connection;
+
+        beforeEach(function () {
+            sandbox.stub(process, 'env', {
+                MONGODB_URI: 'test uri',
+                MONGODB_POOL_SIZE: '2'
+            });
+            connection = database(mongooseMock);
+        });
+
+        describe('connection', function () {
+
+            it('connected', function () {
+                connection.handlers['connected']();
+
+                expect(consoleInfoMock).to.have.been.calledWithExactly('Mongoose connection open to test uri');
+            });
+
+            it('error', function () {
+                let errorMock = 'test error';
+
+                connection.handlers['error'](errorMock);
+
+                expect(consoleErrorMock).to.have.been.calledWithExactly('Mongoose connection error: test error');
+            });
+
+            it('open', function () {
+                connection.handlers['open']();
+
+                expect(consoleInfoMock).to.have.been.calledWithExactly('Mongoose connection opened!');
+            });
+
+            it('reconnected', function () {
+                connection.handlers['reconnected']();
+
+                expect(consoleInfoMock).to.have.been.calledWithExactly('Mongoose reconnected!');
+            });
+
+            it('disconnected', function () {
+                connection.handlers['disconnected']();
+
+                expect(consoleWarnMock).to.have.been.calledWithExactly('Mongoose disconnected!');
+            });
+        });
+
+        describe('process', function () {
+            it('SIGINT', function () {
+                connectionMock.close = sandbox.stub().callsArg(0);
+                let processExit = sandbox.stub(process, 'exit');
+
+                processMock.handlers['SIGINT']();
+
+                expect(connectionMock.close).to.have.been.calledWithExactly(sinon.match.func);
+                expect(consoleErrorMock).to.have.been.calledWithExactly(
+                    'Mongoose connection disconnected through app termination');
+                expect(processExit).to.have.been.calledWithExactly(0);
+            });
+        });
     });
 });

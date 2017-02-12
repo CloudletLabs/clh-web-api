@@ -1,27 +1,29 @@
 #!/usr/bin/env node
 
+'use strict';
+
 /**
  * Enable debugger
  */
-var debug = require('debug')('clh-web-api:server');
+let debug = require('debug')('clh-web-api:server');
 
 /**
  * Load express app
  */
-var app = require('../app')(require);
+let app = require('../app');
 
 /**
  * Create HTTP server.
  */
-var http = require('http');
-var server = http.createServer(app);
+let http = require('http');
+let server = http.createServer(app);
 
 /**
  * Get port from environment and store it to express
  * Note that env var name should be PORT as it required by heroku
  * Listen on provided port, on all network interfaces
  */
-var port = normalizePort(process.env.PORT || '8087');
+let port = normalizePort(process.env.PORT || '8087');
 app.set('port', port);
 server.listen(port);
 // add some handlers
@@ -32,7 +34,7 @@ server.on('listening', onListening);
  * Normalize a port into a number, string, or false.
  */
 function normalizePort(val) {
-    var port = parseInt(val, 10);
+    let port = parseInt(val, 10);
 
     if (isNaN(port)) {
         // named pipe
@@ -55,7 +57,7 @@ function onError(error) {
         throw error;
     }
 
-    var bind = typeof port === 'string'
+    let bind = typeof port === 'string'
         ? 'Pipe ' + port
         : 'Port ' + port;
 
@@ -78,9 +80,9 @@ function onError(error) {
  * Event listener for HTTP server "listening" event.
  */
 function onListening() {
-    var addr = server.address();
-    var bind = typeof addr === 'string'
-        ? 'pipe ' + addr
-        : 'port ' + addr.port;
+    let address = server.address();
+    let bind = typeof address === 'string'
+        ? 'pipe ' + address
+        : 'port ' + address.port;
     debug('Listening on ' + bind);
 }

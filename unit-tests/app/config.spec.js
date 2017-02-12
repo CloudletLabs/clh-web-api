@@ -1,235 +1,262 @@
-var sinon = require('sinon');
-var chai = require('chai');
-var sinonChai = require("sinon-chai");
-var expect = chai.expect;
+'use strict';
+
+let sinon = require('sinon');
+let chai = require('chai');
+let sinonChai = require("sinon-chai");
+let expect = chai.expect;
 chai.use(sinonChai);
 
-describe('The config module', function() {
-    it('should have functions', function () {
-        var appConfig = require('../../app/config');
+let appConfig = require('../../app/config');
 
-        expect(Object.keys(appConfig).length).to.be.equal(6);
+describe('The config module', function() {
+    it('should have functions', sinon.test(function () {
+        expect(Object.keys(appConfig).length).to.be.equal(7);
         expect(appConfig.createApp).to.be.a('function');
         expect(appConfig.morgan).to.be.a('function');
         expect(appConfig.originHeaders).to.be.a('function');
         expect(appConfig.parsingMiddleware).to.be.a('function');
+        expect(appConfig.loggingMiddleware).to.be.a('function');
         expect(appConfig.routes).to.be.a('function');
         expect(appConfig.errors).to.be.a('function');
-    });
+    }));
 
-    it('should create app', function () {
-        var expressMock = sinon.stub();
-        var appMock = sinon.stub();
+    it('should create app', sinon.test(function () {
+        let expressMock = this.stub();
+        let appMock = this.stub();
         expressMock.returns(appMock);
 
-        var appConfig = require('../../app/config');
-        var app = appConfig.createApp(expressMock);
+        let app = appConfig.createApp(expressMock);
 
         expect(app).to.be.equal(appMock);
-    });
+    }));
 
-    it('should configure morgan for dev', function () {
-        var appMock = sinon.stub();
-        appMock.get = sinon.stub();
+    it('should configure morgan for dev', sinon.test(function () {
+        let appMock = this.stub();
+        appMock.get = this.stub();
         appMock.get.withArgs('env').returns('development');
-        appMock.use = sinon.stub();
-        var morganMock = sinon.stub();
-        var config;
-        var morganFunctionSpy = sinon.spy();
-        var morganFunctionMock = function (env, actualConfig) {
+        appMock.use = this.stub();
+        let morganMock = this.stub();
+        let config = null;
+        let morganFunctionSpy = this.spy();
+        let morganFunctionMock = function (env, actualConfig) {
             morganFunctionSpy(env, actualConfig);
             config = actualConfig;
             return morganMock;
         };
 
-        var appConfig = require('../../app/config');
         appConfig.morgan(appMock, morganFunctionMock);
 
-        expect(appMock.get).to.have.been.calledWith('env');
-        expect(appMock.use).to.have.been.calledWith(morganMock);
-        expect(morganFunctionSpy).to.have.been.calledWith('dev', config);
+        expect(appMock.get).to.have.been.calledWithExactly('env');
+        expect(appMock.use).to.have.been.calledWithExactly(morganMock);
+        expect(morganFunctionSpy).to.have.been.calledWithExactly('dev', config);
         expect(config.skip).to.be.a('function');
         expect(config.skip(null, { statusCode: 399 })).to.be.true;
         expect(config.skip(null, { statusCode: 400 })).to.be.false;
-    });
+    }));
 
-    it('should configure morgan for non dev', function () {
-        var appMock = sinon.stub();
-        appMock.get = sinon.stub();
+    it('should configure morgan for non dev', sinon.test(function () {
+        let appMock = this.stub();
+        appMock.get = this.stub();
         appMock.get.withArgs('env').returns('foo');
-        appMock.use = sinon.stub();
-        var morganMock = sinon.stub();
-        var morganFunctionMock = sinon.stub();
+        appMock.use = this.stub();
+        let morganMock = this.stub();
+        let morganFunctionMock = this.stub();
         morganFunctionMock.returns(morganMock);
 
-        var appConfig = require('../../app/config');
         appConfig.morgan(appMock, morganFunctionMock);
 
-        expect(appMock.get).to.have.been.calledWith('env');
-        expect(appMock.use).to.have.been.calledWith(morganMock);
-        expect(morganFunctionMock).to.have.been.calledWith('combined');
-    });
+        expect(appMock.get).to.have.been.calledWithExactly('env');
+        expect(appMock.use).to.have.been.calledWithExactly(morganMock);
+        expect(morganFunctionMock).to.have.been.calledWithExactly('combined');
+    }));
 
-    it('should configure origin headers for OPTIONS request', function () {
-        var appMock = sinon.stub();
+    it('should configure origin headers for OPTIONS request', sinon.test(function () {
+        let appMock = this.stub();
 
-        var appMockUseSpy = sinon.spy();
+        let appMockUseSpy = this.spy();
+        let thisSinon = this;
         appMock.use = function (configurator) {
             appMockUseSpy();
 
-            var reqMock = sinon.stub();
+            let reqMock = thisSinon.stub();
             reqMock.method = 'OPTIONS';
-            var resMock = sinon.stub();
-            resMock.setHeader = sinon.spy();
-            resMock.status = sinon.stub();
+            let resMock = thisSinon.stub();
+            resMock.setHeader = thisSinon.spy();
+            resMock.status = thisSinon.stub();
             resMock.status.returns(resMock);
-            resMock.send = sinon.spy();
-            var nextMock = sinon.spy();
+            resMock.send = thisSinon.spy();
+            let nextMock = thisSinon.spy();
 
             configurator(reqMock, resMock, nextMock);
 
-            expect(resMock.setHeader).to.have.been.calledWith('Access-Control-Allow-Origin', '*');
-            expect(resMock.setHeader).to.have.been.calledWith('Access-Control-Allow-Headers', 'X-Requested-With, Authorization, Content-Type, Content-Length');
-            expect(resMock.setHeader).to.have.been.calledWith('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');
-            expect(resMock.status).to.have.been.calledWith(200);
+            expect(resMock.setHeader).to.have.been.calledWithExactly('Access-Control-Allow-Origin', '*');
+            expect(resMock.setHeader).to.have.been.calledWithExactly('Access-Control-Allow-Headers', 'X-Requested-With, Authorization, Content-Type, Content-Length');
+            expect(resMock.setHeader).to.have.been.calledWithExactly('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');
+            expect(resMock.status).to.have.been.calledWithExactly(200);
             expect(resMock.send).to.have.been.called;
             expect(nextMock).to.not.have.been.called;
         };
 
-        var appConfig = require('../../app/config');
         appConfig.originHeaders(appMock);
 
         expect(appMockUseSpy).to.have.been.called;
-    });
+    }));
 
-    it('should configure origin headers for non-OPTIONS requests', function () {
-        var appMock = sinon.stub();
+    it('should configure origin headers for non-OPTIONS requests', sinon.test(function () {
+        let appMock = this.stub();
 
-        var appMockUseSpy = sinon.spy();
+        let appMockUseSpy = this.spy();
+        let thisSinon = this;
         appMock.use = function (configurator) {
             appMockUseSpy();
 
-            var reqMock = sinon.stub();
+            let reqMock = thisSinon.stub();
             reqMock.method = 'foo';
-            var resMock = sinon.stub();
-            resMock.setHeader = sinon.spy();
-            var nextMock = sinon.spy();
+            let resMock = thisSinon.stub();
+            resMock.setHeader = thisSinon.spy();
+            let nextMock = thisSinon.spy();
 
             configurator(reqMock, resMock, nextMock);
 
-            expect(resMock.setHeader).to.have.been.calledWith('Access-Control-Allow-Origin', '*');
+            expect(resMock.setHeader).to.have.been.calledWithExactly('Access-Control-Allow-Origin', '*');
             expect(nextMock).to.have.been.called;
         };
 
-        var appConfig = require('../../app/config');
         appConfig.originHeaders(appMock);
 
         expect(appMockUseSpy).to.have.been.called;
-    });
+    }));
 
-    it('should configure parsing middleware', function () {
-        var appMock = sinon.stub();
-        appMock.use = sinon.stub();
-        var cookieParserFunctionMock = sinon.stub();
-        var cookieParserMock = sinon.stub();
+    it('should configure parsing middleware', sinon.test(function () {
+        let appMock = this.stub();
+        appMock.use = this.stub();
+        let cookieParserFunctionMock = this.stub();
+        let cookieParserMock = this.stub();
         cookieParserFunctionMock.returns(cookieParserMock);
-        var bodyParserMock = sinon.stub();
-        bodyParserMock.urlencoded = sinon.stub();
-        var bodyParserUrlEncodedMock = sinon.stub();
+        let bodyParserMock = this.stub();
+        bodyParserMock.json = this.stub();
+        let bodyParserJsonMock = this.stub();
+        bodyParserMock.json.returns(bodyParserJsonMock);
+        bodyParserMock.urlencoded = this.stub();
+        let bodyParserUrlEncodedMock = this.stub();
         bodyParserMock.urlencoded.returns(bodyParserUrlEncodedMock);
 
-        var appConfig = require('../../app/config');
         appConfig.parsingMiddleware(appMock, cookieParserFunctionMock, bodyParserMock);
 
-        expect(appMock.use).to.have.been.calledWith(bodyParserUrlEncodedMock);
-        expect(bodyParserMock.urlencoded).to.have.been.calledWith({extended: false});
-        expect(appMock.use).to.have.been.calledWith(cookieParserMock);
+        expect(appMock.use).to.have.been.calledWithExactly(bodyParserJsonMock);
+        expect(appMock.use).to.have.been.calledWithExactly(bodyParserUrlEncodedMock);
+        expect(bodyParserMock.json).to.have.been.calledWithExactly();
+        expect(bodyParserMock.urlencoded).to.have.been.calledWithExactly({extended: false});
+        expect(appMock.use).to.have.been.calledWithExactly(cookieParserMock);
         expect(cookieParserFunctionMock).to.have.been.called;
-    });
+    }));
 
-    it('should configure routes', function () {
-        var appMock = sinon.stub();
-        appMock.use = sinon.stub();
-        var pJsonMock = sinon.stub();
-        var expressMock = sinon.stub();
-        expressMock.static = sinon.stub();
+    it('should configure logging middleware', sinon.test(function () {
+        let appMock = this.stub();
+        appMock.use = this.stub();
+        let loggerModuleMock = this.stub();
+        loggerModuleMock.logPrefixGenerator = this.stub();
+        loggerModuleMock.reqLogger = this.stub();
+
+        appConfig.loggingMiddleware(appMock, loggerModuleMock);
+
+        expect(appMock.use).to.have.been.calledWithExactly(loggerModuleMock.logPrefixGenerator);
+        expect(appMock.use).to.have.been.calledWithExactly(loggerModuleMock.reqLogger);
+    }));
+
+    it('should configure routes', sinon.test(function () {
+        let appMock = this.stub();
+        appMock.use = this.stub();
+
+        let pJsonMock = this.stub();
+
+        let expressMock = this.stub();
+        expressMock.static = this.stub();
         expressMock.static.returns('test static');
-        var pathMock = sinon.stub();
-        pathMock.join = sinon.stub();
+
+        let pathMock = this.stub();
+        pathMock.join = this.stub();
         pathMock.join.returns('test path');
-        var apiHandlersMock = sinon.stub();
-        var errorHandlerMock = sinon.stub();
-        apiHandlersMock.errorHandler = errorHandlerMock;
-        var v1ApiMock = sinon.stub();
-        var v1ApiRouter = sinon.stub();
-        v1ApiMock.returns({apiVersion: 1, router: v1ApiRouter});
-        var passportMock = sinon.stub();
-        var modelsMock = sinon.stub();
 
-        var appConfig = require('../../app/config');
-        appConfig.routes(appMock, pJsonMock, expressMock, pathMock, apiHandlersMock, v1ApiMock, passportMock, modelsMock);
+        let loggerMock = this.stub();
 
-        expect(pathMock.join).to.have.been.calledWith(sinon.match.string, '../public');
-        expect(expressMock.static).to.have.been.calledWith('test path');
-        expect(appMock.use).to.have.been.calledWith('test static');
-        expect(v1ApiMock).to.have.been.calledWith(expressMock, appMock, pJsonMock, apiHandlersMock, passportMock, modelsMock);
-        expect(appMock.use).to.have.been.calledWith('/api/v1', v1ApiRouter);
-        expect(appMock.use).to.have.been.calledWith('/api/v1', errorHandlerMock);
-        expect(appMock.use).to.have.been.calledWith('/api/current', v1ApiRouter);
-        expect(appMock.use).to.have.been.calledWith('/api/current', errorHandlerMock);
-    });
+        let apiHandlersMock = this.stub();
+        apiHandlersMock.notFoundHandler = this.stub();
+        apiHandlersMock.errorHandler = this.stub();
+        apiHandlersMock.status = this.stub();
+        apiHandlersMock.status.returns(apiHandlersMock.status);
+        apiHandlersMock.info = this.stub();
+        apiHandlersMock.info.returns(apiHandlersMock.info);
 
-    describe('error handlers', function () {
-        var consoleWarnMock, consoleErrorMock;
+        let v1ApiMock = this.stub();
+        v1ApiMock.apiVersion = '1';
+        v1ApiMock.pJson = pJsonMock;
+        v1ApiMock.router = this.stub();
+        v1ApiMock.router.get = this.stub();
+        v1ApiMock.log = this.stub();
+        v1ApiMock.returns(v1ApiMock);
 
-        beforeEach(function () {
-            consoleWarnMock = sinon.stub(console, 'warn');
-            consoleErrorMock = sinon.stub(console, 'error');
-        });
+        let passportMock = this.stub();
+        let controllersMock = this.stub();
 
-        it('should configure', function () {
-            var appMock = sinon.stub();
-            var appUseSpy = sinon.spy();
-            var handlers = [];
-            appMock.use = function (handler) {
-                appUseSpy();
-                handlers.push(handler);
-            };
-            var reqMock = {};
-            reqMock.method = 'test method';
-            reqMock.connection = {};
-            reqMock.connection.remoteAddress = 'test address';
-            reqMock.path = 'test path';
-            var resMock = sinon.stub();
-            resMock.status = sinon.stub();
-            resMock.status.returns(resMock);
-            resMock.send = sinon.stub();
+        appConfig.routes(appMock, pJsonMock, expressMock, pathMock, loggerMock,
+            apiHandlersMock, v1ApiMock, passportMock, controllersMock);
 
-            var appConfig = require('../../app/config');
-            appConfig.errors(appMock);
+        expect(pathMock.join).to.have.been.calledWithExactly(sinon.match.string, '../public');
+        expect(expressMock.static).to.have.been.calledWithExactly('test path');
+        expect(appMock.use).to.have.been.calledWithExactly('test static');
+        expect(v1ApiMock).to.have.been.calledWithExactly(
+            expressMock, appMock, pJsonMock, loggerMock, apiHandlersMock, passportMock, controllersMock);
+        expect(apiHandlersMock.status).to.have.been.calledWithExactly(v1ApiMock);
+        expect(v1ApiMock.router.get).to.have.been.calledWithExactly('/status', apiHandlersMock.status);
+        expect(v1ApiMock.router.get).to.have.been.calledWithExactly('/info', apiHandlersMock.info);
+        expect(appMock.use).to.have.been.calledWithExactly('/api/v1', v1ApiMock.router);
+        expect(appMock.use).to.have.been.calledWithExactly('/api/v1', apiHandlersMock.notFoundHandler);
+        expect(appMock.use).to.have.been.calledWithExactly('/api/v1', apiHandlersMock.errorHandler);
+        expect(appMock.use).to.have.been.calledWithExactly('/api/current', v1ApiMock.router);
+        expect(appMock.use).to.have.been.calledWithExactly('/api/current', apiHandlersMock.notFoundHandler);
+        expect(appMock.use).to.have.been.calledWithExactly('/api/current', apiHandlersMock.errorHandler);
+    }));
 
-            expect(appUseSpy).to.have.been.calledTwice;
-            expect(handlers.length).to.be.equal(2);
+    it('should configure error handlers', sinon.test(function () {
+        let appMock = this.stub();
+        let appUseSpy = this.spy();
+        let handlers = [];
+        appMock.use = function (handler) {
+            appUseSpy();
+            handlers.push(handler);
+        };
+        let reqMock = {};
+        reqMock.method = 'test method';
+        reqMock.connection = {};
+        reqMock.connection.remoteAddress = 'test address';
+        reqMock.path = 'test path';
+        let resMock = this.stub();
+        resMock.status = this.stub();
+        resMock.status.returns(resMock);
+        resMock.send = this.stub();
 
-            handlers[0](reqMock, resMock);
-            expect(consoleWarnMock).to.have.been.calledWith('[%s][%s] 404: %s', 'test method', 'test address', 'test path');
-            expect(resMock.status).to.have.been.calledWith(404);
-            expect(resMock.send).to.have.been.called;
+        let consoleWarnMock = this.stub(console, 'warn');
+        let consoleErrorMock = this.stub(console, 'error');
 
-            handlers[1]({}, reqMock, resMock);
-            expect(consoleErrorMock).to.have.been.calledWith('[%s][%s] ERROR: %s', 'test method', 'test address', {});
-            expect(resMock.status).to.have.been.calledWith(500);
-            expect(resMock.send).to.have.been.called;
+        appConfig.errors(appMock);
 
-            handlers[1]({ status: 199 }, reqMock, resMock);
-            expect(consoleErrorMock).to.have.been.calledWith('[%s][%s] ERROR: %s', 'test method', 'test address', { status: 199 });
-            expect(resMock.status).to.have.been.calledWith(199);
-            expect(resMock.send).to.have.been.called;
-        });
+        expect(appUseSpy).to.have.been.calledTwice;
+        expect(handlers.length).to.be.equal(2);
 
-        afterEach(function () {
-            console.warn.restore();
-            console.error.restore();
-        });
-    });
+        handlers[0](reqMock, resMock);
+        expect(consoleWarnMock).to.have.been.calledWithExactly('[%s][%s] 404: %s', 'test method', 'test address', 'test path');
+        expect(resMock.status).to.have.been.calledWithExactly(404);
+        expect(resMock.send).to.have.been.called;
+
+        handlers[1]({}, reqMock, resMock);
+        expect(consoleErrorMock).to.have.been.calledWithExactly('[%s][%s] ERROR: %s', 'test method', 'test address', {});
+        expect(resMock.status).to.have.been.calledWithExactly(500);
+        expect(resMock.send).to.have.been.called;
+
+        handlers[1]({ status: 199 }, reqMock, resMock);
+        expect(consoleErrorMock).to.have.been.calledWithExactly('[%s][%s] ERROR: %s', 'test method', 'test address', { status: 199 });
+        expect(resMock.status).to.have.been.calledWithExactly(199);
+        expect(resMock.send).to.have.been.called;
+    }));
 });

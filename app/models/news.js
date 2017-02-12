@@ -1,8 +1,10 @@
-module.exports = function (connection, mongoose, moment, deleteMongoFields) {
+'use strict';
 
-    var Schema = mongoose.Schema;
+module.exports = function (modelHelpers, connection, mongoose, moment) {
 
-    var newsSchema = new Schema({
+    let Schema = mongoose.Schema;
+
+    let newsSchema = new Schema({
         slug: {type: String, index: true, unique: true, required: true, dropDups: true},
         creator: {type: mongoose.Schema.Types.ObjectId, ref: 'User'},
         createDate: {type: Date, required: true, default: moment().utc()},
@@ -10,9 +12,27 @@ module.exports = function (connection, mongoose, moment, deleteMongoFields) {
         text: {type: String, required: true}
     });
 
-    deleteMongoFields(newsSchema);
+    newsSchema.methods.toString = function () {
+        return this.slug;
+    };
 
-    var News = connection.model('News', newsSchema);
+    newsSchema.statics.generateNew = function (slug, creator, subject, text) {
+        return new News({
+            slug: slug,
+            creator: creator,
+            createDate: moment().utc(),
+            subject: subject,
+            text: text
+        });
+    };
+
+    newsSchema.statics.defaultPopulate = function () {
+        return this.populate('creator', 'name');
+    };
+
+    modelHelpers.deleteMongoFields(newsSchema);
+
+    let News = connection.model('News', newsSchema);
 
     return News;
 };
