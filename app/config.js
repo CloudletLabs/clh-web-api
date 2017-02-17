@@ -62,6 +62,14 @@ module.exports = {
         app.use('/api/current', apiHandlers.notFoundHandler);
         app.use('/api/current', apiHandlers.errorHandler);
     },
+    dates: function (app) {
+        app.set('json replacer', function (key, value) {
+            if (this[key] instanceof Date) {
+                value = Math.round(this[key].getTime() / 1000);
+            }
+            return value;
+        });
+    },
     errors: function (app) {
         app.use(function (req, res) {
             console.warn("[%s][%s] 404: %s", req.method, req.connection.remoteAddress, req.path);

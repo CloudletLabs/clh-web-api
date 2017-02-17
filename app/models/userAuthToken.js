@@ -34,7 +34,7 @@ module.exports = function (modelHelpers, connection, mongoose, moment, uuid, exp
     };
 
     userAuthTokenSchema.statics.defaultPopulate = function () {
-        return this.populate('user', 'username');
+        return this.populate('user', 'username').populate({ path: 'user', populate: {path: 'roles', select: 'roleId'}});
     };
 
     modelHelpers.deleteMongoFields(userAuthTokenSchema);
