@@ -40,7 +40,7 @@ describe('The user controller module', function() {
 
         doneMock = sandbox.stub();
 
-        controller = require('../../../app/controllers/user')(loggerMock, modelsMock, controllerHelpersMock);
+        controller = require('../../app/controllers/user')(loggerMock, modelsMock, controllerHelpersMock);
     });
 
     afterEach(function () {

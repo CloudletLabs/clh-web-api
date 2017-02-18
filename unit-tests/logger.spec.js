@@ -6,7 +6,7 @@ let sinonChai = require("sinon-chai");
 let expect = chai.expect;
 chai.use(sinonChai);
 
-let logger = require('../../app/logger');
+let logger = require('../app/logger');
 
 describe('The logger module', function() {
     let sandbox = sinon.sandbox.create();

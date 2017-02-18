@@ -32,7 +32,7 @@ describe('The controllers module', function() {
             news: newsMock
         };
 
-        let controllers = proxyquire('../../../app/controllers/controllers', {
+        let controllers = proxyquire('../../app/controllers/controllers', {
             './userAuthToken': userAuthTokenMockModule,
             './user': userMockModule,
             './news': newsMockModule

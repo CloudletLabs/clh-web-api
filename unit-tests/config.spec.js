@@ -6,7 +6,7 @@ let sinonChai = require("sinon-chai");
 let expect = chai.expect;
 chai.use(sinonChai);
 
-let appConfig = require('../../app/config');
+let appConfig = require('../app/config');
 
 describe('The config module', function() {
     it('should have functions', sinon.test(function () {

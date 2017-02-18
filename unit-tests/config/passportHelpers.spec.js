@@ -6,7 +6,7 @@ let sinonChai = require("sinon-chai");
 let expect = chai.expect;
 chai.use(sinonChai);
 
-let helper = require('../../../app/config/passportHelpers');
+let helper = require('../../app/config/passportHelpers');
 
 describe('The passportHelpers module', function() {
     let sandbox = sinon.sandbox.create();

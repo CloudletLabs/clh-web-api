@@ -10,7 +10,7 @@ let debug = require('debug')('clh-web-api:server');
 /**
  * Load express app
  */
-let app = require('../app');
+let app = require('../app/app');
 
 /**
  * Create HTTP server.

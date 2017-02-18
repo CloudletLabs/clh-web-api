@@ -32,7 +32,7 @@ describe('The userAuthToken controller module', function() {
 
         doneMock = sandbox.stub();
 
-        controller = require('../../../app/controllers/userAuthToken')(loggerMock, modelsMock, controllerHelpersMock);
+        controller = require('../../app/controllers/userAuthToken')(loggerMock, modelsMock, controllerHelpersMock);
     });
 
     afterEach(function () {

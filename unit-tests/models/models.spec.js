@@ -40,7 +40,7 @@ describe('The models module', function() {
             news: newsMock
         };
 
-        let models = proxyquire('../../../app/models/models', {
+        let models = proxyquire('../../app/models/models', {
             './user': userMockModule,
             './userAuthToken': userAuthTokenMockModule,
             './userRole': userRoleMockModule,

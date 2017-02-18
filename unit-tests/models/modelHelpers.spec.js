@@ -6,7 +6,7 @@ let sinonChai = require("sinon-chai");
 let expect = chai.expect;
 chai.use(sinonChai);
 
-let modelHelpers = require('../../../app/models/modelHelpers');
+let modelHelpers = require('../../app/models/modelHelpers');
 
 describe('The modelHelpers module', function() {
     let sandbox = sinon.sandbox.create();

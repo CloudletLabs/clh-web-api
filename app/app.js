@@ -8,9 +8,9 @@ let express = require('express');
 /**
  * App configurator
  */
-let pJson = require('./package.json');
-let appConfig = require('./app/config');
-let loggerModule = require('./app/logger');
+let pJson = require('../package.json');
+let appConfig = require('./config');
+let loggerModule = require('./logger');
 let logger = loggerModule.logger;
 let app = appConfig.createApp(express);
 
@@ -26,17 +26,17 @@ let uuid = require('uuid');
  * mongoose used as ORM for mongodb
  */
 let mongoose = require('mongoose');
-let connection = require('./app/config/database')(mongoose);
-let modelHelpers = require('./app/models/modelHelpers');
-let models = require('./app/models/models')(modelHelpers, connection, mongoose, moment, uuid);
-let modelDefaultTestDataHelper = require('./app/models/modelDefaultTestDataHelper');
+let connection = require('./config/database')(mongoose);
+let modelHelpers = require('./models/modelHelpers');
+let models = require('./models/models')(modelHelpers, connection, mongoose, moment, uuid);
+let modelDefaultTestDataHelper = require('./models/modelDefaultTestDataHelper');
 modelDefaultTestDataHelper.check(models);
 
 /**
  * Controllers
  */
-let controllerHelpers = require('./app/controllers/controllerHelpers');
-let controllers = require('./app/controllers/controllers')(logger, models, controllerHelpers);
+let controllerHelpers = require('./controllers/controllerHelpers');
+let controllers = require('./controllers/controllers')(logger, models, controllerHelpers);
 
 /**
  * Middleware for logging in Express
@@ -60,8 +60,8 @@ appConfig.dates(app);
 let passport = require('passport');
 let BasicStrategy = require('passport-http').BasicStrategy;
 let BearerStrategy = require('passport-http-bearer').Strategy;
-let passportHelpers = require('./app/config/passportHelpers');
-require('./app/config/passport')(passport, passportHelpers, models, moment, BasicStrategy, BearerStrategy);
+let passportHelpers = require('./config/passportHelpers');
+require('./config/passport')(passport, passportHelpers, models, moment, BasicStrategy, BearerStrategy);
 
 /**
  * Middleware for parsing requests
@@ -78,8 +78,8 @@ appConfig.loggingMiddleware(app, loggerModule);
 /**
  * Routes
  */
-let apiHandlers = require('./app/routes/api/apiHandlers');
-let v1Api = require('./app/routes/api/v1/api');
+let apiHandlers = require('./routes/api/apiHandlers');
+let v1Api = require('./routes/api/v1/api');
 appConfig.routes(app, pJson, express, path, logger, apiHandlers, v1Api, passport, controllers);
 
 /**

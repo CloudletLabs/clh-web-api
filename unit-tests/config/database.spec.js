@@ -6,7 +6,7 @@ let sinonChai = require("sinon-chai");
 let expect = chai.expect;
 chai.use(sinonChai);
 
-let database = require('../../../app/config/database');
+let database = require('../../app/config/database');
 
 describe('The database module', function() {
     let sandbox = sinon.sandbox.create();
@@ -59,6 +59,11 @@ describe('The database module', function() {
     };
 
     it('should perform default configuration', function () {
+        sandbox.stub(process, 'env', {
+            MONGODB_URI: null,
+            MONGODB_POOL_SIZE: null
+        });
+
         let connection = database(mongooseMock);
 
         commonTests(connection);

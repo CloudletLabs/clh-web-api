@@ -6,10 +6,10 @@ let sinonChai = require("sinon-chai");
 let expect = chai.expect;
 chai.use(sinonChai);
 
-let newsModule = require('../../../app/models/news');
-let userModule = require('../../../app/models/user');
-let userAuthTokenModule = require('../../../app/models/userAuthToken');
-let userRoleModule = require('../../../app/models/userRole');
+let newsModule = require('../../app/models/news');
+let userModule = require('../../app/models/user');
+let userAuthTokenModule = require('../../app/models/userAuthToken');
+let userRoleModule = require('../../app/models/userRole');
 
 describe('The entity', function() {
     let sandbox = sinon.sandbox.create();

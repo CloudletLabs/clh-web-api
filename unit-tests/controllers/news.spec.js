@@ -37,7 +37,7 @@ describe('The news controller module', function() {
 
         doneMock = sandbox.stub();
 
-        controller = require('../../../app/controllers/news')(loggerMock, modelsMock, controllerHelpersMock);
+        controller = require('../../app/controllers/news')(loggerMock, modelsMock, controllerHelpersMock);
     });
 
     afterEach(function () {

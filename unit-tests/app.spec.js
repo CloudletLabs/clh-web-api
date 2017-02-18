@@ -68,31 +68,31 @@ describe('The app module', function() {
         let apiHandlersMock = sandbox.stub();
         let v1ApiMock = sandbox.stub();
 
-        let app = proxyquire('../app', {
+        let app = proxyquire('../app/app', {
             'express': expressMock,
-            './package.json': pJsonMock,
-            './app/config': appConfigMock,
-            './app/logger': loggerModuleMock,
+            '../package.json': pJsonMock,
+            './config': appConfigMock,
+            './logger': loggerModuleMock,
             'path': pathMock,
             'moment/moment': momentMock,
             'uuid': uuidMock,
             'mongoose': mongooseMock,
-            './app/config/database': databaseModuleMock,
-            './app/models/modelHelpers': modelHelpersMock,
-            './app/models/models': modelsModuleMock,
-            './app/models/modelDefaultTestDataHelper': modelDefaultTestDataHelperMock,
-            './app/controllers/controllerHelpers': controllerHelpersMock,
-            './app/controllers/controllers': controllersModuleMock,
+            './config/database': databaseModuleMock,
+            './models/modelHelpers': modelHelpersMock,
+            './models/models': modelsModuleMock,
+            './models/modelDefaultTestDataHelper': modelDefaultTestDataHelperMock,
+            './controllers/controllerHelpers': controllerHelpersMock,
+            './controllers/controllers': controllersModuleMock,
             'morgan': morganMock,
             'passport': passportMock,
             'passport-http': passportHttpMock,
             'passport-http-bearer': passportHttpBearerMock,
-            './app/config/passportHelpers': passportHelpersMock,
-            './app/config/passport': passportConfigMock,
+            './config/passportHelpers': passportHelpersMock,
+            './config/passport': passportConfigMock,
             'cookie-parser': cookieParserMock,
             'body-parser': bodyParserMock,
-            './app/routes/api/apiHandlers': apiHandlersMock,
-            './app/routes/api/v1/api': v1ApiMock
+            './routes/api/apiHandlers': apiHandlersMock,
+            './routes/api/v1/api': v1ApiMock
         });
 
         expect(appConfigMock.createApp).to.have.been.calledWithExactly(expressMock);

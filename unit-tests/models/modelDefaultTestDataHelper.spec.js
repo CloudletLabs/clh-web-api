@@ -6,7 +6,7 @@ let sinonChai = require("sinon-chai");
 let expect = chai.expect;
 chai.use(sinonChai);
 
-let helper = require('../../../app/models/modelDefaultTestDataHelper');
+let helper = require('../../app/models/modelDefaultTestDataHelper');
 
 describe('The modelDefaultTestDataHelper module', function() {
     let sandbox = sinon.sandbox.create();

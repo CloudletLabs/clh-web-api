@@ -6,7 +6,7 @@ let sinonChai = require("sinon-chai");
 let expect = chai.expect;
 chai.use(sinonChai);
 
-let handlersModule = require('../../../../app/routes/api/apiHandlers');
+let handlersModule = require('../../../app/routes/api/apiHandlers');
 
 describe('The apiHandlers module', function() {
     let sandbox = sinon.sandbox.create();
