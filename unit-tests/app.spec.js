@@ -26,6 +26,7 @@ describe('The app module', function() {
         appConfigMock.createApp.returns(appMock);
         appConfigMock.morgan = sandbox.stub();
         appConfigMock.originHeaders = sandbox.stub();
+        appConfigMock.dates = sandbox.stub();
         appConfigMock.parsingMiddleware = sandbox.stub();
         appConfigMock.loggingMiddleware = sandbox.stub();
         appConfigMock.routes = sandbox.stub();
@@ -107,6 +108,8 @@ describe('The app module', function() {
         expect(appConfigMock.morgan).to.have.been.calledWithExactly(appMock, morganMock);
 
         expect(appConfigMock.originHeaders).to.have.been.calledWithExactly(appMock);
+
+        expect(appConfigMock.dates).to.have.been.calledWithExactly(appMock);
 
         expect(passportConfigMock).to.have.been.calledWithExactly(
             passportMock,

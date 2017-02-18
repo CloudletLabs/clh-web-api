@@ -29,6 +29,14 @@ module.exports = {
             next();
         });
     },
+    dates: function (app) {
+        app.set('json replacer', function (key, value) {
+            if (this[key] instanceof Date) {
+                value = Math.round(this[key].getTime() / 1000);
+            }
+            return value;
+        });
+    },
     parsingMiddleware: function (app, cookieParser, bodyParser) {
         // parse json when application/json
         app.use(bodyParser.json());
@@ -61,14 +69,6 @@ module.exports = {
         app.use('/api/current', v1.router);
         app.use('/api/current', apiHandlers.notFoundHandler);
         app.use('/api/current', apiHandlers.errorHandler);
-    },
-    dates: function (app) {
-        app.set('json replacer', function (key, value) {
-            if (this[key] instanceof Date) {
-                value = Math.round(this[key].getTime() / 1000);
-            }
-            return value;
-        });
     },
     errors: function (app) {
         app.use(function (req, res) {
