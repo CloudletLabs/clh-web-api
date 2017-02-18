@@ -220,6 +220,17 @@ paths:
               response:
                 obj:
                   message: Not found
+  /test-error-example:
+    get:
+      description: Unkown API error
+      responses:
+        '500':
+          description: Returns Error object
+          x-amples:
+            - description: should return error object
+              response:
+                obj:
+                  message: Unknown API error
   /status:
     get:
       description: Get service status

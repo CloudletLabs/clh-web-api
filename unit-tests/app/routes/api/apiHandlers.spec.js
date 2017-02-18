@@ -33,9 +33,10 @@ describe('The apiHandlers module', function() {
     });
 
     it('should have functions', function () {
-        expect(Object.keys(handlersModule).length).to.be.equal(5);
+        expect(Object.keys(handlersModule).length).to.be.equal(6);
         expect(handlersModule.notFoundHandler).to.be.a('function');
         expect(handlersModule.errorHandler).to.be.a('function');
+        expect(handlersModule.testError).to.be.a('function');
         expect(handlersModule.status).to.be.a('function');
         expect(handlersModule.info).to.be.a('function');
         expect(handlersModule.sendRes).to.be.a('function');
@@ -71,6 +72,14 @@ describe('The apiHandlers module', function() {
         expect(consoleWarnMock).to.have.been.calledWithExactly('%s API WARN %s: %s', 'test prefix', 401, 'Dummy warning');
         expect(resMock.status).to.have.been.calledWithExactly(401);
         expect(resMock.json).to.have.been.calledWithExactly({message: 'Dummy warning'});
+    }));
+
+    it('should handle test error', sinon.test(function () {
+        let nextMock = sandbox.stub();
+
+        handlersModule.testError(null, null, nextMock);
+
+        expect(nextMock).to.calledWithExactly({});
     }));
 
     it('should handle status', sinon.test(function () {

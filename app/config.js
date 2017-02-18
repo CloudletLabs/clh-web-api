@@ -57,6 +57,7 @@ module.exports = {
 
         // API v1 router
         let v1 = v1Api(express, app, pJson, logger, apiHandlers, passport, controllers);
+        v1.router.get('/test-error-example', apiHandlers.testError);
         v1.router.get('/status', apiHandlers.status(v1));
         v1.router.get('/info', apiHandlers.info(v1));
 
