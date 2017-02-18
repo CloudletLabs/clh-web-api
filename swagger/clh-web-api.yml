@@ -18,12 +18,35 @@ securityDefinitions:
     description: Password auth
   Bearer:
     type: apiKey
-    description: Token auth
+    description: Require valid not-expired token
+    in: header
+    name: Authorization
+  BearerRenew:
+    type: apiKey
+    description: Require valid possibly expired token, but additionally checking user-agent
+    in: header
+    name: Authorization
+  BearerUser:
+    type: apiKey
+    description: Require valid token and user level access
+    in: header
+    name: Authorization
+  BearerAdmin:
+    type: apiKey
+    description: Require valid token and admin level access
     in: header
     name: Authorization
 
+parameters:
+  token:
+    description: Auth Token
+    in: path
+    name: token
+    required: true
+    type: string
+
 definitions:
-  info:
+  infoo:
     properties:
       name:
         type: string
@@ -77,8 +100,6 @@ definitions:
     properties:
       username:
         type: string
-      password:
-        type: string
       email:
         type: string
       name:
@@ -96,7 +117,6 @@ definitions:
         type: array
     required:
       - username
-      - password
       - email
       - name
       - avatar
@@ -135,34 +155,7 @@ definitions:
     type: object
   users:
     items:
-      properties:
-        username:
-          type: string
-        password:
-          type: string
-        email:
-          type: string
-        name:
-          type: string
-        avatar:
-          type: string
-        roles:
-          items:
-            properties:
-              roleId:
-                type: string
-            required:
-              - roleId
-            type: object
-          type: array
-      required:
-        - username
-        - password
-        - email
-        - name
-        - avatar
-        - roles
-      type: object
+      '$ref': '#/definitions/user'
     type: array
   news:
     properties:
@@ -212,32 +205,32 @@ definitions:
     type: object
   newss:
     items:
-      properties:
-        slug:
-          type: string
-        creator:
-          properties:
-            name:
-              type: string
-          required:
-            - name
-          type: object
-        createDate:
-          type: integer
-        subject:
-          type: string
-        text:
-          type: string
-      required:
-        - slug
-        - creator
-        - subject
-        - text
-        - createDate
-      type: object
+      '$ref': '#/definitions/news'
     type: array
 
 paths:
+  /not-found-example:
+    get:
+      description: Not Found
+      responses:
+        '404':
+          description: Returns Not Found object
+          x-amples:
+            - description: should return not-found object
+              response:
+                obj:
+                  message: Not found
+  /test-error-example:
+    get:
+      description: Unkown API error
+      responses:
+        '500':
+          description: Returns Error object
+          x-amples:
+            - description: should return error object
+              response:
+                obj:
+                  message: Unknown API error
   /status:
     get:
       description: Get service status
@@ -246,75 +239,127 @@ paths:
       responses:
         '200':
           description: OK
+          x-amples:
+            - description: should return OK message
+              response:
+                data: 'clh-web-api: ok'
   /info:
     get:
       description: Get service info
       responses:
         '200':
-          description: OK
+          description: Info
           schema:
-            $ref: '#/definitions/info'
+            $ref: '#/definitions/infoo'
+          x-amples:
+            - description: should return info object
+              response:
+                obj:
+                  name: clh-web-api
+                  version: '0.0.1'
+                  apiVersion: '1'
   /auth_token:
     post:
+      description: Get auth token for username+password pair
       security:
         - Basic: []
-      description: Get auth token for username+password pair
       responses:
         '200':
           description: OK
           schema:
             $ref: '#/definitions/authToken'
+          x-amples:
+            - description: should return auth-token for user
+              auth:
+                Basic:
+                  username: user
+                  password: 720bb2073cb1961d26404ba1f5fe3f4d83b183bf72b8f7328c51f132b3c362db
+              authProviderFor:
+                Bearer:
+                  x-ample: 'Bearer ${obj.auth_token}'
+                BearerUser:
+                  x-ample: 'Bearer ${obj.auth_token}'
+            - description: should return additional auth-token for user
+              auth:
+                Basic:
+                  username: user
+                  password: 720bb2073cb1961d26404ba1f5fe3f4d83b183bf72b8f7328c51f132b3c362db
+              authProviderFor:
+                BearerRenew:
+                  x-ample: 'Bearer ${obj.auth_token}'
+            - description: should return auth-token for admin
+              auth:
+                Basic:
+                  username: admin
+                  password: 28564878b1cbe4544ccfafaaa33b5326d8290e320e31c868f66de0128e73079b
+              authProviderFor:
+                BearerAdmin:
+                  x-ample: 'Bearer ${obj.auth_token}'
         '401':
           description: Unauthorized
     put:
-      security:
-        - Bearer: []
       description: Create new token instead of expired one
+      security:
+        - BearerRenew: []
       responses:
         '200':
           description: OK
           schema:
             $ref: '#/definitions/authToken'
+          x-amples:
+            - description: should renew auth-token for user
+              auth: true
+              paramProviderFor:
+                token:
+                  x-ample: '${obj.auth_token}'
         '401':
           description: Unauthorized
   '/auth_token/{token}':
+    parameters:
+      - '$ref': '#/parameters/token'
     delete:
+      description: Delete token
       security:
         - Bearer: []
-      description: Delete token
-      parameters:
-        - description: Token
-          in: path
-          name: token
-          required: true
-          type: string
       responses:
         '200':
           description: OK
+          x-amples:
+            - description: should delete auth token
+              auth: true
         '401':
           description: Unauthorized
   /user:
     get:
+      description: Get user for this token
       security:
         - Bearer: []
-      description: Get user for this token
       responses:
         '200':
           description: OK
           schema:
             $ref: '#/definitions/user'
+          x-amples:
+            - description: should return user for current token
+              auth: true
+              response:
+                obj:
+                  username: user
         '401':
           description: Unauthorized
   /users:
     get:
-      security:
-        - Bearer: []
       description: Get users
+      security:
+        - BearerAdmin: []
       responses:
         '200':
           description: OK
           schema:
             $ref: '#/definitions/users'
+          x-amples:
+            - description: should return list of the users
+              auth: true
         '401':
           description: Unauthorized
     post:
@@ -330,38 +375,70 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/user'
+          x-amples:
+            - description: should register new user
+              request:
+                body:
+                  username: test_user
+                  password: test_pass
+                  email: test@user.com
+                  name: Test User
+              response:
+                obj:
+                  username: test_user
+                  email: test@user.com
+                  name: Test User
+                  avatar: img/mockUser2.jpg
+                  roles:
+                    - roleId: USER
         '400':
           description: User with this username already exists
+          x-amples:
+            - description: should fail registering new user with already existing username
+              request:
+                body:
+                  username: test_user
+              response:
+                obj:
+                  message: Already exist
   '/users/{username}':
+    parameters:
+      - description: Uniq user ID
+        in: path
+        name: username
+        required: true
+        type: string
+        x-ample: test_user
     get:
-      security:
-        - Bearer: []
       description: Get user
-      parameters:
-        - description: Uniq user ID
-          in: path
-          name: username
-          required: true
-          type: string
+      security:
+        - BearerAdmin: []
       responses:
         '200':
           description: OK
           schema:
             $ref: '#/definitions/user'
+          x-amples:
+            - description: should return given user
+              auth: true
+              response:
+                obj:
+                  username: test_user
         '401':
           description: Unauthorized
         '404':
           description: User not found
+          x-amples:
+            - description: should return 404 when given user not exist
+              auth: true
+              request:
+                parameters:
+                  username: not_found
     put:
-      security:
-        - Bearer: []
       description: Update user
+      security:
+        - BearerAdmin: []
       parameters:
-        - description: Uniq user ID
-          in: path
-          name: username
-          required: true
-          type: string
         - in: body
           name: body
           required: true
@@ -372,23 +449,36 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/user'
+          x-amples:
+            - description: should update given user
+              auth: true
+              request:
+                body:
+                  avatar: '/new_avatar.jpg'
+              response:
+                obj:
+                  username: test_user
+                  avatar: /new_avatar.jpg
         '401':
           description: Unauthorized
         '404':
           description: User not found
+          x-amples:
+            - description: should return 404 when given user not exist
+              auth: true
+              request:
+                parameters:
+                  username: not_found
     delete:
-      security:
-        - Bearer: []
       description: Delete user
-      parameters:
-        - description: Uniq user ID
-          in: path
-          name: username
-          required: true
-          type: string
+      security:
+        - BearerAdmin: []
       responses:
         '200':
           description: OK
+          x-amples:
+            - description: should delete given user
+              auth: true
         '401':
           description: Unauthorized
   /news:
@@ -399,9 +489,11 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/newss'
+          x-amples:
+            - description: should return list of news
     post:
       security:
-        - Bearer: []
+        - BearerAdmin: []
       description: Create new news
       parameters:
         - in: body
@@ -414,36 +506,61 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/news'
+          x-amples:
+            - description: should create new news entry
+              auth: true
+              request:
+                body:
+                  slug: test-news
+                  subject: test news
+                  text: test text
+              response:
+                obj:
+                  slug: test-news
+                  subject: test news
+                  text: test text
         '400':
           description: News with this slug already exists
+          x-amples:
+            - description: should fail creating already existing slug
+              auth: true
+              request:
+                body:
+                  slug: test-news
         '401':
           description: Unauthorized
   '/news/{slug}':
+    parameters:
+      - description: URL that identifies a page in human-readable keywords
+        in: path
+        name: slug
+        required: true
+        type: string
+        x-ample: test-news
     get:
       description: Get news by slug
-      parameters:
-        - description: URL that identifies a page in human-readable keywords
-          in: path
-          name: slug
-          required: true
-          type: string
       responses:
         '200':
           description: OK
           schema:
             $ref: '#/definitions/news'
+          x-amples:
+            - description: should return news for given slug
+              response:
+                obj:
+                  slug: test-news
         '404':
           description: News with this slug not found
+          x-amples:
+            - description: should return 404 for non existing slug
+              request:
+                parameters:
+                  slug: not_found
     put:
-      security:
-        - Bearer: []
       description: Update news
+      security:
+        - BearerAdmin: []
       parameters:
-        - description: URL that identifies a page in human-readable keywords
-          in: path
-          name: slug
-          required: true
-          type: string
         - in: body
           name: body
           required: true
@@ -454,24 +571,43 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/news'
+          x-amples:
+            - description: should update existing news
+              auth: true
+              request:
+                body:
+                  text: updated text
+              response:
+                obj:
+                  slug: test-news
+                  text: updated text
         '400':
           description: News with this slug already exists
+          x-amples:
+            - description: should fail renaming slug already claimed
+              auth: true
+              request:
+                body:
+                  slug: hello-world
         '401':
           description: Unauthorized
         '404':
           description: News with this slug not found
+          x-amples:
+            - description: should fail updating 404 slug
+              auth: true
+              request:
+                parameters:
+                  slug: not_found
     delete:
-      security:
-        - Bearer: []
       description: Delete news
-      parameters:
-        - description: URL that identifies a page in human-readable keywords
-          in: path
-          name: slug
-          required: true
-          type: string
+      security:
+        - BearerAdmin: []
       responses:
         '200':
           description: OK
+          x-amples:
+            - description: should delete news
+              auth: true
         '401':
           description: Unauthorized

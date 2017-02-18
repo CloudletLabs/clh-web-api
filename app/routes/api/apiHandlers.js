@@ -17,6 +17,9 @@ module.exports = {
         res.status(status);
         res.json({message: message});
     },
+    testError: function (req, res, next) {
+        next({});
+    },
     status: function (api) {
         return function (req, res) {
             res.send(api.pJson.name + ': ok');

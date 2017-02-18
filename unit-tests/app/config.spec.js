@@ -10,10 +10,11 @@ let appConfig = require('../../app/config');
 
 describe('The config module', function() {
     it('should have functions', sinon.test(function () {
-        expect(Object.keys(appConfig).length).to.be.equal(7);
+        expect(Object.keys(appConfig).length).to.be.equal(8);
         expect(appConfig.createApp).to.be.a('function');
         expect(appConfig.morgan).to.be.a('function');
         expect(appConfig.originHeaders).to.be.a('function');
+        expect(appConfig.dates).to.be.a('function');
         expect(appConfig.parsingMiddleware).to.be.a('function');
         expect(appConfig.loggingMiddleware).to.be.a('function');
         expect(appConfig.routes).to.be.a('function');
@@ -100,6 +101,24 @@ describe('The config module', function() {
         appConfig.originHeaders(appMock);
 
         expect(appMockUseSpy).to.have.been.called;
+    }));
+
+    it('should convert dates in json', sinon.test(function () {
+        let appMock = this.stub();
+        appMock.set = this.stub();
+
+        appConfig.dates(appMock);
+        expect(appMock.set).to.calledWithExactly('json replacer', sinon.match.func);
+
+        let resultStub = this.stub();
+        let result = appMock.set.args[0][1](null, resultStub);
+        expect(result).to.equals(resultStub);
+
+        let thisMock = {
+            42: new Date('2017-02-15')
+        };
+        result = appMock.set.args[0][1].call(thisMock, 42, thisMock[42]);
+        expect(result).to.equals(1487116800);
     }));
 
     it('should configure origin headers for non-OPTIONS requests', sinon.test(function () {

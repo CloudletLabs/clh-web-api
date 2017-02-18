@@ -50,6 +50,11 @@ appConfig.morgan(app, morgan);
 appConfig.originHeaders(app);
 
 /**
+ * We want to expose outside all the Date objects as a Unix-time
+ */
+appConfig.dates(app);
+
+/**
  * Auth with passport
  */
 let passport = require('passport');

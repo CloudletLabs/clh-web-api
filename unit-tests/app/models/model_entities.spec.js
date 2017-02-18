@@ -58,7 +58,7 @@ describe('The entity', function() {
         uuidMock.v1.returns('mock uuid');
 
         populateStub = sandbox.stub();
-        populateStub.populate = sandbox.stub();
+        populateStub.populate = sandbox.stub().returns(populateStub);
 
         expectedResult = function (object) {
             this.object = object;
@@ -175,6 +175,8 @@ describe('The entity', function() {
                 'test token username');
 
             expect(populateStub.populate).to.have.been.calledWithExactly('user', 'username');
+            expect(populateStub.populate).to.have.been.calledWithExactly(
+                { path: 'user', populate: {path: 'roles', select: 'roleId'}});
 
             expect(mongooseMock.SchemaInstance.methods.hasExpired.bind(expectedResult)()).to.be.false;
             expect(utcMock.diff).to.have.been.calledWithExactly(-1, 'days');

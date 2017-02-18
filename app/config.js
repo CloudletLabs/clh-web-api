@@ -29,6 +29,14 @@ module.exports = {
             next();
         });
     },
+    dates: function (app) {
+        app.set('json replacer', function (key, value) {
+            if (this[key] instanceof Date) {
+                value = Math.round(this[key].getTime() / 1000);
+            }
+            return value;
+        });
+    },
     parsingMiddleware: function (app, cookieParser, bodyParser) {
         // parse json when application/json
         app.use(bodyParser.json());
@@ -49,6 +57,7 @@ module.exports = {
 
         // API v1 router
         let v1 = v1Api(express, app, pJson, logger, apiHandlers, passport, controllers);
+        v1.router.get('/test-error-example', apiHandlers.testError);
         v1.router.get('/status', apiHandlers.status(v1));
         v1.router.get('/info', apiHandlers.info(v1));
 
