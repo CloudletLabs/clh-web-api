@@ -6,3 +6,6 @@ services:
       - './swagger:/home/node/clh-web-api/swagger'
       - './bin:/home/node/clh-web-api/bin'
       - './unit-tests:/home/node/clh-web-api/unit-tests'
+  clh-web-api-integration-tests:
+    volumes:
+      - './swagger:/home/node/clh-web-api/swagger'

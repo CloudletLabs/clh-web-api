@@ -8,29 +8,31 @@
 - MacOS: https://docs.docker.com/engine/installation/mac/ (do not use Toolbox)
 - Windows: https://docs.docker.com/engine/installation/windows/ (Use Toolbox only if you have older than Windows 10)
 
-## Running app
+## Development process
 
-This one is really simple.
+Using Docker:
 
+```bash
+npm run dc-up # this will run the server
+npm run dc-restart # this will restart the server
+npm run dc-rebuild # this will rebuilt containers - you need this only in case of dependencies were changed
+npm run dc-test-unit # run unit tests
+npm run dc-test-integration # run integration tests
+npm run dc-down # this will destroy server and DB containers
 ```
-docker-compose up --build # this will build and run your app
-docker-compose restart # this will restart your app
-docker-compose down # this will destroy your app and DB
-docker-compose logs # this will print logs from the app and DB
+
+Locally:
+
+```bash
+npm install # install required dependencies
+npm start # start the server
+npm run test-unit # run unit tests
+npm run dc-test-integration # run integration tests
 ```
 
-Once done, you should be able to open in your browser [http://localhost:8087/?url=clh-web-api.yml](http://localhost:8087/?url=clh-web-api.yml) and see the app.
+You should be able to open in your browser [http://localhost:8087/?url=clh-web-api.yml](http://localhost:8087/?url=clh-web-api.yml) and see the app.
 
-Note at the first run on a clean DB it will create some test data. Particularly, default admin access would be ```admin/admin```.
-
-## Running tests
-
-This is important before each commit perform an automated testing, so you are confident the code quality is good enough.
-
-```
-docker-compose run clh-web-api npm run test-unit # to run Mocha unit tests
-docker-compose run clh-web-api npm run test-integration # to run Abao integration tests
-```
+Note at the first run on a clean DB it will create some test data. Particularly, default admin access would be `admin/admin`.
 
 # Resources
 
