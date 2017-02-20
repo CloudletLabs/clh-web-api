@@ -29,10 +29,10 @@
     "dc-restart": "npm run dc -- restart",
     "dc-rebuild": "npm run dc-build && npm run dc-restart",
     "dc-down": "npm run dc -- down",
-    "dc-test-unit": "npm run dc -- run --no-deps --rm clh-web-api npm run test-unit",
-    "dc-swagger": "npm run dc -- -f ./docker-compose.swagger.yml run --rm clh-web-swagger",
+    "dc-test-runner": "npm run dc -- run --no-deps --rm clh-web-api",
+    "dc-test-unit": "npm run dc-test-runner -- npm run test-unit",
     "dc-test-integration": "npm run dc-test-integration-runner -- -u http://clh-web-api:8087 -s ./swagger/clh-web-api.yml",
-    "dc-test-integration-runner": "npm run dc-swagger -- npm run test-integration-runner"
+    "dc-test-integration-runner": "npm run dc-test-runner -- npm run test-integration-runner"
   },
   "dependencies": {
     "express": "=4.14.1",

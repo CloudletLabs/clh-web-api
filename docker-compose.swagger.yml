@@ -1,8 +1,0 @@
-version: '2'
-services:
-  clh-web-swagger:
-    build: .
-    links:
-      - clh-web-api
-    volumes:
-      - './swagger:/home/node/clh-web-api/swagger'
