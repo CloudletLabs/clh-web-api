@@ -23,7 +23,7 @@
     "test-unit": "NODE_ENV=test nyc mocha './unit-tests/**/*.spec.js'",
     "test-integration": "npm run test-integration--runner -- -u http://localhost:8087 -s ./swagger/clh-web-api.yml",
     "test-integration-runner": "NODE_ENV=test swagger-t-str",
-    "predc": "eval '$(docker-machine env)' || true",
+    "predc": "cmd /c \"@FOR /f \"tokens=*\" %i IN ('docker-machine env') DO @%i'\" || REM || true",
     "dc": "docker-compose -f ./docker-compose.yml -f ./docker-compose.local.yml",
     "dc-build": "npm run dc -- build",
     "dc-up": "npm run dc -- up",
