@@ -22,18 +22,7 @@
     "start": "node ./bin/clh-web-api",
     "test-unit": "NODE_ENV=test nyc mocha './unit-tests/**/*.spec.js'",
     "test-integration": "npm run test-integration--runner -- -u http://localhost:8087 -s ./swagger/clh-web-api.yml",
-    "test-integration-runner": "NODE_ENV=test swagger-t-str",
-    "predc": "cmd /c \"@FOR /f \"tokens=*\" %i IN ('docker-machine env') DO @%i'\" || REM || true",
-    "dc": "docker-compose -f ./docker-compose.yml -f ./docker-compose.local.yml",
-    "dc-build": "npm run dc -- build",
-    "dc-up": "npm run dc -- up",
-    "dc-restart": "npm run dc -- restart",
-    "dc-rebuild": "npm run dc-build && npm run dc-restart",
-    "dc-down": "npm run dc -- down",
-    "dc-test-runner": "npm run dc -- run --no-deps --rm clh-web-api",
-    "dc-test-unit": "npm run dc-test-runner -- npm run test-unit",
-    "dc-test-integration": "npm run dc-test-integration-runner -- -- -u http://clh-web-api:8087 -s ./swagger/clh-web-api.yml",
-    "dc-test-integration-runner": "npm run dc-test-runner -- npm run test-integration-runner"
+    "test-integration-runner": "NODE_ENV=test swagger-t-str"
   },
   "dependencies": {
     "express": "=4.14.1",

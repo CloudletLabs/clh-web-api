@@ -10,18 +10,54 @@
 
 ## Development process
 
-Using Docker:
 
-```bash
-npm run dc-up # this will run the server
-npm run dc-restart # this will restart the server
-npm run dc-rebuild # this will rebuilt containers - you need this only in case of dependencies were changed
-npm run dc-test-unit # run unit tests
-npm run dc-test-integration # run integration tests
-npm run dc-down # this will destroy server and DB containers
+### Preparing Docker
+
+Skip this if you use native Docker (HyperV or OSX native hypervisor)
+
+If we use docker with virtualbox, before we do anything else we need to prepare current cmd/bash session to work with it.
+I could be done in the following way:
+
+Windows:
+
+```cmd
+@FOR /f "tokens=*" %i IN ('docker-machine env') DO @%i
 ```
 
-Locally:
+Linux/Mac:
+
+```bash
+eval "$(docker-machine env)"
+```
+
+### Using Docker
+
+Use the following command to do various things with Docker:
+
+```bash
+docker-compose -f ./docker-compose.yml -f ./docker-compose.local.yml [command]
+```
+
+Available commands:
+
+```
+build # build container
+up # this will run the server
+restart # this will restart the server
+down # this will destroy server and DB containers
+```
+
+Running tests is somehow harder since we gonna use `run` Docker command passing some arguments and other commands inside.
+Also you need to make sure your server is running before you start integration tests.
+
+Running tests:
+
+```bash
+docker-compose <set of files> run --no-deps --rm clh-web-api npm run test-unit # run unit tests
+docker-compose <set of files> run --no-deps --rm clh-web-api npm run test-integration-runner -- -u http://clh-web-api:8087 -s ./swagger/clh-web-api.yml # run integration tests
+```
+
+### Locally
 
 ```bash
 npm install # install required dependencies
