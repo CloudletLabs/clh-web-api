@@ -10,21 +10,23 @@ module.exports = function (modelHelpers, connection, mongoose) {
         email: {type: String, required: true},
         name: {type: String, required: true},
         avatar: String,
-        roles: [{type: mongoose.Schema.Types.ObjectId, ref: 'UserRole'}]
+        roles: [{type: mongoose.Schema.Types.ObjectId, ref: 'UserRole'}],
+        flag : {type: boolean}
     });
 
     userSchema.methods.toString = function () {
         return this.username;
     };
 
-    userSchema.statics.generateNew = function (username, password, email, name, avatar, defaultRole) {
+    userSchema.statics.generateNew = function (username, password, email, name, avatar, defaultRole, flag) {
         return new User({
             username: username,
             password: password,
             email: email,
             name: name,
             avatar: avatar,
-            roles: [defaultRole]
+            roles: [defaultRole],
+            flag : {type: boolean, required: true}
         });
     };
 

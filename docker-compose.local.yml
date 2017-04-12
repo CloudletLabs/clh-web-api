@@ -2,7 +2,7 @@ version: '2'
 services:
   clh-web-api:
     volumes:
-      - '$PWD/app:/home/node/clh-web-api/app'
-      - '$PWD/swagger:/home/node/clh-web-api/swagger'
-      - '$PWD/bin:/home/node/clh-web-api/bin'
-      - '$PWD/unit-tests:/home/node/clh-web-api/unit-tests'
+      - './app:/home/node/clh-web-api/app'
+      - './swagger:/home/node/clh-web-api/swagger'
+      - './bin:/home/node/clh-web-api/bin'
+      - './unit-tests:/home/node/clh-web-api/unit-tests'
