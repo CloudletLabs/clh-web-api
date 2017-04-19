@@ -11,14 +11,14 @@ module.exports = function (modelHelpers, connection, mongoose) {
         name: {type: String, required: true},
         avatar: String,
         roles: [{type: mongoose.Schema.Types.ObjectId, ref: 'UserRole'}],
-        flag : {type: boolean}
+        emailConfirmed : {type: boolean}
     });
 
     userSchema.methods.toString = function () {
         return this.username;
     };
 
-    userSchema.statics.generateNew = function (username, password, email, name, avatar, defaultRole, flag) {
+    userSchema.statics.generateNew = function (username, password, email, name, avatar, defaultRole,) {
         return new User({
             username: username,
             password: password,
@@ -26,7 +26,7 @@ module.exports = function (modelHelpers, connection, mongoose) {
             name: name,
             avatar: avatar,
             roles: [defaultRole],
-            flag : {type: boolean, required: true}
+            emailConfirmed: false
         });
     };
 

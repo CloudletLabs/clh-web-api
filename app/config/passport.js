@@ -4,7 +4,6 @@ module.exports = function (passport, passportHelpers, models, moment, BasicStrat
 
     let UserAuthToken = models.userAuthToken;
     let User = models.user;
-    let flag = User.flag;
 
     /**
      * Strategy for username+password auth
@@ -13,11 +12,11 @@ module.exports = function (passport, passportHelpers, models, moment, BasicStrat
         function (username, password, done) {
             User.findOne({
                 username: username,
-                password: password
+                password: password,
+                emailConfirmed: true
             }, function (err, user) {
                 if (err) return done(err);
                 if (!user) return done(null, false);
-                if (flag = false) return done(null, false);
                 return done(null, user);
             });
         }
