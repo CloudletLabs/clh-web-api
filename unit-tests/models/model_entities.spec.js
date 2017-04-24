@@ -126,6 +126,7 @@ describe('The entity', function() {
                 email: {type: String, required: true},
                 name: {type: String, required: true},
                 avatar: String,
+                emailConfirmed : {type: boolean, required: true},
                 roles: [{type: mongooseMock.Schema.Types.ObjectId, ref: 'UserRole'}]
             };
             expectedResult.username = 'test username';
@@ -143,6 +144,7 @@ describe('The entity', function() {
                 email: 'test email',
                 name: 'test name',
                 avatar: 'test avatar',
+                emailConfirmed: 'test emailConfirmed',
                 roles: ['test defaultRole']
             });
         });
