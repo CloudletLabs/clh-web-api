@@ -10,7 +10,8 @@ module.exports = function (modelHelpers, connection, mongoose) {
         email: {type: String, required: true},
         name: {type: String, required: true},
         avatar: String,
-        roles: [{type: mongoose.Schema.Types.ObjectId, ref: 'UserRole'}]
+        roles: [{type: mongoose.Schema.Types.ObjectId, ref: 'UserRole'}],
+        emailConfirmed : {type: boolean, default: false}
     });
 
     userSchema.methods.toString = function () {
@@ -24,7 +25,8 @@ module.exports = function (modelHelpers, connection, mongoose) {
             email: email,
             name: name,
             avatar: avatar,
-            roles: [defaultRole]
+            roles: [defaultRole],
+            emailConfirmed: false
         });
     };
 
