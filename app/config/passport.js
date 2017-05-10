@@ -13,7 +13,7 @@ module.exports = function (passport, passportHelpers, models, moment, BasicStrat
             User.findOne({
                 username: username,
                 password: password,
-                emailConfirmed: true
+                emailConfirmed: false
             }, function (err, user) {
                 if (err) return done(err);
                 if (!user) return done(null, false);

@@ -11,14 +11,14 @@ module.exports = function (modelHelpers, connection, mongoose) {
         name: {type: String, required: true},
         avatar: String,
         roles: [{type: mongoose.Schema.Types.ObjectId, ref: 'UserRole'}],
-        emailConfirmed : {type: boolean}
+        emailConfirmed : {type: boolean, default: false}
     });
 
     userSchema.methods.toString = function () {
         return this.username;
     };
 
-    userSchema.statics.generateNew = function (username, password, email, name, avatar, defaultRole,) {
+    userSchema.statics.generateNew = function (username, password, email, name, avatar, defaultRole) {
         return new User({
             username: username,
             password: password,
